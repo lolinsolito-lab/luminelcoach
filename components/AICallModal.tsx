@@ -3,7 +3,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { PhoneXMarkIcon, MicrophoneIcon, MicrophoneIcon as MicrophoneSolid, SparklesIcon } from '@heroicons/react/24/solid';
 import { GoogleGenAI } from "@google/genai";
-import { LUMINEL_SYSTEM_INSTRUCTION } from '../services/geminiService';
+import { LUMINEL_SYSTEM_PROMPT as LUMINEL_SYSTEM_INSTRUCTION } from '../lib/coach/system-prompt';
 
 interface AICallModalProps {
   onClose: () => void;

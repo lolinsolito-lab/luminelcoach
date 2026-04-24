@@ -11,7 +11,7 @@ import {
   XMarkIcon
 } from '@heroicons/react/24/solid';
 import { GoogleGenAI, Chat, GenerateContentResponse } from "@google/genai";
-import { LUMINEL_SYSTEM_INSTRUCTION } from '../services/geminiService';
+import { LUMINEL_SYSTEM_PROMPT as LUMINEL_SYSTEM_INSTRUCTION } from '../lib/coach/system-prompt';
 import { ChatMessage } from '../types';
 import { useAuth } from '../contexts/AuthContext';
 import ChatIntroDemo from './ChatIntroDemo';
