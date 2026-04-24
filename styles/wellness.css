@@ -1,0 +1,232 @@
+/* ============================================
+   LUMINEL WELLNESS THEME
+   Luminous Transformation Palette
+   ============================================ */
+
+/* Luminel Color Scheme */
+:root {
+    /* Primary - Lavender (Spiritual Transformation) */
+    --wellness-primary: #A855F7;
+    --wellness-primary-light: #C084FC;
+    --wellness-primary-lighter: #E9D5FF;
+
+    /* Secondary - Sage (Growth & Wellness) */
+    --wellness-secondary: #10B981;
+    --wellness-secondary-light: #6EE7B7;
+    --wellness-secondary-lighter: #A7F3D0;
+
+    /* Accent - Gold (Illumination) */
+    --wellness-accent: #FBBF24;
+    --wellness-accent-light: #FCD34D;
+    --wellness-accent-lighter: #FEF3C7;
+
+    /* Luminel Accents */
+    --wellness-light: #F8F9FA;
+    /* Pearl White */
+    --wellness-sakura: #FBCFE8;
+    /* Sakura Pink */
+    --wellness-calm: #DBEAFE;
+    /* Calm Blue */
+    --wellness-peach: #FED7AA;
+    /* Soft Peach */
+
+    /* Legacy support */
+    --wellness-success: #10B981;
+    --wellness-highlight: #FBBF24;
+    --wellness-meditation: #F3E8FF;
+    --wellness-warm: #FEF3C7;
+    --wellness-earth: #92400E;
+}
+
+/* ============================================
+   WELLNESS ANIMATIONS
+   ============================================ */
+
+@keyframes gentle-float {
+
+    0%,
+    100% {
+        transform: translateY(0px);
+    }
+
+    50% {
+        transform: translateY(-4px);
+    }
+}
+
+@keyframes soft-glow {
+
+    0%,
+    100% {
+        box-shadow: 0 4px 20px rgba(168, 85, 247, 0.15);
+    }
+
+    50% {
+        box-shadow: 0 8px 30px rgba(168, 85, 247, 0.25);
+    }
+}
+
+@keyframes peaceful-pulse {
+
+    0%,
+    100% {
+        opacity: 0.8;
+    }
+
+    50% {
+        opacity: 1;
+    }
+}
+
+/* ============================================
+   WELLNESS COMPONENTS
+   ============================================ */
+
+.wellness-card {
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow:
+        0 8px 32px rgba(0, 0, 0, 0.04),
+        0 4px 16px rgba(0, 0, 0, 0.02);
+    border-radius: 1rem;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.dark .wellness-card {
+    background: rgba(15, 23, 42, 0.8);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow:
+        0 8px 32px rgba(0, 0, 0, 0.2),
+        0 4px 16px rgba(0, 0, 0, 0.1);
+}
+
+.wellness-card:hover {
+    transform: translateY(-2px);
+    box-shadow:
+        0 12px 40px rgba(0, 0, 0, 0.08),
+        0 6px 20px rgba(0, 0, 0, 0.04);
+}
+
+/* Gradients */
+.gentle-gradient {
+    background: linear-gradient(135deg, var(--wellness-primary) 0%, var(--wellness-primary-light) 100%);
+}
+
+.nature-gradient {
+    background: linear-gradient(135deg, var(--wellness-secondary) 0%, var(--wellness-secondary-light) 100%);
+}
+
+.warm-gradient {
+    background: linear-gradient(135deg, var(--wellness-accent) 0%, var(--wellness-accent-light) 100%);
+}
+
+.luminel-gradient {
+    background: linear-gradient(135deg, var(--wellness-primary-lighter) 0%, var(--wellness-sakura) 50%, var(--wellness-peach) 100%);
+}
+
+/* Animation Utilities */
+.floating-gentle {
+    animation: gentle-float 4s ease-in-out infinite;
+}
+
+.soft-glow {
+    animation: soft-glow 3s ease-in-out infinite;
+}
+
+.peaceful-pulse {
+    animation: peaceful-pulse 2s ease-in-out infinite;
+}
+
+/* Gradient Text */
+.wellness-text {
+    background: linear-gradient(135deg, var(--wellness-primary), var(--wellness-secondary));
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+/* ============================================
+   WELLNESS UTILITIES
+   ============================================ */
+
+.wellness-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 1rem;
+}
+
+@media (min-width: 768px) {
+    .wellness-container {
+        padding: 1.5rem;
+    }
+}
+
+@media (min-width: 1024px) {
+    .wellness-container {
+        padding: 2rem;
+    }
+}
+
+/* Wellness Status Indicator */
+.wellness-status-active {
+    position: relative;
+}
+
+.wellness-status-active::before {
+    content: '';
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    background-color: var(--wellness-success);
+    border-radius: 50%;
+    animation: peaceful-pulse 2s ease-in-out infinite;
+}
+
+/* Wellness Progress Bar */
+.wellness-progress {
+    position: relative;
+    width: 100%;
+    height: 12px;
+    background-color: rgba(0, 0, 0, 0.05);
+    border-radius: 9999px;
+    overflow: hidden;
+}
+
+.dark .wellness-progress {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.wellness-progress-bar {
+    height: 100%;
+    border-radius: 9999px;
+    transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Wellness Badge */
+.wellness-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.wellness-badge-primary {
+    background-color: rgba(168, 85, 247, 0.1);
+    color: var(--wellness-primary);
+}
+
+.wellness-badge-success {
+    background-color: rgba(16, 185, 129, 0.1);
+    color: var(--wellness-secondary);
+}
+
+.wellness-badge-highlight {
+    background-color: rgba(251, 191, 36, 0.1);
+    color: var(--wellness-accent);
+}
