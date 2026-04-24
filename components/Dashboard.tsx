@@ -1,169 +1,189 @@
-import React from 'react';
-import { motion } from 'framer-motion';
-import {
-  FireIcon,
-  TrophyIcon,
-  ClockIcon,
-  UserGroupIcon
-} from '@heroicons/react/24/outline';
-
-// Components
-import LuminelInsightCard from './dashboard/LuminelInsightCard';
-import QuickStatsCard from './dashboard/QuickStatsCard';
-import ProgressChart from './dashboard/ProgressChart';
-import TodayFocus from './dashboard/TodayFocus';
-import ActiveCourses from './dashboard/ActiveCourses';
-import RecommendedContent from './dashboard/RecommendedContent';
-import QuickActions from './dashboard/QuickActions';
-import CommunityPulse from './dashboard/CommunityPulse';
-import EmotionalCheckin from './dashboard/EmotionalCheckin';
-import AICompanion from './dashboard/AICompanion';
-import TransformationInsights from './dashboard/TransformationInsights';
-import GrowthJourneyMap from './dashboard/GrowthJourneyMap';
-import SakuraEffect from './SakuraEffect';
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
+import { cn } from '@/lib/utils';
 
 const Dashboard: React.FC = () => {
-  // Mock user data - in real app would come from context/auth
-  const user = {
-    name: "Alex",
-    streak: 12,
-    level: 5,
-    totalMinutes: 340,
-    communityRank: 8
-  };
+  const navigate = useNavigate();
+  const { user } = useAuth();
+  const [selectedMood, setSelectedMood] = useState<number | null>(0);
+
+  const userName = user?.user_metadata?.full_name?.split(' ')[0] || 'Michael';
+
+  const moods = [
+    { emoji: '🔥', label: 'Focussato' },
+    { emoji: '✨', label: 'Ispirato' },
+    { emoji: '🌊', label: 'Calmo' },
+    { emoji: '😤', label: 'Ansioso' },
+    { emoji: '😔', label: 'Stanco' },
+    { emoji: '🌑', label: 'Perso' }
+  ];
 
   return (
-    <div className="relative min-h-screen pb-20">
-      {/* Background Effects */}
-      <div className="fixed inset-0 pointer-events-none z-0">
-        <SakuraEffect />
-        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-luminel-lavender-100/40 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/3" />
-        <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-luminel-sage-100/40 rounded-full blur-[100px] translate-y-1/2 -translate-x-1/3" />
+    <div className="w-full h-full animate-slide-up">
+      <div className="home-hdr">
+        <div className="hdr-label">Luminel Daily Guidance</div>
+        <div className="hdr-name">Bentornato, <em>{userName}</em></div>
+      </div>
+      
+      <div className="section-label" style={{ marginBottom: '8px' }}>Come ti senti oggi?</div>
+      <div className="mood-grid">
+        {moods.map((m, idx) => (
+          <div 
+            key={idx} 
+            className={cn("mood-chip", selectedMood === idx && "on")}
+            onClick={() => setSelectedMood(idx)}
+          >
+            <span className="me">{m.emoji}</span>
+            <span className="ml">{m.label}</span>
+          </div>
+        ))}
       </div>
 
-      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-
-        {/* === HERO SECTION === */}
-        <div className="space-y-6 mb-16">
-          {/* Emotional Check-in */}
-          <EmotionalCheckin />
-
-          {/* Luminel Insight Card */}
-          <LuminelInsightCard userName={user.name} />
-        </div>
-
-        {/* === QUICK STATS === */}
-        <div className="mb-16">
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
-            <QuickStatsCard title="Giorni di Fila" value={user.streak} icon={<FireIcon className="w-6 h-6" />} color="gold" trend={{ value: 2, isPositive: true }} delay={0.1} />
-            <QuickStatsCard title="Livello Attuale" value={`Lvl ${user.level}`} icon={<TrophyIcon className="w-6 h-6" />} color="lavender" delay={0.2} />
-            <QuickStatsCard title="Minuti Totali" value={user.totalMinutes} icon={<ClockIcon className="w-6 h-6" />} color="sage" trend={{ value: 15, isPositive: true }} delay={0.3} />
-            <QuickStatsCard title="Community Rank" value={`#${user.communityRank}`} icon={<UserGroupIcon className="w-6 h-6" />} color="blue" trend={{ value: 3, isPositive: true }} delay={0.4} />
-          </div>
-        </div>
-
-        {/* Divider */}
-        <div className="relative mb-16">
-          <div className="absolute inset-0 flex items-center" aria-hidden="true">
-            <div className="w-full border-t border-luminel-gold-soft/20" />
-          </div>
-        </div>
-
-        {/* === TODAY'S FOCUS & JOURNEY MAP === */}
-        <div className="mb-16">
-          <div className="flex items-center justify-between mb-8">
-            <h2 className="text-3xl font-bold text-slate-800 flex items-center gap-3">
-              <span className="text-4xl">🌳</span>
-              Il Tuo Percorso Oggi
-            </h2>
-          </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            {/* Left: Today's Focus */}
-            <div className="order-2 lg:order-1">
-              <TodayFocus />
+      <div className="home-grid">
+        {/* === LEFT COLUMN === */}
+        <div className="home-l">
+          {/* Quantum Core */}
+          <div className="card qcore">
+            <div className="qc-wrap">
+              <div className="qcr qcr1"><div className="qc-dot"></div></div>
+              <div className="qcr qcr2"></div>
+              <div className="qcr qcr3"></div>
+              <div className="qc-orb"></div>
             </div>
-
-            {/* Right: Growth Journey Map */}
-            <div className="order-1 lg:order-2">
-              <GrowthJourneyMap />
-            </div>
-          </div>
-        </div>
-
-        {/* Divider */}
-        <div className="relative mb-16">
-          <div className="absolute inset-0 flex items-center" aria-hidden="true">
-            <div className="w-full border-t border-luminel-gold-soft/20" />
-          </div>
-        </div>
-
-        {/* === YOUR COURSES === */}
-        <div className="mb-16">
-          <div className="flex items-center justify-between mb-8">
-            <h2 className="text-3xl font-bold text-slate-800 flex items-center gap-3">
-              <span className="text-4xl">📚</span>
-              I Tuoi Corsi
-            </h2>
-          </div>
-
-          <div className="space-y-8">
-            <ActiveCourses />
-            <RecommendedContent />
-          </div>
-        </div>
-
-        {/* Divider */}
-        <div className="relative mb-16">
-          <div className="absolute inset-0 flex items-center" aria-hidden="true">
-            <div className="w-full border-t border-luminel-gold-soft/20" />
-          </div>
-        </div>
-
-        {/* === TRANSFORMATION INSIGHTS === */}
-        <div className="mb-16">
-          <div className="flex items-center justify-between mb-8">
-            <h2 className="text-3xl font-bold text-slate-800 flex items-center gap-3">
-              <span className="text-4xl">✨</span>
-              La Tua Trasformazione
-            </h2>
-            <div className="hidden md:block px-4 py-2 bg-green-50 rounded-full border border-green-200">
-              <span className="text-sm font-bold text-green-600">+18% questa settimana</span>
+            <div className="qc-info">
+              <div className="ql">⬡ Nucleo Identitario · Allineato</div>
+              <div className="qc-quote">"La trasformazione non è un evento.<br/>È un campo di forza che diventa te."</div>
+              <button className="btn btn-outline" onClick={() => navigate('/chat')}>
+                Inizia sessione profonda →
+              </button>
             </div>
           </div>
 
-          <TransformationInsights />
-        </div>
-
-        {/* Divider */}
-        <div className="relative mb-16">
-          <div className="absolute inset-0 flex items-center" aria-hidden="true">
-            <div className="w-full border-t border-luminel-gold-soft/20" />
-          </div>
-        </div>
-
-        {/* === QUICK ACTIONS === */}
-        <div className="mb-16">
-          <div className="flex items-center justify-between mb-8">
-            <h2 className="text-3xl font-bold text-slate-800 flex items-center gap-3">
-              <span className="text-4xl">⚡</span>
-              Azioni Rapide
-            </h2>
-          </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <div className="lg:col-span-2">
-              <QuickActions />
+          {/* Stats Grid */}
+          <div className="stats-grid">
+            <div className="sc">
+              <div className="sc-l">Giorni di fila</div>
+              <div className="sc-v">12</div>
+              <div className="sc-d">↑ 2% settimana</div>
             </div>
-            <div className="lg:col-span-1">
-              <CommunityPulse />
+            <div className="sc">
+              <div className="sc-l">Livello</div>
+              <div className="sc-v">Sovrano</div>
+              <div className="sc-d">Lvl 5 · 340 xp</div>
+            </div>
+            <div className="sc">
+              <div className="sc-l">Minuti totali</div>
+              <div className="sc-v">340</div>
+              <div className="sc-d">↑ 15% mese</div>
+            </div>
+            <div className="sc">
+              <div className="sc-l">Community rank</div>
+              <div className="sc-v">#8</div>
+              <div className="sc-d">Top 3% globale</div>
             </div>
           </div>
+
+          {/* Reality Quest Card */}
+          <div className="card-gold rq-card">
+            <div className="rq-badge"><div className="rq-dot"></div>Reality Quest · AI · Oggi</div>
+            <div className="rq-title">La Decisione Rimasta nel Cassetto</div>
+            <div className="rq-body">Ho rilevato un pattern di evitamento nelle tue ultime 4 sessioni. Identifica <em>una</em> decisione che rimandi da più di 2 settimane — e prendila entro le prossime 3 ore. Non analizzarla. Agisci.</div>
+            <div className="rq-cta">⏱ 3 ore rimanenti · Missione critica</div>
+          </div>
         </div>
 
-        {/* AI Companion */}
-        <AICompanion />
+        {/* === RIGHT COLUMN === */}
+        <div className="home-r">
+          {/* Active Journey */}
+          <div className="card rh-card">
+            <div className="rh-t">Il tuo percorso attivo</div>
+            <div className="ji">
+              <div className="jdot" style={{ background: '#9B74E0', boxShadow: '0 0 5px rgba(155,116,224,.4)' }}></div>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontSize: '12px' }}>Deep Transformation</div>
+                <div className="jbar">
+                  <div className="jfill" style={{ width: '38%', background: '#9B74E0' }}></div>
+                </div>
+                <div style={{ fontSize: '10px', color: 'var(--muted)' }}>Day 22/60</div>
+              </div>
+            </div>
+            <div className="ji">
+              <div className="jdot" style={{ background: '#4A9ED4', boxShadow: '0 0 5px rgba(74,158,212,.4)' }}></div>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontSize: '12px' }}>Emotional Intelligence</div>
+                <div className="jbar">
+                  <div className="jfill" style={{ width: '65%', background: '#4A9ED4' }}></div>
+                </div>
+                <div style={{ fontSize: '10px', color: 'var(--muted)' }}>65% completato</div>
+              </div>
+            </div>
+            <div className="ji">
+              <div className="jdot" style={{ background: 'var(--gold)', boxShadow: '0 0 5px rgba(201,168,76,.4)' }}></div>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontSize: '12px' }}>The Art of Mindful Living</div>
+                <div className="jbar">
+                  <div className="jfill" style={{ width: '85%', background: 'var(--gold)' }}></div>
+                </div>
+                <div style={{ fontSize: '10px', color: 'var(--muted)' }}>Day 18/21 · Quasi fatto!</div>
+              </div>
+            </div>
+          </div>
 
+          {/* Community Highlight */}
+          <div className="card rh-card">
+            <div className="rh-t">Community · Highlight</div>
+            <div className="ca-item">
+              <div className="cav">S</div>
+              <div>
+                <div className="cn">Sarah Chen <span style={{ fontSize: '10px', color: 'var(--gold)' }}>Lv.5</span></div>
+                <div className="cl">30-day meditation streak! 🕯</div>
+              </div>
+            </div>
+            <div className="ca-item">
+              <div className="cav">R</div>
+              <div>
+                <div className="cn">Roberto M. <span style={{ fontSize: '10px', color: 'var(--gold)' }}>Lv.8</span></div>
+                <div className="cl">Quest "Deep Dive" completata</div>
+              </div>
+            </div>
+            <div className="ca-item">
+              <div className="cav">A</div>
+              <div>
+                <div className="cn">Anna K. <span style={{ fontSize: '10px', color: 'var(--gold)' }}>Lv.4</span></div>
+                <div className="cl">+3 Reality Quest questa settimana</div>
+              </div>
+            </div>
+          </div>
+
+          {/* Quick Access */}
+          <div className="card rh-card">
+            <div className="rh-t">Accesso rapido</div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginTop: '4px' }}>
+              <button 
+                onClick={() => navigate('/council')} 
+                className="w-full text-left p-2 rounded-md transition-colors"
+                style={{ background: 'rgba(155,116,224,.08)', border: '.5px solid rgba(155,116,224,.25)', color: '#9B74E0', fontSize: '12px', fontFamily: 'var(--fb)' }}
+              >
+                ⬡ Convoca Il Consiglio →
+              </button>
+              <button 
+                onClick={() => navigate('/chat')} 
+                className="w-full text-left p-2 rounded-md transition-colors"
+                style={{ background: 'var(--gold-glow)', border: '.5px solid var(--gold-b)', color: 'var(--gold)', fontSize: '12px', fontFamily: 'var(--fb)' }}
+              >
+                ✦ Sessione con Luminel →
+              </button>
+              <button 
+                onClick={() => navigate('/experiences')} 
+                className="w-full text-left p-2 rounded-md transition-colors"
+                style={{ background: 'rgba(74,158,212,.06)', border: '.5px solid rgba(74,158,212,.2)', color: '#4A9ED4', fontSize: '12px', fontFamily: 'var(--fb)' }}
+              >
+                🎧 Calm Space · Binaural →
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
