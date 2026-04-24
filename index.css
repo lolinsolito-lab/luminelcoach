@@ -46,6 +46,12 @@
         --guer: #D4603A;
         --sovr: #C9A84C;
 
+        /* Struttura */
+        --sw: 224px;
+        --th: 56px;
+        --fd: 'Cormorant Garamond', serif;
+        --fb: 'DM Sans', sans-serif;
+
         /* Core Colors Mapping per componenti Tailwind/Shadcn */
         --background: 240 43% 5%; /* #06060F approx */
         --foreground: 43 32% 91%; /* #F0EBE0 approx */
@@ -560,6 +566,18 @@ input[type="range"]::-moz-range-thumb:hover {
         animation: none !important;
     }
 }
+
+/* BASE OVERRIDES */
+html,body{height:100%;overflow:hidden;}
+body{background:var(--void);color:var(--white);font-family:var(--fb);font-size:14px;font-weight:300;line-height:1.6;-webkit-font-smoothing:antialiased;}
+::-webkit-scrollbar{width:3px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--dim);border-radius:2px}
+.app{display:flex;height:100vh;overflow:hidden;}
+
+/* BASE OVERRIDES */
+html,body{height:100%;overflow:hidden;}
+body{background:var(--void);color:var(--white);font-family:var(--fb);font-size:14px;font-weight:300;line-height:1.6;-webkit-font-smoothing:antialiased;}
+::-webkit-scrollbar{width:3px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--dim);border-radius:2px}
+.app{display:flex;height:100vh;overflow:hidden;}
 
 /* SIDEBAR */
 .sb{width:var(--sw);min-width:var(--sw);background:var(--deep);border-right:.5px solid var(--glass-b);display:flex;flex-direction:column;padding:28px 0 20px;position:relative;z-index:10;transition:width .2s;}
