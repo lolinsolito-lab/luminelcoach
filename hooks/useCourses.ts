@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import coursesData from '../data/courses.json';
 
 export interface Course {
@@ -28,131 +28,83 @@ interface UseCoursesParams {
   searchQuery?: string;
 }
 
+const PLAN_ORDER: Record<string, number> = { free: 0, premium: 1, vip: 2 };
+
 export function useCourses({
   userPlan,
   activeCategory = 'all',
   selectedLevel = 'all',
   searchQuery = ''
 }: UseCoursesParams) {
-  const [courses, setCourses] = useState<Course[]>([]);
-  const [filteredCourses, setFilteredCourses] = useState<Course[]>([]);
+  const [courses] = useState<Course[]>(coursesData as Course[]);
   const [unlockedCourses, setUnlockedCourses] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Load courses on mount
+  // Init unlocked courses based on plan
   useEffect(() => {
-    const loadCourses = async () => {
-      setIsLoading(true);
-      try {
-        setCourses(coursesData as Course[]);
+    const plan = userPlan ?? 'free';
+    const unlocked = courses
+      .filter(c => PLAN_ORDER[plan] >= PLAN_ORDER[c.plan])
+      .map(c => c.id);
+    setUnlockedCourses(unlocked);
+    setIsLoading(false);
+  }, [userPlan, courses]);
 
-        // Load unlocked courses from localStorage
-        const storedUnlockedCourses = localStorage.getItem('unlockedCourses');
-        if (storedUnlockedCourses) {
-          setUnlockedCourses(JSON.parse(storedUnlockedCourses));
-        } else {
-          // Set at least one free course as unlocked by default
-          const defaultUnlocked = ['meditation-fundamentals'];
-          setUnlockedCourses(defaultUnlocked);
-          localStorage.setItem('unlockedCourses', JSON.stringify(defaultUnlocked));
-        }
+  // Filter courses — supporta italiano, inglese e "all"
+  const filteredCourses = useMemo(() => {
+    const q = searchQuery.toLowerCase().trim();
+    const cat = activeCategory.toLowerCase();
+    const lvl = selectedLevel.toLowerCase();
 
-        // Auto-unlock courses based on user plan
-        if (userPlan) {
-          autoUnlockCoursesByPlan(userPlan);
-        }
-      } catch (error) {
-        console.error('Error loading courses:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
+    return courses.filter(course => {
+      // Categoria: "all" mostra tutto, altrimenti match case-insensitive
+      const matchCat = cat === 'all' || course.category.toLowerCase() === cat;
 
-    loadCourses();
-  }, [userPlan]);
+      // Livello: supporta "tutti" e "all"
+      const courseLvl = course.level.toLowerCase();
+      const matchLevel =
+        lvl === 'all' ||
+        courseLvl === 'tutti' ||
+        courseLvl === lvl ||
+        (lvl === 'beginner' && (courseLvl === 'principiante' || courseLvl === 'beginner')) ||
+        (lvl === 'intermediate' && (courseLvl === 'intermedio' || courseLvl === 'intermediate')) ||
+        (lvl === 'advanced' && (courseLvl === 'avanzato' || courseLvl === 'advanced')) ||
+        (lvl === 'principiante' && (courseLvl === 'beginner' || courseLvl === 'principiante')) ||
+        (lvl === 'intermedio' && (courseLvl === 'intermediate' || courseLvl === 'intermedio')) ||
+        (lvl === 'avanzato' && (courseLvl === 'advanced' || courseLvl === 'avanzato'));
 
-  // Auto-unlock courses based on plan
-  const autoUnlockCoursesByPlan = (plan: string) => {
-    let coursesToUnlock: string[] = [];
+      // Ricerca su titolo, descrizione e istruttore
+      const matchSearch =
+        q === '' ||
+        course.title.toLowerCase().includes(q) ||
+        course.description.toLowerCase().includes(q) ||
+        course.instructor.toLowerCase().includes(q) ||
+        course.category.toLowerCase().includes(q);
 
-    if (plan === 'free' || plan === 'premium' || plan === 'vip') {
-      // Unlock all free courses
-      coursesToUnlock = courses.filter(course => course.plan === 'free').map(course => course.id);
-    }
-
-    if (plan === 'premium' || plan === 'vip') {
-      // Also unlock premium courses
-      const premiumCourses = courses.filter(course => course.plan === 'premium').map(course => course.id);
-      coursesToUnlock = [...coursesToUnlock, ...premiumCourses];
-    }
-
-    if (plan === 'vip') {
-      // Also unlock VIP courses
-      const vipCourses = courses.filter(course => course.plan === 'vip').map(course => course.id);
-      coursesToUnlock = [...coursesToUnlock, ...vipCourses];
-    }
-
-    // Update unlocked courses
-    setUnlockedCourses(prev => {
-      const newUnlocked = [...new Set([...prev, ...coursesToUnlock])];
-      localStorage.setItem('unlockedCourses', JSON.stringify(newUnlocked));
-      return newUnlocked;
+      return matchCat && matchLevel && matchSearch;
     });
-  };
-
-  // Filter courses by category, level, and search
-  useEffect(() => {
-    if (courses.length > 0) {
-      const filtered = courses.filter(course => {
-        const matchesCategory = activeCategory === 'all' || course.category.toLowerCase() === activeCategory.toLowerCase();
-        const matchesLevel = selectedLevel === 'all' || course.level.toLowerCase() === selectedLevel.toLowerCase();
-        const matchesSearch = !searchQuery ||
-          course.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          course.description.toLowerCase().includes(searchQuery.toLowerCase());
-
-        return matchesCategory && matchesLevel && matchesSearch;
-      });
-
-      setFilteredCourses(filtered);
-    }
   }, [courses, activeCategory, selectedLevel, searchQuery]);
 
-  // Unlock a specific course
-  const unlockCourse = (courseId: string) => {
+  // Split per tier
+  const freeCourses = useMemo(() => filteredCourses.filter(c => c.plan === 'free'), [filteredCourses]);
+  const premiumCourses = useMemo(() => filteredCourses.filter(c => c.plan === 'premium'), [filteredCourses]);
+  const vipCourses = useMemo(() => filteredCourses.filter(c => c.plan === 'vip'), [filteredCourses]);
+
+  // Check se il corso è accessibile
+  const isCourseUnlocked = (courseId: string) => unlockedCourses.includes(courseId);
+
+  // Unlock manuale (es. acquisto singolo in futuro)
+  const unlockCourse = (courseId: string): boolean => {
     const course = courses.find(c => c.id === courseId);
     if (!course) return false;
-
-    let canUnlock = false;
-
-    if (course.plan === 'free') {
-      canUnlock = true;
-    } else if (course.plan === 'premium' && (userPlan === 'premium' || userPlan === 'vip')) {
-      canUnlock = true;
-    } else if (course.plan === 'vip' && userPlan === 'vip') {
-      canUnlock = true;
-    }
-
+    const plan = userPlan ?? 'free';
+    const canUnlock = PLAN_ORDER[plan] >= PLAN_ORDER[course.plan];
     if (canUnlock && !unlockedCourses.includes(courseId)) {
-      setUnlockedCourses(prev => {
-        const newUnlocked = [...prev, courseId];
-        localStorage.setItem('unlockedCourses', JSON.stringify(newUnlocked));
-        return newUnlocked;
-      });
+      setUnlockedCourses(prev => [...prev, courseId]);
       return true;
     }
-
     return false;
   };
-
-  // Check if course is unlocked
-  const isCourseUnlocked = (courseId: string) => {
-    return unlockedCourses.includes(courseId);
-  };
-
-  // Split courses by plan
-  const freeCourses = filteredCourses.filter(course => course.plan === 'free');
-  const premiumCourses = filteredCourses.filter(course => course.plan === 'premium');
-  const vipCourses = filteredCourses.filter(course => course.plan === 'vip');
 
   return {
     courses,
@@ -163,6 +115,6 @@ export function useCourses({
     unlockedCourses,
     isLoading,
     unlockCourse,
-    isCourseUnlocked
+    isCourseUnlocked,
   };
 }

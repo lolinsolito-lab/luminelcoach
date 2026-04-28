@@ -1,342 +1,308 @@
-import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import React, { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import {
-    MoonIcon,
-    MagnifyingGlassIcon,
-    PlayCircleIcon,
-    ClockIcon,
-    LockClosedIcon,
-    SparklesIcon,
-    HeartIcon,
-    PhotoIcon
-} from '@heroicons/react/24/outline';
-import { MoonIcon as MoonSolid } from '@heroicons/react/24/solid';
-import { meditationData, goals, durations, Meditation } from './data';
-import { useAuth } from '../../contexts/AuthContext';
-import { useNavigate } from 'react-router-dom';
+    MagnifyingGlassIcon, PlayCircleIcon, ClockIcon,
+    LockClosedIcon, SparklesIcon, HeartIcon, XMarkIcon, PauseIcon,
+} from "@heroicons/react/24/outline";
+import { meditationData, goals, durations, Meditation } from "./data";
+import { useAuth } from "../../contexts/AuthContext";
+import { useNavigate } from "react-router-dom";
+
+const PLAN_CFG = {
+    free: { label: "FREE", color: "#4A9ED4" },
+    premium: { label: "PREMIUM", color: "#C9A84C" },
+    vip: { label: "VIP", color: "#9B74E0" },
+};
 
 const MeditationView: React.FC = () => {
     const { user } = useAuth();
     const navigate = useNavigate();
-    const [searchQuery, setSearchQuery] = useState('');
-    const [selectedGoal, setSelectedGoal] = useState<string | null>(null);
-    const [selectedDuration, setSelectedDuration] = useState<string | null>(null);
-    const [filteredMeditations, setFilteredMeditations] = useState<Meditation[]>(meditationData);
-    const [hoveredCard, setHoveredCard] = useState<string | null>(null);
+    const userPlan = (user as any)?.plan ?? "free";
+
+    const [search, setSearch] = useState("");
+    const [selGoal, setSelGoal] = useState<string | null>(null);
+    const [selDuration, setSelDuration] = useState<string | null>(null);
+    const [filtered, setFiltered] = useState<Meditation[]>(meditationData);
+    const [playingId, setPlayingId] = useState<string | null>(null);
+    const [timerSecs, setTimerSecs] = useState(0);
+    const [timerRunning, setTimerRunning] = useState(false);
+    const [selCategory, setSelCategory] = useState<string | null>(null);
 
     const isUnlocked = (plan: string) => {
-        const userPlan = user?.plan || 'free';
-        if (plan === 'free') return true;
-        if (plan === 'premium' && (userPlan === 'premium' || userPlan === 'vip')) return true;
-        if (plan === 'vip' && userPlan === 'vip') return true;
+        if (plan === "free") return true;
+        if (plan === "premium" && (userPlan === "premium" || userPlan === "vip")) return true;
+        if (plan === "vip" && userPlan === "vip") return true;
         return false;
     };
 
-    const getBadgeStyle = (plan: string) => {
-        switch (plan) {
-            case 'free':
-                return 'bg-gradient-to-r from-emerald-100 to-green-50 text-emerald-700 border border-emerald-200';
-            case 'premium':
-                return 'bg-gradient-to-r from-luminel-champagne to-luminel-gold-soft/50 text-luminel-taupe border border-luminel-gold-soft';
-            case 'vip':
-                return 'bg-gradient-to-r from-luminel-gold-soft to-luminel-gold-dark text-white border border-luminel-gold-dark shadow-lg';
-            default:
-                return 'bg-slate-100 text-slate-700';
-        }
-    };
-
+    // Filter
     useEffect(() => {
-        let filtered = meditationData;
+        let f = meditationData;
+        if (search) { const q = search.toLowerCase(); f = f.filter(m => m.title.toLowerCase().includes(q) || m.description.toLowerCase().includes(q)); }
+        if (selGoal) f = f.filter(m => m.goals.includes(selGoal));
+        if (selDuration) f = f.filter(m => m.duration === selDuration);
+        if (selCategory) f = f.filter(m => m.category === selCategory);
+        setFiltered(f);
+    }, [search, selGoal, selDuration, selCategory]);
 
-        if (searchQuery) {
-            const query = searchQuery.toLowerCase();
-            filtered = filtered.filter(m =>
-                m.title.toLowerCase().includes(query) ||
-                m.description.toLowerCase().includes(query)
-            );
-        }
+    // Timer
+    useEffect(() => {
+        let t: number;
+        if (timerRunning) t = window.setInterval(() => setTimerSecs(s => s + 1), 1000);
+        return () => clearInterval(t);
+    }, [timerRunning]);
 
-        if (selectedGoal) {
-            filtered = filtered.filter(m => m.goals.includes(selectedGoal));
-        }
-
-        if (selectedDuration) {
-            filtered = filtered.filter(m => m.duration === selectedDuration);
-        }
-
-        setFilteredMeditations(filtered);
-    }, [searchQuery, selectedGoal, selectedDuration]);
+    const fmt = (s: number) => `${String(Math.floor(s / 60)).padStart(2, "0")}:${String(s % 60).padStart(2, "0")}`;
+    const categories = [...new Set(meditationData.map(m => m.category))];
+    const hasFilters = search || selGoal || selDuration || selCategory;
+    const clearAll = () => { setSearch(""); setSelGoal(null); setSelDuration(null); setSelCategory(null); };
 
     return (
-        <div className="space-y-10 pb-24 relative">
-            {/* Background Decorative Elements */}
-            <div className="fixed top-20 right-10 w-[400px] h-[400px] bg-luminel-gold-soft/10 rounded-full blur-3xl pointer-events-none animate-pulse" style={{ animationDuration: '8s' }} />
-            <div className="fixed bottom-20 left-10 w-[300px] h-[300px] bg-luminel-champagne/20 rounded-full blur-3xl pointer-events-none animate-pulse" style={{ animationDuration: '10s' }} />
+        <div className="pb-20 space-y-8">
 
-            {/* Header */}
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 relative z-10">
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="flex items-center gap-4"
-                >
-                    <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center shadow-xl shadow-purple-500/30">
-                        <MoonSolid className="w-9 h-9 text-white" />
-                    </div>
-                    <div>
-                        <h2 className="text-4xl md:text-5xl font-serif font-bold text-slate-800 mb-1">
-                            Meditation Studio
-                        </h2>
-                        <p className="text-lg text-slate-600 font-light">Coltiva pace interiore e presenza</p>
-                    </div>
-                </motion.div>
+            {/* ── HEADER ── */}
+            <motion.div initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }}
+                style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+                <div style={{ fontSize: 9, letterSpacing: ".24em", textTransform: "uppercase", color: "rgba(201,168,76,0.7)" }}>
+                    Libreria completa
+                </div>
+                <h2 style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: "clamp(28px,3.5vw,38px)", fontWeight: 400, color: "#F0EBE0" }}>
+                    Meditation <em style={{ color: "#C9A84C", fontStyle: "italic" }}>Studio</em>
+                </h2>
+                <p style={{ fontSize: 13, color: "#6A6560" }}>Coltiva pace interiore e presenza · {meditationData.length} meditazioni disponibili</p>
+            </motion.div>
 
-                {/* Search Bar */}
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.1 }}
-                    className="relative w-full md:w-80"
-                >
-                    <MagnifyingGlassIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
-                    <input
-                        type="text"
-                        placeholder="Cerca meditazione..."
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                        className="w-full pl-12 pr-6 py-3.5 rounded-2xl bg-white/80 backdrop-blur-sm border-2 border-slate-200 focus:outline-none focus:ring-2 focus:ring-luminel-gold-soft focus:border-luminel-gold-soft transition-all shadow-sm text-slate-800 placeholder:text-slate-400"
-                    />
-                </motion.div>
-            </div>
+            {/* ── SEARCH ── */}
+            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }}
+                style={{ position: "relative" }}>
+                <MagnifyingGlassIcon style={{ position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)", width: 16, height: 16, color: "#6A6560" }} />
+                <input type="text" placeholder="Cerca meditazione, tecnica, obiettivo..."
+                    value={search} onChange={e => setSearch(e.target.value)}
+                    style={{ width: "100%", paddingLeft: 42, paddingRight: 36, paddingTop: 11, paddingBottom: 11, borderRadius: 12, fontSize: 13, background: "rgba(255,255,255,0.03)", border: "0.5px solid rgba(255,255,255,0.08)", color: "#F0EBE0", outline: "none", fontFamily: "'DM Sans',sans-serif", transition: "border-color .15s" }}
+                    onFocus={e => e.target.style.borderColor = "rgba(201,168,76,0.35)"}
+                    onBlur={e => e.target.style.borderColor = "rgba(255,255,255,0.08)"} />
+                {search && (
+                    <button onClick={() => setSearch("")} style={{ position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)", background: "none", border: "none", cursor: "pointer" }}>
+                        <XMarkIcon style={{ width: 16, height: 16, color: "#6A6560" }} />
+                    </button>
+                )}
+            </motion.div>
 
-            {/* Filters */}
-            <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.2 }}
-                className="space-y-6 relative z-10"
-            >
-                {/* Goals Filter */}
+            {/* ── TIMER WIDGET ── */}
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.1 }}
+                style={{ padding: "18px 22px", borderRadius: 14, background: "rgba(201,168,76,0.06)", border: "0.5px solid rgba(201,168,76,0.2)", display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 12 }}>
                 <div>
-                    <h3 className="text-sm font-bold text-slate-600 uppercase tracking-wide mb-4 flex items-center gap-2">
-                        <SparklesIcon className="w-4 h-4 text-luminel-gold-soft" />
-                        Obiettivo
-                    </h3>
-                    <div className="flex gap-3 overflow-x-auto pb-3 scrollbar-hide">
-                        {goals.map((goal) => {
-                            const Icon = goal.icon;
-                            const isSelected = selectedGoal === goal.id;
+                    <div style={{ fontSize: 9, letterSpacing: ".2em", textTransform: "uppercase", color: "rgba(201,168,76,0.7)", marginBottom: 5 }}>Timer meditazione</div>
+                    <div style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: 36, fontWeight: 400, color: "#F0EBE0", lineHeight: 1 }}>{fmt(timerSecs)}</div>
+                </div>
+                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                    <motion.button whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}
+                        onClick={() => setTimerRunning(r => !r)}
+                        style={{ padding: "9px 20px", borderRadius: 10, fontSize: 12, fontWeight: 500, cursor: "pointer", fontFamily: "'DM Sans',sans-serif", background: timerRunning ? "rgba(212,96,58,0.12)" : "rgba(201,168,76,0.12)", color: timerRunning ? "#D4603A" : "#C9A84C", border: `0.5px solid ${timerRunning ? "rgba(212,96,58,0.3)" : "rgba(201,168,76,0.3)"}` }}>
+                        {timerRunning ? "⏸ Pausa" : "▶ Avvia"}
+                    </motion.button>
+                    <button onClick={() => { setTimerSecs(0); setTimerRunning(false); }}
+                        style={{ padding: "9px 14px", borderRadius: 10, fontSize: 12, cursor: "pointer", background: "rgba(255,255,255,0.03)", color: "#6A6560", border: "0.5px solid rgba(255,255,255,0.07)", fontFamily: "'DM Sans',sans-serif" }}>
+                        Reset
+                    </button>
+                </div>
+            </motion.div>
+
+            {/* ── CATEGORY TABS ── */}
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.12 }}>
+                <div style={{ fontSize: 9, letterSpacing: ".2em", textTransform: "uppercase", color: "#6A6560", marginBottom: 10 }}>Categorie</div>
+                <div style={{ display: "flex", gap: 7, flexWrap: "wrap" }}>
+                    {categories.map(cat => {
+                        const on = selCategory === cat;
+                        return (
+                            <motion.button key={cat} whileHover={{ y: -1 }} whileTap={{ scale: 0.97 }}
+                                onClick={() => setSelCategory(on ? null : cat)}
+                                style={{ padding: "6px 14px", borderRadius: 20, fontSize: 12, cursor: "pointer", background: on ? "rgba(201,168,76,0.1)" : "rgba(255,255,255,0.025)", border: `0.5px solid ${on ? "rgba(201,168,76,0.35)" : "rgba(255,255,255,0.07)"}`, color: on ? "#EDD980" : "#6A6560", transition: "all .15s" }}>
+                                {cat}
+                            </motion.button>
+                        );
+                    })}
+                </div>
+            </motion.div>
+
+            {/* ── FILTERS ── */}
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.15 }} style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+                {/* Goals */}
+                <div>
+                    <div style={{ fontSize: 9, letterSpacing: ".2em", textTransform: "uppercase", color: "#6A6560", marginBottom: 10, display: "flex", alignItems: "center", gap: 6 }}>
+                        <SparklesIcon style={{ width: 13, height: 13, color: "#C9A84C" }} />Obiettivo
+                    </div>
+                    <div style={{ display: "flex", gap: 7, overflowX: "auto", paddingBottom: 4 }}>
+                        {goals.map(g => {
+                            const Icon = g.icon;
+                            const on = selGoal === g.id;
                             return (
-                                <motion.button
-                                    key={goal.id}
-                                    whileHover={{ scale: 1.05 }}
-                                    whileTap={{ scale: 0.95 }}
-                                    onClick={() => setSelectedGoal(isSelected ? null : goal.id)}
-                                    className={`flex items-center gap-2.5 px-6 py-3 rounded-[1.25rem] border-2 transition-all whitespace-nowrap font-semibold shadow-sm ${isSelected
-                                            ? 'bg-gradient-to-r from-luminel-gold-soft to-luminel-gold-dark text-white border-luminel-gold-dark shadow-lg shadow-luminel-gold-soft/40'
-                                            : 'bg-white/90 backdrop-blur-sm text-slate-700 border-slate-200 hover:border-luminel-gold-soft hover:shadow-md'
-                                        }`}
-                                >
-                                    <Icon className="w-5 h-5" />
-                                    <span className="text-sm">{goal.name}</span>
+                                <motion.button key={g.id} whileHover={{ y: -1 }} whileTap={{ scale: 0.97 }}
+                                    onClick={() => setSelGoal(on ? null : g.id)}
+                                    style={{ display: "flex", alignItems: "center", gap: 6, padding: "7px 14px", borderRadius: 8, fontSize: 12, cursor: "pointer", whiteSpace: "nowrap", flexShrink: 0, background: on ? "rgba(201,168,76,0.1)" : "rgba(255,255,255,0.02)", border: `0.5px solid ${on ? "rgba(201,168,76,0.35)" : "rgba(255,255,255,0.07)"}`, color: on ? "#EDD980" : "#6A6560", transition: "all .15s" }}>
+                                    <Icon style={{ width: 13, height: 13 }} />{g.name}
                                 </motion.button>
                             );
                         })}
                     </div>
                 </div>
 
-                {/* Duration Filter */}
+                {/* Duration */}
                 <div>
-                    <h3 className="text-sm font-bold text-slate-600 uppercase tracking-wide mb-4 flex items-center gap-2">
-                        <ClockIcon className="w-4 h-4 text-luminel-gold-soft" />
-                        Durata
-                    </h3>
-                    <div className="flex gap-2 overflow-x-auto pb-3 scrollbar-hide">
-                        {durations.map((duration) => (
-                            <motion.button
-                                key={duration.value}
-                                whileHover={{ scale: 1.05 }}
-                                whileTap={{ scale: 0.95 }}
-                                onClick={() => setSelectedDuration(selectedDuration === duration.value ? null : duration.value)}
-                                className={`px-5 py-2 rounded-xl text-sm font-bold transition-all whitespace-nowrap shadow-sm ${selectedDuration === duration.value
-                                        ? 'bg-luminel-champagne text-luminel-taupe border-2 border-luminel-gold-soft/50'
-                                        : 'bg-white/70 backdrop-blur-sm text-slate-600 border-2 border-transparent hover:bg-white hover:border-slate-200'
-                                    }`}
-                            >
-                                {duration.label}
-                            </motion.button>
-                        ))}
+                    <div style={{ fontSize: 9, letterSpacing: ".2em", textTransform: "uppercase", color: "#6A6560", marginBottom: 10, display: "flex", alignItems: "center", gap: 6 }}>
+                        <ClockIcon style={{ width: 13, height: 13, color: "#C9A84C" }} />Durata
+                    </div>
+                    <div style={{ display: "flex", gap: 7, flexWrap: "wrap" }}>
+                        {durations.map(d => {
+                            const on = selDuration === d.value;
+                            return (
+                                <button key={d.value} onClick={() => setSelDuration(on ? null : d.value)}
+                                    style={{ padding: "6px 13px", borderRadius: 20, fontSize: 12, cursor: "pointer", background: on ? "rgba(201,168,76,0.1)" : "rgba(255,255,255,0.02)", border: `0.5px solid ${on ? "rgba(201,168,76,0.35)" : "rgba(255,255,255,0.07)"}`, color: on ? "#EDD980" : "#6A6560", transition: "all .15s" }}>
+                                    {d.label}
+                                </button>
+                            );
+                        })}
                     </div>
                 </div>
+
+                {/* Clear */}
+                {hasFilters && (
+                    <motion.button initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+                        onClick={clearAll}
+                        style={{ display: "flex", alignItems: "center", gap: 5, fontSize: 12, color: "#6A6560", background: "none", border: "none", cursor: "pointer", width: "fit-content" }}
+                        onMouseEnter={e => (e.currentTarget.style.color = "#F0EBE0")}
+                        onMouseLeave={e => (e.currentTarget.style.color = "#6A6560")}>
+                        <XMarkIcon style={{ width: 14, height: 14 }} />
+                        Resetta filtri
+                        <span style={{ color: "#C9A84C" }}>({filtered.length} risultati)</span>
+                    </motion.button>
+                )}
             </motion.div>
 
-            {/* Results Grid */}
-            <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.3 }}
-                className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 relative z-10"
-            >
-                <AnimatePresence mode='popLayout'>
-                    {filteredMeditations.map((meditation, index) => (
-                        <motion.div
-                            key={meditation.id}
-                            layout
-                            initial={{ opacity: 0, scale: 0.9 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            exit={{ opacity: 0, scale: 0.9 }}
-                            transition={{ delay: index * 0.05 }}
-                            onHoverStart={() => setHoveredCard(meditation.id)}
-                            onHoverEnd={() => setHoveredCard(null)}
-                            className={`group relative overflow-hidden rounded-[2rem] border-2 transition-all duration-300 cursor-pointer ${isUnlocked(meditation.plan)
-                                    ? 'bg-white/90 backdrop-blur-sm border-slate-100 hover:shadow-2xl hover:scale-[1.02]'
-                                    : 'bg-white/60 backdrop-blur-sm border-slate-200 opacity-75'
-                                }`}
-                            onClick={() => !isUnlocked(meditation.plan) && navigate('/plans')}
-                        >
-                            {/* Image Container */}
-                            <div className="relative h-56 overflow-hidden bg-gradient-to-br from-luminel-champagne/30 to-luminel-gold-soft/20">
-                                {/* TODO: Image will be loaded from Google Drive via Make/Sheets */}
-                                {meditation.image ? (
-                                    <img
-                                        src={meditation.image}
-                                        alt={meditation.title}
-                                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                                    />
-                                ) : (
-                                    <div className="w-full h-full flex items-center justify-center">
-                                        <div className="text-6xl opacity-40">{meditation.icon}</div>
-                                    </div>
-                                )}
-
-                                {/* Gradient Overlay */}
-                                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-
-                                {/* Plan Badge - Top Right */}
-                                <div className="absolute top-4 right-4">
-                                    <span className={`px-4 py-1.5 rounded-full text-xs font-bold uppercase shadow-lg ${getBadgeStyle(meditation.plan)}`}>
-                                        {meditation.plan === 'free' ? '🌟 Free' : meditation.plan === 'premium' ? '⭐ Premium' : '👑 VIP'}
-                                    </span>
-                                </div>
-
-                                {/* Duration - Bottom Left */}
-                                <div className="absolute bottom-4 left-4">
-                                    <div className="flex items-center gap-2 bg-white/90 backdrop-blur-md px-3 py-1.5 rounded-full shadow-lg">
-                                        <ClockIcon className="w-4 h-4 text-slate-600" />
-                                        <span className="text-sm font-bold text-slate-800">{meditation.duration}</span>
-                                    </div>
-                                </div>
-
-                                {/* Lock Overlay */}
-                                {!isUnlocked(meditation.plan) && (
-                                    <div className="absolute inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center z-10">
-                                        <div className="bg-white/90 rounded-2xl p-6 text-center shadow-2xl">
-                                            <LockClosedIcon className="w-12 h-12 text-slate-400 mx-auto mb-3" />
-                                            <p className="text-sm font-bold text-slate-700">Contenuto Bloccato</p>
-                                        </div>
-                                    </div>
-                                )}
-                            </div>
-
-                            {/* Content */}
-                            <div className="p-6">
-                                {/* Category Badge */}
-                                <div className="mb-3">
-                                    <span className="inline-block px-3 py-1 text-xs font-bold text-purple-700 bg-purple-50 rounded-lg border border-purple-100">
-                                        {meditation.category}
-                                    </span>
-                                </div>
-
-                                {/* Title */}
-                                <h3 className="font-serif text-2xl font-bold text-slate-800 mb-2 group-hover:text-luminel-gold-soft transition-colors leading-tight">
-                                    {meditation.title}
-                                </h3>
-
-                                {/* Description */}
-                                <p className="text-sm text-slate-600 mb-4 line-clamp-2 leading-relaxed">
-                                    {meditation.description}
-                                </p>
-
-                                {/* Footer */}
-                                <div className="flex items-center justify-between pt-4 border-t border-slate-100">
-                                    <div className="flex items-center gap-1.5">
-                                        <HeartIcon className="w-4 h-4 text-pink-400" />
-                                        <span className="text-xs font-medium text-slate-500">
-                                            {meditation.goals.length} obiettivi
-                                        </span>
-                                    </div>
-
-                                    {isUnlocked(meditation.plan) ? (
-                                        <motion.div
-                                            animate={{
-                                                scale: hoveredCard === meditation.id ? 1.1 : 1
-                                            }}
-                                            className="w-12 h-12 rounded-full bg-gradient-to-br from-luminel-gold-soft to-luminel-gold-dark flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all"
-                                        >
-                                            <PlayCircleIcon className="w-7 h-7 text-white" />
-                                        </motion.div>
-                                    ) : (
-                                        <span className="text-xs font-bold text-slate-400 uppercase">Upgrade</span>
-                                    )}
-                                </div>
-                            </div>
-
-                            {/* Hover Gradient Effect */}
-                            <div className="absolute inset-0 bg-gradient-to-t from-luminel-gold-soft/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
-                        </motion.div>
-                    ))}
-                </AnimatePresence>
-            </motion.div>
-
-            {/* Empty State */}
-            {filteredMeditations.length === 0 && (
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="text-center py-20 relative z-10"
-                >
-                    <div className="w-24 h-24 mx-auto mb-6 rounded-full bg-gradient-to-br from-slate-100 to-slate-50 flex items-center justify-center">
-                        <MoonIcon className="w-12 h-12 text-slate-300" />
+            {/* ── GRID ── */}
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }}>
+                {filtered.length === 0 ? (
+                    <div style={{ textAlign: "center", padding: "60px 20px" }}>
+                        <div style={{ fontSize: 40, marginBottom: 12 }}>🌙</div>
+                        <div style={{ fontSize: 14, color: "#F0EBE0", marginBottom: 6 }}>Nessuna meditazione trovata</div>
+                        <div style={{ fontSize: 12, color: "#6A6560", marginBottom: 20 }}>Prova a modificare i filtri</div>
+                        <button onClick={clearAll} style={{ padding: "9px 20px", borderRadius: 10, fontSize: 12, cursor: "pointer", background: "rgba(201,168,76,0.1)", border: "0.5px solid rgba(201,168,76,0.3)", color: "#C9A84C", fontFamily: "'DM Sans',sans-serif" }}>
+                            Mostra tutto
+                        </button>
                     </div>
-                    <h3 className="font-serif text-2xl font-bold text-slate-700 mb-2">Nessuna meditazione trovata</h3>
-                    <p className="text-slate-500 mb-6">Prova a modificare i filtri di ricerca</p>
-                    <button
-                        onClick={() => {
-                            setSelectedGoal(null);
-                            setSelectedDuration(null);
-                            setSearchQuery('');
-                        }}
-                        className="px-8 py-3 rounded-2xl bg-gradient-to-r from-luminel-gold-soft to-luminel-gold-dark text-white font-bold shadow-lg hover:shadow-xl transition-all"
-                    >
-                        Resetta Filtri
-                    </button>
-                </motion.div>
-            )}
+                ) : (
+                    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(270px,1fr))", gap: 14 }}>
+                        <AnimatePresence mode="popLayout">
+                            {filtered.map((m, i) => {
+                                const pc = PLAN_CFG[m.plan as keyof typeof PLAN_CFG];
+                                const unlocked = isUnlocked(m.plan);
+                                const isPlay = playingId === m.id;
+                                return (
+                                    <motion.div key={m.id} layout
+                                        initial={{ opacity: 0, scale: 0.96 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}
+                                        transition={{ delay: i * 0.04 }}
+                                        whileHover={unlocked ? { y: -4, transition: { duration: 0.2 } } : {}}
+                                        style={{ borderRadius: 14, overflow: "hidden", background: "rgba(255,255,255,0.022)", border: `0.5px solid rgba(255,255,255,0.07)`, opacity: unlocked ? 1 : 0.6, cursor: unlocked ? "default" : "pointer", boxShadow: "0 2px 12px rgba(0,0,0,0.2)" }}
+                                        onClick={() => !unlocked && navigate("/plans")}>
+
+                                        {/* Image */}
+                                        <div style={{ position: "relative", height: 180, overflow: "hidden" }}>
+                                            {m.image ? (
+                                                <img src={m.image} alt={m.title}
+                                                    style={{ width: "100%", height: "100%", objectFit: "cover", filter: unlocked ? "none" : "grayscale(80%)" }} />
+                                            ) : (
+                                                <div style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 48, background: `${pc.color}08` }}>
+                                                    {m.icon}
+                                                </div>
+                                            )}
+                                            <div style={{ position: "absolute", inset: 0, background: "linear-gradient(0deg,rgba(13,13,32,0.85) 0%,rgba(13,13,32,0.1) 60%)" }} />
+
+                                            {/* Badges */}
+                                            <div style={{ position: "absolute", top: 10, left: 10 }}>
+                                                <span style={{ fontSize: 9, letterSpacing: ".1em", textTransform: "uppercase", padding: "3px 8px", borderRadius: 20, background: "rgba(13,13,32,0.8)", color: pc.color, border: `0.5px solid ${pc.color}40`, backdropFilter: "blur(8px)" }}>
+                                                    {m.plan === "free" ? "✦ FREE" : m.plan === "premium" ? "⭐ PREMIUM" : "♛ VIP"}
+                                                </span>
+                                            </div>
+                                            <div style={{ position: "absolute", top: 10, right: 10 }}>
+                                                <span style={{ fontSize: 10, padding: "3px 8px", borderRadius: 20, background: "rgba(13,13,32,0.8)", color: "rgba(240,235,224,0.7)", backdropFilter: "blur(8px)", display: "flex", alignItems: "center", gap: 3 }}>
+                                                    <ClockIcon style={{ width: 11, height: 11 }} />{m.duration}
+                                                </span>
+                                            </div>
+                                            {m.isNew && (
+                                                <div style={{ position: "absolute", bottom: 10, left: 10 }}>
+                                                    <span style={{ fontSize: 9, padding: "3px 8px", borderRadius: 20, background: "rgba(201,168,76,0.2)", color: "#C9A84C", border: "0.5px solid rgba(201,168,76,0.4)" }}>Nuovo</span>
+                                                </div>
+                                            )}
+
+                                            {/* Lock */}
+                                            {!unlocked && (
+                                                <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", background: "rgba(6,6,15,0.5)", backdropFilter: "blur(4px)" }}>
+                                                    <LockClosedIcon style={{ width: 28, height: 28, color: "rgba(240,235,224,0.4)", marginBottom: 6 }} />
+                                                    <span style={{ fontSize: 10, letterSpacing: ".12em", textTransform: "uppercase", color: "rgba(240,235,224,0.4)" }}>Piano {pc.label}</span>
+                                                </div>
+                                            )}
+
+                                            {/* Play hover */}
+                                            {unlocked && (
+                                                <motion.button
+                                                    initial={{ opacity: 0 }} whileHover={{ opacity: 1 }}
+                                                    onClick={e => { e.stopPropagation(); setPlayingId(p => p === m.id ? null : m.id); }}
+                                                    style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", background: "none", border: "none", cursor: "pointer" }}>
+                                                    <div style={{ width: 48, height: 48, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", background: "rgba(13,13,32,0.85)", border: `0.5px solid ${pc.color}50`, backdropFilter: "blur(8px)" }}>
+                                                        {isPlay
+                                                            ? <PauseIcon style={{ width: 22, height: 22, color: pc.color }} />
+                                                            : <PlayCircleIcon style={{ width: 24, height: 24, color: pc.color }} />}
+                                                    </div>
+                                                </motion.button>
+                                            )}
+
+                                            {/* Playing waveform */}
+                                            {isPlay && (
+                                                <div style={{ position: "absolute", bottom: 10, right: 10, display: "flex", alignItems: "flex-end", gap: 2 }}>
+                                                    {[3, 5, 4, 6, 3].map((h, n) => (
+                                                        <motion.div key={n} style={{ width: 3, borderRadius: 2, background: pc.color }}
+                                                            animate={{ height: [h * 2, h * 4, h * 2] }}
+                                                            transition={{ duration: 0.45 + n * 0.08, repeat: Infinity, ease: "easeInOut" }} />
+                                                    ))}
+                                                </div>
+                                            )}
+                                        </div>
+
+                                        {/* Body */}
+                                        <div style={{ padding: "14px 16px" }}>
+                                            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
+                                                <span style={{ fontSize: 9, letterSpacing: ".14em", textTransform: "uppercase", padding: "3px 8px", borderRadius: 4, background: `${pc.color}10`, color: pc.color, border: `0.5px solid ${pc.color}25` }}>
+                                                    {m.category}
+                                                </span>
+                                                <div style={{ display: "flex", alignItems: "center", gap: 4, fontSize: 10, color: "#6A6560" }}>
+                                                    <HeartIcon style={{ width: 12, height: 12 }} />{m.goals.length} obiettivi
+                                                </div>
+                                            </div>
+                                            <h3 style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: 17, fontWeight: 400, color: "#F0EBE0", marginBottom: 5, lineHeight: 1.25 }}>
+                                                {m.title}
+                                            </h3>
+                                            <p style={{ fontSize: 11, color: "#6A6560", lineHeight: 1.55 }}>{m.description}</p>
+                                            {m.instructor && (
+                                                <div style={{ fontSize: 10, color: "rgba(201,168,76,0.6)", marginTop: 8 }}>
+                                                    by {m.instructor}
+                                                </div>
+                                            )}
+                                            {m.popularity >= 90 && (
+                                                <div style={{ display: "flex", alignItems: "center", gap: 4, marginTop: 6, fontSize: 10, color: "#C9A84C" }}>
+                                                    <SparklesIcon style={{ width: 12, height: 12 }} />
+                                                    Molto popolare · {m.popularity}% rating
+                                                </div>
+                                            )}
+                                        </div>
+                                    </motion.div>
+                                );
+                            })}
+                        </AnimatePresence>
+                    </div>
+                )}
+            </motion.div>
         </div>
     );
 };
 
 export default MeditationView;
-
-/* 
- * DATA INTEGRATION NOTES:
- * 
- * 1. Images from Google Drive:
- *    - Each meditation object should have: image: "https://drive.google.com/uc?id=FILE_ID"
- *    - Load via Make.com scenario that fetches from Google Sheets
- *    - Fallback to emoji icon if image not available
- * 
- * 2. Google Sheets Structure:
- *    Tab: meditations
- *    Columns: id, title, description, duration, category, plan, goals (comma-separated), image_url, icon
- * 
- * 3. Make.com Scenario:
- *    - Webhook trigger (GET /meditations)
- *    - Google Sheets: Search rows
- *    - Response: JSON array of meditation objects
- * 
- * 4. Implementation:
- *    - Replace meditationData import with API call to Make webhook
- *    - Add loading state while fetching
- *    - Cache results in localStorage for offline support
- */

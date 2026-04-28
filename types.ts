@@ -39,24 +39,10 @@ export interface NavItem {
   id: string;
 }
 
-export interface UserProfile {
-  fullName: string;
-  goals: string[];
-  experience: 'beginner' | 'intermediate' | 'advanced';
-  stressLevel: number;
-  sleepQuality: number;
-  energyLevel: number;
-  privacyConsents: {
-    dataProcessing: boolean;
-    analytics: boolean;
-    notifications: boolean;
-  };
-  sessionDuration: string;
-  preferredTime: string;
-  voiceGender: string;
-  backgroundSound: string;
-  plan?: 'free' | 'premium' | 'vip';
-}
+// UserProfile è definito e gestito da AuthContext (Supabase-ready)
+// Re-esportato qui per compatibilità con i componenti che lo importano da 'types'
+export type { UserProfile } from './contexts/AuthContext';
+
 
 export interface Lesson {
   id: string | number;

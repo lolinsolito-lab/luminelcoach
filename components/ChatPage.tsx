@@ -1,345 +1,314 @@
-
-import React, { useState, useEffect, useRef } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import React, { useState, useEffect, useRef } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import {
-  PaperAirplaneIcon,
-  SparklesIcon,
-  PlusIcon,
-  ChatBubbleLeftIcon,
-  EllipsisHorizontalIcon,
-  Bars3Icon,
-  XMarkIcon
-} from '@heroicons/react/24/solid';
+  PaperAirplaneIcon, SparklesIcon, PlusIcon,
+  EllipsisHorizontalIcon, Bars3Icon, XMarkIcon,
+  LockClosedIcon, ArrowUpTrayIcon,
+} from "@heroicons/react/24/solid";
 import { GoogleGenAI, Chat, GenerateContentResponse } from "@google/genai";
-import { LUMINEL_SYSTEM_PROMPT as LUMINEL_SYSTEM_INSTRUCTION } from '../lib/coach/system-prompt';
-import { ChatMessage } from '../types';
-import { useAuth } from '../contexts/AuthContext';
-import ChatIntroDemo from './ChatIntroDemo';
+import { LUMINEL_SYSTEM_PROMPT as LUMINEL_SYSTEM_INSTRUCTION } from "../lib/coach/system-prompt";
+import { ChatMessage } from "../types";
+import { useAuth } from "../contexts/AuthContext";
+import ChatIntroDemo from "./ChatIntroDemo";
 
-// --- INTERNAL COMPONENTS ---
+// ─── DARK LUXURY TOKENS ───────────────────────────────────────────────────────
+const DL = {
+  void: "#06060F",
+  deep: "#09091A",
+  surface: "#0D0D20",
+  glass: "rgba(255,255,255,0.035)",
+  glassB: "rgba(255,255,255,0.07)",
+  gold: "#C9A84C",
+  goldBr: "#EDD980",
+  goldDim: "rgba(201,168,76,0.12)",
+  goldB: "rgba(201,168,76,0.25)",
+  white: "#F0EBE0",
+  muted: "#6A6560",
+  dim: "#252330",
+};
 
+// ─── CHAT BUBBLE ─────────────────────────────────────────────────────────────
 const ChatBubble: React.FC<{ message: ChatMessage }> = ({ message }) => {
-  const isUser = message.role === 'user';
+  const isUser = message.role === "user";
   return (
     <motion.div
-      initial={{ opacity: 0, y: 10, scale: 0.95 }}
+      initial={{ opacity: 0, y: 8, scale: 0.97 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
-      className={`flex ${isUser ? 'justify-end' : 'justify-start'} mb-6 group`}
+      transition={{ duration: 0.22, ease: "easeOut" }}
+      className={`flex ${isUser ? "justify-end" : "justify-start"} mb-5 group`}
     >
+      {/* AI avatar */}
       {!isUser && (
-        <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-luminel-champagne to-white flex items-center justify-center mr-3 flex-shrink-0 border border-white shadow-sm">
-          <span className="text-sm font-bold text-luminel-gold-soft">L</span>
+        <div className="w-8 h-8 rounded-xl flex items-center justify-center mr-2.5 flex-shrink-0 mt-0.5"
+          style={{ background: DL.goldDim, border: `0.5px solid ${DL.goldB}` }}>
+          <span className="text-[12px] font-medium" style={{ fontFamily: "'Cormorant Garamond',serif", color: DL.gold }}>L</span>
         </div>
       )}
-      <div
-        className={`max-w-[80%] md:max-w-[70%] p-5 rounded-2xl shadow-sm relative transition-all duration-300 ${isUser
-          ? 'bg-[#E8F5E9] text-emerald-900 rounded-tr-none shadow-sm border border-emerald-100/50'
-          : 'bg-white text-slate-700 rounded-tl-none border border-white shadow-slate-200/50'
-          }`}
-      >
-        <p className="whitespace-pre-wrap text-sm md:text-base leading-relaxed font-medium">
-          {message.text}
-        </p>
-        <span className={`text-[10px] mt-2 block font-medium opacity-70 ${isUser ? 'text-emerald-700' : 'text-slate-400'}`}>
-          {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+
+      <div className={`max-w-[75%] md:max-w-[65%] flex flex-col ${isUser ? "items-end" : "items-start"}`}>
+        {/* Sender label */}
+        <span className="text-[10px] mb-1 px-1" style={{ color: DL.muted }}>
+          {isUser ? "Tu" : "Luminel AI Coach"}
+        </span>
+
+        {/* Bubble */}
+        <div className="px-4 py-3 rounded-xl"
+          style={isUser
+            ? { background: DL.goldDim, border: `0.5px solid ${DL.goldB}`, borderRadius: "10px 2px 10px 10px" }
+            : { background: "rgba(201,168,76,0.06)", border: "0.5px solid rgba(201,168,76,0.14)", borderRadius: "2px 10px 10px 10px" }
+          }>
+          <p className="text-[13px] leading-relaxed whitespace-pre-wrap"
+            style={{ color: isUser ? DL.goldBr : "rgba(240,235,224,0.85)" }}>
+            {message.text}
+          </p>
+        </div>
+
+        {/* Timestamp */}
+        <span className="text-[9px] mt-1 px-1" style={{ color: DL.muted }}>
+          {message.timestamp.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
         </span>
       </div>
+
+      {/* User avatar */}
+      {isUser && (
+        <div className="w-8 h-8 rounded-xl flex items-center justify-center ml-2.5 flex-shrink-0 mt-0.5"
+          style={{ background: "rgba(255,255,255,0.05)", border: "0.5px solid rgba(255,255,255,0.1)" }}>
+          <span className="text-[11px]" style={{ color: DL.muted }}>Tu</span>
+        </div>
+      )}
     </motion.div>
   );
 };
 
+// ─── TYPING INDICATOR ─────────────────────────────────────────────────────────
 const TypingIndicator: React.FC = () => (
-  <div className="flex justify-start mb-6">
-    <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-luminel-champagne to-white flex items-center justify-center mr-3 flex-shrink-0 border border-white shadow-sm">
-      <span className="text-sm font-bold text-luminel-gold-soft">L</span>
+  <div className="flex justify-start mb-5">
+    <div className="w-8 h-8 rounded-xl flex items-center justify-center mr-2.5 flex-shrink-0"
+      style={{ background: DL.goldDim, border: `0.5px solid ${DL.goldB}` }}>
+      <span className="text-[12px]" style={{ fontFamily: "'Cormorant Garamond',serif", color: DL.gold }}>L</span>
     </div>
-    <div className="bg-white p-5 rounded-2xl rounded-tl-none border border-white shadow-sm flex gap-2 items-center">
-      <div className="w-2 h-2 bg-luminel-gold-soft rounded-full animate-bounce" style={{ animationDelay: '0s' }} />
-      <div className="w-2 h-2 bg-luminel-gold-soft rounded-full animate-bounce" style={{ animationDelay: '0.2s' }} />
-      <div className="w-2 h-2 bg-luminel-gold-soft rounded-full animate-bounce" style={{ animationDelay: '0.4s' }} />
+    <div className="px-4 py-3 rounded-xl flex items-center gap-1.5"
+      style={{ background: "rgba(201,168,76,0.06)", border: "0.5px solid rgba(201,168,76,0.14)", borderRadius: "2px 10px 10px 10px" }}>
+      {[0, 0.18, 0.36].map((delay, i) => (
+        <div key={i} className="w-1.5 h-1.5 rounded-full animate-bounce"
+          style={{ background: DL.gold, animationDelay: `${delay}s`, opacity: 0.7 }} />
+      ))}
     </div>
   </div>
 );
 
-// --- MAIN COMPONENT ---
+// ─── CONVERSATION ITEM ────────────────────────────────────────────────────────
+const ConvItem: React.FC<{ label: string; preview: string; time: string; active: boolean; onClick: () => void }> = ({ label, preview, time, active, onClick }) => (
+  <div onClick={onClick} className="px-3 py-3 rounded-xl cursor-pointer transition-all"
+    style={{ background: active ? DL.goldDim : "transparent", border: `0.5px solid ${active ? DL.goldB : "transparent"}` }}
+    onMouseEnter={e => !active && (e.currentTarget.style.background = "rgba(255,255,255,0.03)")}
+    onMouseLeave={e => !active && (e.currentTarget.style.background = "transparent")}>
+    <div className="flex justify-between items-baseline mb-0.5">
+      <span className="text-[13px] font-medium truncate" style={{ color: active ? DL.goldBr : DL.white }}>{label}</span>
+      <span className="text-[9px] flex-shrink-0 ml-2" style={{ color: DL.muted }}>{time}</span>
+    </div>
+    <p className="text-[11px] truncate" style={{ color: DL.muted }}>{preview}</p>
+  </div>
+);
 
+// ─── QUICK PROMPTS ────────────────────────────────────────────────────────────
+const QUICK_PROMPTS = [
+  "Come posso trovare il mio Ikigai?",
+  "Aiutami con la mia Reality Quest",
+  "Voglio parlare dei miei obiettivi",
+  "Ho bisogno di chiarezza su una decisione",
+];
+
+// ─── MAIN COMPONENT ───────────────────────────────────────────────────────────
 const ChatPage: React.FC = () => {
   const { user } = useAuth();
 
-  // States
-  const [showIntro, setShowIntro] = useState(() => {
-    const saved = localStorage.getItem('luminel_chat_intro_seen');
-    return saved !== 'true';
-  });
+  const [showIntro, setShowIntro] = useState(() => localStorage.getItem("luminel_chat_intro_seen") !== "true");
   const [messages, setMessages] = useState<ChatMessage[]>([]);
-  const [input, setInput] = useState('');
+  const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [chatSession, setChatSession] = useState<Chat | null>(null);
   const [showSidebar, setShowSidebar] = useState(false);
-  const [activeConversationId, setActiveConversationId] = useState<string>('new');
+  const [activeConversationId, setActiveConversationId] = useState("new");
   const [messageCount, setMessageCount] = useState(0);
+  const [mode, setMode] = useState<"coach" | "shadow" | "strategy">("coach");
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLTextAreaElement>(null);
 
-  // Limits based on plan
-  const getDailyLimit = () => {
-    if (user?.plan === 'vip') return 9999;
-    if (user?.plan === 'premium') return 50;
-    return 10; // Free
-  };
-
+  const getDailyLimit = () => user?.plan === "vip" ? 9999 : user?.plan === "premium" ? 50 : 10;
   const limit = getDailyLimit();
+  const limitPct = Math.min((messageCount / limit) * 100, 100);
+  const nearLimit = messageCount >= limit * 0.8;
 
-  // Save intro seen state
-  const handleIntroComplete = () => {
-    localStorage.setItem('luminel_chat_intro_seen', 'true');
-    setShowIntro(false);
-  };
+  const handleIntroComplete = () => { localStorage.setItem("luminel_chat_intro_seen", "true"); setShowIntro(false); };
 
-  // Initialize Chat Session
+  // Init chat
   useEffect(() => {
     if (!user || showIntro) return;
-
-    const initChat = async () => {
+    const init = async () => {
       try {
-        // Safe check for API key - in Vite use import.meta.env
-        const apiKey = import.meta.env?.VITE_GEMINI_API_KEY || '';
-
+        const apiKey = import.meta.env?.VITE_GEMINI_API_KEY || "";
         if (apiKey) {
           const ai = new GoogleGenAI({ apiKey });
-          const chat = ai.chats.create({
-            model: 'gemini-2.5-flash',
-            config: { systemInstruction: LUMINEL_SYSTEM_INSTRUCTION },
-          });
+          const chat = ai.chats.create({ model: "gemini-2.5-flash", config: { systemInstruction: LUMINEL_SYSTEM_INSTRUCTION } });
           setChatSession(chat);
-        } else {
-          console.warn("No API key found, running in mock mode");
         }
-
         if (messages.length === 0) {
-          const greeting: ChatMessage = {
-            id: 'init',
-            role: 'model',
-            text: `Ciao ${user?.fullName?.split(' ')[0] || 'Viaggiatore'}. Sono Luminel. Come posso illuminare il tuo percorso oggi?`,
-            timestamp: new Date()
-          };
-          setMessages([greeting]);
+          setMessages([{ id: "init", role: "model", text: `Bentornato, ${user?.fullName?.split(" ")[0] || "Viaggiatore"}. Sono Luminel. Ho riletto le nostre ultime sessioni. Come posso illuminare il tuo percorso oggi?`, timestamp: new Date() }]);
         }
-      } catch (error) {
-        console.error("Failed to init chat", error);
-        // Still set greeting even if init fails
+      } catch {
         if (messages.length === 0) {
-          setMessages([{
-            id: 'init-fallback',
-            role: 'model',
-            text: `Ciao. Sono Luminel. Come posso aiutarti oggi?`,
-            timestamp: new Date()
-          }]);
+          setMessages([{ id: "init-fallback", role: "model", text: `Ciao. Sono Luminel, il tuo Coach Trasformativo. Come posso aiutarti oggi?`, timestamp: new Date() }]);
         }
       }
     };
-
-    initChat();
+    init();
   }, [user, showIntro]);
 
-  // Mock function to simulate loading an old conversation
+  // Load conversation
   const loadConversation = (id: string) => {
     setActiveConversationId(id);
     setIsLoading(true);
-
-    // Simulate network delay
     setTimeout(() => {
-      if (id === 'new') {
-        setMessages([{
-          id: 'init-new',
-          role: 'model',
-          text: `Ciao ${user?.fullName?.split(' ')[0] || 'Viaggiatore'}. Sono Luminel. Come posso illuminare il tuo percorso oggi?`,
-          timestamp: new Date()
-        }]);
-      } else if (id === 'anxiety') {
+      if (id === "new") {
+        setMessages([{ id: "init-new", role: "model", text: `Ciao ${user?.fullName?.split(" ")[0] || "Viaggiatore"}. Sono Luminel. Come posso illuminare il tuo percorso oggi?`, timestamp: new Date() }]);
+      } else if (id === "anxiety") {
         setMessages([
-          { id: '1', role: 'user', text: 'Ho bisogno di aiuto per gestire l\'ansia prima di una riunione.', timestamp: new Date(Date.now() - 86400000) },
-          { id: '2', role: 'model', text: 'Capisco perfettamente. L\'ansia da prestazione è molto comune. Proviamo una tecnica di respirazione quadrata?', timestamp: new Date(Date.now() - 86340000) },
-          { id: '3', role: 'user', text: 'Grazie per il consiglio, ha funzionato.', timestamp: new Date(Date.now() - 3600000) }
+          { id: "1", role: "user", text: "Ho bisogno di aiuto per gestire l'ansia prima di una riunione.", timestamp: new Date(Date.now() - 86400000) },
+          { id: "2", role: "model", text: "Capisco. L'ansia da prestazione è un segnale del tuo sistema nervoso che vuole proteggerti. Proviamo una tecnica di respirazione 4-7-8?", timestamp: new Date(Date.now() - 86340000) },
+          { id: "3", role: "user", text: "Grazie, ha funzionato!", timestamp: new Date(Date.now() - 3600000) },
+        ]);
+      } else if (id === "ikigai") {
+        setMessages([
+          { id: "1", role: "user", text: "Voglio trovare il mio Ikigai ma non so da dove iniziare.", timestamp: new Date(Date.now() - 172800000) },
+          { id: "2", role: "model", text: "Perfetto. L'Ikigai non è un punto di arrivo ma un processo. Partiamo dalla prima domanda: cosa faresti anche senza essere pagato?", timestamp: new Date(Date.now() - 172740000) },
         ]);
       }
       setIsLoading(false);
       if (window.innerWidth < 1024) setShowSidebar(false);
-    }, 600);
+    }, 500);
   };
 
   // Auto scroll
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages, isLoading]);
+  useEffect(() => { messagesEndRef.current?.scrollIntoView({ behavior: "smooth" }); }, [messages, isLoading]);
 
-  const handleSend = async (e?: React.FormEvent) => {
+  // Auto resize textarea
+  const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setInput(e.target.value);
+    e.target.style.height = "auto";
+    e.target.style.height = Math.min(e.target.scrollHeight, 120) + "px";
+  };
+
+  const handleSend = async (e?: React.FormEvent, quickPrompt?: string) => {
     e?.preventDefault();
-    if (!input.trim()) return;
+    const text = quickPrompt || input.trim();
+    if (!text) return;
 
     if (messageCount >= limit) {
-      // In a real app, trigger upgrade modal here
-      const limitMsg: ChatMessage = {
-        id: Date.now().toString(),
-        role: 'model',
-        text: "Hai raggiunto il tuo limite giornaliero di messaggi. Passa a Premium per continuare la conversazione.",
-        timestamp: new Date()
-      };
-      setMessages(prev => [...prev, limitMsg]);
+      setMessages(prev => [...prev, { id: Date.now().toString(), role: "model", text: "Hai raggiunto il limite giornaliero. Passa a Premium per continuare la sessione.", timestamp: new Date() }]);
       return;
     }
 
-    const userMessage: ChatMessage = {
-      id: Date.now().toString(),
-      role: 'user',
-      text: input,
-      timestamp: new Date()
-    };
-
-    setMessages(prev => [...prev, userMessage]);
-    setInput('');
+    const userMsg: ChatMessage = { id: Date.now().toString(), role: "user", text, timestamp: new Date() };
+    setMessages(prev => [...prev, userMsg]);
+    setInput("");
+    if (inputRef.current) inputRef.current.style.height = "auto";
     setIsLoading(true);
-    setMessageCount(prev => prev + 1);
+    setMessageCount(p => p + 1);
 
     try {
-      let responseText = '';
-      let usedMock = false;
-
+      let responseText = "";
       if (chatSession) {
         try {
-          const result: GenerateContentResponse = await chatSession.sendMessage({ message: userMessage.text });
+          const result: GenerateContentResponse = await chatSession.sendMessage({ message: text });
           responseText = result.text;
-        } catch (apiError) {
-          console.warn("API call failed, switching to mock", apiError);
-          usedMock = true;
-        }
-      } else {
-        usedMock = true;
+        } catch { responseText = ""; }
       }
-
-      if (usedMock) {
-        // Fallback Mock Response
-        await new Promise(resolve => setTimeout(resolve, 1500)); // Simulate thinking
-        const mockResponses = [
-          "Capisco profondamente ciò che dici. Come ti fa sentire questo?",
-          "È un'osservazione interessante. Raccontami di più.",
-          "La tua consapevolezza è il primo passo verso il cambiamento. Cosa vorresti ottenere oggi?",
-          "Sono qui per supportarti. Qual è la sfida più grande in questo momento?",
-          "Respira profondamente. Insieme possiamo trovare una soluzione.",
-          "Interessante. E cosa ne pensi di provare un approccio diverso?",
-          "Sento che questo è importante per te. Continua pure."
+      if (!responseText) {
+        await new Promise(r => setTimeout(r, 1200));
+        const mocks = [
+          "Capisco profondamente. Come ti fa sentire questo nel corpo, in questo momento?",
+          "È un'osservazione potente. Cosa succederebbe nella tua vita se agissi su questo oggi, imperfettamente?",
+          "La tua consapevolezza è già trasformazione. Qual è la decisione più piccola che puoi prendere nelle prossime 2 ore?",
+          "Noto un pattern interessante in quello che dici. Raccontami di più — da quando senti questa sensazione?",
+          "Il tuo Guerriero interiore sa già la risposta. Il problema non è la chiarezza — è il permesso. Chi ti ha insegnato che non meriti di agire ora?",
         ];
-        responseText = mockResponses[Math.floor(Math.random() * mockResponses.length)];
+        responseText = mocks[Math.floor(Math.random() * mocks.length)];
       }
-
-      if (responseText) {
-        const botMessage: ChatMessage = {
-          id: (Date.now() + 1).toString(),
-          role: 'model',
-          text: responseText,
-          timestamp: new Date()
-        };
-        setMessages(prev => [...prev, botMessage]);
-      }
-    } catch (error) {
-      console.error("Error sending message", error);
-      // Fallback on error too
-      const botMessage: ChatMessage = {
-        id: (Date.now() + 1).toString(),
-        role: 'model',
-        text: "Mi dispiace, ho avuto un momento di confusione. Potresti ripetere? (Modalità Offline)",
-        timestamp: new Date()
-      };
-      setMessages(prev => [...prev, botMessage]);
-    } finally {
-      setIsLoading(false);
-    }
+      setMessages(prev => [...prev, { id: (Date.now() + 1).toString(), role: "model", text: responseText, timestamp: new Date() }]);
+    } catch {
+      setMessages(prev => [...prev, { id: (Date.now() + 1).toString(), role: "model", text: "Mi dispiace, ho avuto un momento. Puoi ripetere?", timestamp: new Date() }]);
+    } finally { setIsLoading(false); }
   };
 
-  if (showIntro) {
-    return <ChatIntroDemo onComplete={handleIntroComplete} />;
-  }
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleSend(); }
+  };
+
+  if (showIntro) return <ChatIntroDemo onComplete={handleIntroComplete} />;
 
   return (
-    <div className="flex h-[calc(100vh-6rem)] bg-[#FDFBF7] rounded-[2.5rem] overflow-hidden shadow-sm border border-white/60 relative">
+    <div className="flex rounded-2xl overflow-hidden relative"
+      style={{ height: "calc(100vh - 6rem)", background: DL.deep, border: `0.5px solid ${DL.glassB}` }}>
 
-      {/* Background Decorative Elements */}
-      <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none z-0">
-        <div className="absolute top-[-20%] left-[-10%] w-[500px] h-[500px] bg-luminel-champagne/20 rounded-full blur-3xl opacity-50" />
-        <div className="absolute bottom-[-20%] right-[-10%] w-[500px] h-[500px] bg-luminel-gold-soft/10 rounded-full blur-3xl opacity-50" />
+      {/* Ambient glow */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden">
+        <div className="absolute -top-20 -right-20 w-72 h-72 rounded-full" style={{ background: "rgba(201,168,76,0.04)", filter: "blur(80px)" }} />
+        <div className="absolute -bottom-20 -left-20 w-60 h-60 rounded-full" style={{ background: "rgba(155,116,224,0.05)", filter: "blur(80px)" }} />
       </div>
 
-      {/* Sidebar (Desktop & Mobile Overlay) */}
+      {/* ── SIDEBAR ── */}
       <AnimatePresence>
-        {(showSidebar || window.innerWidth >= 1024) && (
-          <motion.div
-            initial={{ x: -300 }}
-            animate={{ x: 0 }}
-            exit={{ x: -300 }}
-            className={`absolute lg:relative z-20 w-80 h-full bg-white/60 backdrop-blur-xl border-r border-white/50 flex flex-col ${window.innerWidth < 1024 ? 'shadow-2xl' : ''
-              }`}
-          >
-            {/* Sidebar Header */}
-            <div className="p-6 border-b border-slate-100/50 flex justify-between items-center">
-              <h3 className="font-serif font-bold text-slate-800 text-lg">Conversazioni</h3>
-              <button
-                onClick={() => {
-                  setMessages([]);
-                  setChatSession(null);
-                  window.location.reload();
-                }}
-                className="p-2 bg-white rounded-xl hover:bg-luminel-champagne text-luminel-gold-soft transition-colors shadow-sm border border-slate-100"
-              >
-                <PlusIcon className="w-5 h-5" />
-              </button>
-              {window.innerWidth < 1024 && (
-                <button onClick={() => setShowSidebar(false)} className="lg:hidden">
-                  <XMarkIcon className="w-6 h-6 text-slate-400" />
+        {(showSidebar || typeof window !== "undefined" && window.innerWidth >= 1024) && (
+          <motion.div initial={{ x: -280 }} animate={{ x: 0 }} exit={{ x: -280 }}
+            transition={{ duration: 0.2 }}
+            className="absolute lg:relative z-20 w-64 h-full flex flex-col flex-shrink-0"
+            style={{ background: DL.void, borderRight: `0.5px solid ${DL.glassB}` }}>
+
+            {/* Sidebar header */}
+            <div className="flex items-center justify-between px-4 py-4 flex-shrink-0"
+              style={{ borderBottom: `0.5px solid ${DL.glassB}` }}>
+              <span className="text-[11px] tracking-[0.18em] uppercase" style={{ color: DL.muted }}>Sessioni</span>
+              <div className="flex items-center gap-2">
+                <button onClick={() => loadConversation("new")}
+                  className="w-7 h-7 rounded-lg flex items-center justify-center transition-all"
+                  style={{ background: DL.goldDim, border: `0.5px solid ${DL.goldB}` }}
+                  title="Nuova sessione">
+                  <PlusIcon className="w-4 h-4" style={{ color: DL.gold }} />
                 </button>
-              )}
-            </div>
-
-            {/* Conversations List */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-3">
-              <div
-                onClick={() => loadConversation('new')}
-                className={`p-4 rounded-2xl border transition-all cursor-pointer ${activeConversationId === 'new' ? 'bg-white border-luminel-champagne shadow-md' : 'border-transparent hover:bg-white/50'}`}
-              >
-                <div className="flex justify-between mb-1">
-                  <span className={`font-bold text-sm ${activeConversationId === 'new' ? 'text-slate-800' : 'text-slate-600'}`}>Nuova Sessione</span>
-                  <span className="text-[10px] text-slate-400 font-medium bg-slate-100 px-2 py-0.5 rounded-full">Ora</span>
-                </div>
-                <p className="text-xs text-slate-500 truncate">Ciao {user?.fullName}...</p>
-              </div>
-
-              {/* Mock History Items */}
-              <div
-                onClick={() => loadConversation('anxiety')}
-                className={`p-4 rounded-2xl border transition-all cursor-pointer ${activeConversationId === 'anxiety' ? 'bg-white border-luminel-champagne shadow-md' : 'border-transparent hover:bg-white/50'}`}
-              >
-                <div className="flex justify-between mb-1">
-                  <span className={`font-medium text-sm ${activeConversationId === 'anxiety' ? 'text-slate-800' : 'text-slate-600'}`}>Gestione Ansia</span>
-                  <span className="text-[10px] text-slate-400">Ieri</span>
-                </div>
-                <p className="text-xs text-slate-400 truncate">Grazie per il consiglio...</p>
+                <button onClick={() => setShowSidebar(false)} className="lg:hidden">
+                  <XMarkIcon className="w-4 h-4" style={{ color: DL.muted }} />
+                </button>
               </div>
             </div>
 
-            {/* Footer Info */}
-            <div className="p-6 border-t border-slate-100/50 bg-white/40">
-              <div className="flex justify-between items-center text-xs font-bold text-slate-500 mb-3 uppercase tracking-wide">
-                <span>Messaggi oggi</span>
-                <span className={`${messageCount >= limit ? 'text-red-500' : 'text-luminel-gold-soft'}`}>{messageCount}/{limit}</span>
+            {/* Conversations */}
+            <div className="flex-1 overflow-y-auto p-2 space-y-1">
+              <ConvItem label="Nuova Sessione" preview={`Ciao ${user?.fullName?.split(" ")[0]}...`} time="Ora"
+                active={activeConversationId === "new"} onClick={() => loadConversation("new")} />
+              <ConvItem label="Gestione Ansia" preview="Grazie per il consiglio, ha funzionato!" time="Ieri"
+                active={activeConversationId === "anxiety"} onClick={() => loadConversation("anxiety")} />
+              <ConvItem label="Ikigai Discovery" preview="Voglio trovare il mio Ikigai..." time="3g fa"
+                active={activeConversationId === "ikigai"} onClick={() => loadConversation("ikigai")} />
+            </div>
+
+            {/* Usage + upgrade */}
+            <div className="p-4 flex-shrink-0" style={{ borderTop: `0.5px solid ${DL.glassB}` }}>
+              <div className="flex justify-between items-center mb-2">
+                <span className="text-[10px] tracking-[0.12em] uppercase" style={{ color: DL.muted }}>Messaggi oggi</span>
+                <span className="text-[11px] font-medium" style={{ color: nearLimit ? "#D4603A" : DL.gold }}>
+                  {messageCount}/{limit === 9999 ? "∞" : limit}
+                </span>
               </div>
-              <div className="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
-                <div
-                  className={`h-full rounded-full transition-all duration-500 ${messageCount >= limit ? 'bg-red-500' : 'bg-gradient-to-r from-luminel-gold-soft to-luminel-gold-dark'}`}
-                  style={{ width: `${Math.min((messageCount / limit) * 100, 100)}%` }}
-                />
+              <div className="h-1 rounded-full overflow-hidden mb-3" style={{ background: "rgba(255,255,255,0.05)" }}>
+                <div className="h-full rounded-full transition-all duration-500"
+                  style={{ width: `${limit === 9999 ? 5 : limitPct}%`, background: nearLimit ? "#D4603A" : DL.gold }} />
               </div>
-              {user?.plan === 'free' && (
-                <button className="w-full mt-4 py-3 bg-slate-900 text-white text-xs font-bold rounded-xl hover:bg-slate-800 transition-colors shadow-lg shadow-slate-200">
-                  Passa a Premium
+              {user?.plan === "free" && (
+                <button className="w-full py-2.5 rounded-xl text-[11px] font-medium tracking-wide transition-all"
+                  style={{ background: DL.goldDim, border: `0.5px solid ${DL.goldB}`, color: DL.gold }}>
+                  Passa a Premium →
                 </button>
               )}
             </div>
@@ -347,73 +316,116 @@ const ChatPage: React.FC = () => {
         )}
       </AnimatePresence>
 
-      {/* Overlay for mobile sidebar */}
-      {showSidebar && window.innerWidth < 1024 && (
-        <div
-          className="absolute inset-0 bg-black/20 z-10 lg:hidden backdrop-blur-sm"
-          onClick={() => setShowSidebar(false)}
-        />
+      {/* Mobile overlay */}
+      {showSidebar && (
+        <div className="absolute inset-0 z-10 lg:hidden" style={{ background: "rgba(6,6,15,0.5)", backdropFilter: "blur(4px)" }}
+          onClick={() => setShowSidebar(false)} />
       )}
 
-      {/* Main Chat Area */}
-      <div className="flex-1 flex flex-col relative w-full z-10">
+      {/* ── MAIN CHAT ── */}
+      <div className="flex-1 flex flex-col relative z-10 min-w-0">
+
         {/* Header */}
-        <div className="h-20 border-b border-white/50 flex items-center justify-between px-6 bg-white/40 backdrop-blur-md z-10">
-          <div className="flex items-center gap-4">
-            <button
-              onClick={() => setShowSidebar(true)}
-              className="lg:hidden p-2 hover:bg-white/50 rounded-full transition-colors"
-            >
-              <Bars3Icon className="w-6 h-6 text-slate-600" />
+        <div className="flex items-center justify-between px-5 py-3.5 flex-shrink-0"
+          style={{ borderBottom: `0.5px solid ${DL.glassB}`, background: "rgba(9,9,26,0.8)", backdropFilter: "blur(12px)" }}>
+          <div className="flex items-center gap-3">
+            <button onClick={() => setShowSidebar(true)} className="lg:hidden mr-1">
+              <Bars3Icon className="w-5 h-5" style={{ color: DL.muted }} />
             </button>
             <div className="relative">
-              <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-luminel-gold-soft to-luminel-gold-dark flex items-center justify-center text-white shadow-lg shadow-luminel-gold-soft/20">
-                <SparklesIcon className="w-6 h-6" />
+              <div className="w-10 h-10 rounded-xl flex items-center justify-center"
+                style={{ background: DL.goldDim, border: `0.5px solid ${DL.goldB}` }}>
+                <SparklesIcon className="w-5 h-5" style={{ color: DL.gold }} />
               </div>
-              <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 border-2 border-white rounded-full"></div>
+              <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2"
+                style={{ background: "#3DB87A", borderColor: DL.deep }} />
             </div>
             <div>
-              <h2 className="font-serif font-bold text-slate-800 text-lg leading-tight">Luminel</h2>
-              <span className="text-xs text-slate-500 font-medium tracking-wide uppercase">AI Transformational Coach</span>
+              <div className="text-[14px] font-medium" style={{ color: DL.white }}>Luminel</div>
+              <div className="text-[10px] tracking-[0.1em] uppercase" style={{ color: DL.muted }}>Coach Trasformativo · Online</div>
             </div>
           </div>
-          <button className="p-2 text-slate-400 hover:text-slate-600 hover:bg-white/50 rounded-full transition-all">
-            <EllipsisHorizontalIcon className="w-6 h-6" />
+
+          {/* Mode selector */}
+          <div className="flex items-center gap-1.5 hidden md:flex">
+            {(["coach", "shadow", "strategy"] as const).map(m => (
+              <button key={m} onClick={() => setMode(m)}
+                className="px-3 py-1.5 rounded-lg text-[11px] transition-all border capitalize"
+                style={mode === m
+                  ? { background: DL.goldDim, borderColor: DL.goldB, color: DL.gold }
+                  : { background: "transparent", borderColor: "transparent", color: DL.muted }}>
+                {m === "coach" ? "Coach" : m === "shadow" ? "Shadow Work" : "Strategia"}
+              </button>
+            ))}
+          </div>
+
+          <button className="w-8 h-8 rounded-lg flex items-center justify-center"
+            style={{ color: DL.muted }}>
+            <EllipsisHorizontalIcon className="w-5 h-5" />
           </button>
         </div>
 
         {/* Messages */}
-        <div className="flex-1 overflow-y-auto p-6 md:p-8 scroll-smooth">
-          {messages.map((msg) => (
-            <ChatBubble key={msg.id} message={msg} />
-          ))}
+        <div className="flex-1 overflow-y-auto px-5 py-6 space-y-1">
+
+          {/* Quick prompts (show only at start) */}
+          {messages.length <= 1 && !isLoading && (
+            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}
+              className="mb-6">
+              <p className="text-[11px] tracking-[0.14em] uppercase mb-3" style={{ color: DL.muted }}>Suggerimenti</p>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                {QUICK_PROMPTS.map((prompt, i) => (
+                  <button key={i} onClick={() => handleSend(undefined, prompt)}
+                    className="text-left px-4 py-3 rounded-xl text-[12px] transition-all border"
+                    style={{ background: DL.glass, borderColor: DL.glassB, color: "rgba(240,235,224,0.65)" }}
+                    onMouseEnter={e => { e.currentTarget.style.borderColor = DL.goldB; e.currentTarget.style.color = DL.white; }}
+                    onMouseLeave={e => { e.currentTarget.style.borderColor = DL.glassB; e.currentTarget.style.color = "rgba(240,235,224,0.65)"; }}>
+                    {prompt}
+                  </button>
+                ))}
+              </div>
+            </motion.div>
+          )}
+
+          {messages.map(msg => <ChatBubble key={msg.id} message={msg} />)}
           {isLoading && <TypingIndicator />}
           <div ref={messagesEndRef} />
         </div>
 
-        {/* Input Area */}
-        <div className="p-6 bg-white/60 backdrop-blur-md border-t border-white/50">
-          <form onSubmit={handleSend} className="flex gap-3 items-end max-w-4xl mx-auto">
-            <div className="flex-1 bg-white border border-slate-100 rounded-[1.5rem] flex items-center p-1.5 focus-within:ring-2 focus-within:ring-luminel-gold-soft/20 focus-within:border-luminel-gold-soft transition-all shadow-sm hover:shadow-md">
-              <input
-                type="text"
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                placeholder="Scrivi qualcosa a Luminel..."
-                className="flex-1 bg-transparent border-none focus:ring-0 px-4 py-3 text-slate-700 placeholder-slate-400 outline-none font-medium"
+        {/* Input area */}
+        <div className="flex-shrink-0 px-5 pb-5 pt-3"
+          style={{ borderTop: `0.5px solid ${DL.glassB}`, background: "rgba(9,9,26,0.6)", backdropFilter: "blur(12px)" }}>
+          <form onSubmit={handleSend} className="flex gap-3 items-end max-w-3xl mx-auto">
+            <div className="flex-1 flex items-end rounded-xl transition-all"
+              style={{ background: DL.glass, border: `0.5px solid ${DL.glassB}` }}
+              onFocus={() => { }} >
+              <textarea ref={inputRef} rows={1} value={input}
+                onChange={handleInputChange} onKeyDown={handleKeyDown}
+                placeholder="Parla con Luminel…"
                 disabled={isLoading}
+                className="flex-1 bg-transparent border-none outline-none resize-none px-4 py-3 text-[13px] leading-relaxed"
+                style={{ color: DL.white, minHeight: "44px", maxHeight: "120px" }}
+                onFocus={e => e.currentTarget.parentElement!.style.borderColor = DL.goldB}
+                onBlur={e => e.currentTarget.parentElement!.style.borderColor = DL.glassB}
               />
             </div>
-            <button
-              type="submit"
-              disabled={!input.trim() || isLoading}
-              className="p-4 bg-gradient-to-br from-luminel-gold-soft to-luminel-gold-dark text-white rounded-[1.5rem] hover:shadow-lg hover:shadow-luminel-gold-soft/30 disabled:opacity-50 disabled:cursor-not-allowed transition-all active:scale-95 flex-shrink-0"
-            >
-              <PaperAirplaneIcon className="w-6 h-6" />
+            <button type="submit" disabled={!input.trim() || isLoading}
+              className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0 transition-all"
+              style={{ background: input.trim() && !isLoading ? DL.gold : "rgba(255,255,255,0.05)", border: `0.5px solid ${input.trim() && !isLoading ? DL.gold : DL.glassB}` }}>
+              <PaperAirplaneIcon className="w-5 h-5" style={{ color: input.trim() && !isLoading ? "#06060F" : DL.muted }} />
             </button>
           </form>
-          <p className="text-center text-[10px] text-slate-400 mt-3 font-medium">
-            Luminel è un'AI e può commettere errori. Verifica le informazioni importanti.
+
+          {/* Limit warning */}
+          {nearLimit && messageCount < limit && (
+            <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+              className="text-center text-[10px] mt-2" style={{ color: "#D4603A" }}>
+              {limit - messageCount} messaggi rimanenti · <span style={{ color: DL.gold, cursor: "pointer" }}>Passa a Premium</span>
+            </motion.p>
+          )}
+
+          <p className="text-center text-[10px] mt-2" style={{ color: DL.muted }}>
+            Luminel AI Coach · Sviluppo personale ai sensi della Legge 4/2013 · Non è un servizio medico · <span style={{ color: DL.muted }}>Invio: Enter · A capo: Shift+Enter</span>
           </p>
         </div>
       </div>

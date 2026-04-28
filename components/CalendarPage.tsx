@@ -1,534 +1,469 @@
-import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import React, { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import {
-    ChevronLeftIcon,
-    ChevronRightIcon,
-    CalendarDaysIcon,
-    ClockIcon,
-    UserGroupIcon,
-    BookOpenIcon,
-    HeartIcon,
-    MoonIcon,
-    StarIcon,
-    PlusIcon,
-    CheckCircleIcon,
-    BellIcon
-} from '@heroicons/react/24/outline';
-import {
-    CalendarDaysIcon as CalendarDaysSolid,
-    ClockIcon as ClockSolid
-} from '@heroicons/react/24/solid';
+    ChevronLeftIcon, ChevronRightIcon, CalendarDaysIcon,
+    ClockIcon, UserGroupIcon, BookOpenIcon, HeartIcon,
+    MoonIcon, StarIcon, PlusIcon, CheckCircleIcon,
+    BellIcon, XMarkIcon, PlayIcon, LockClosedIcon,
+    FireIcon, SparklesIcon,
+} from "@heroicons/react/24/outline";
+import { CheckCircleIcon as CheckSolid, FireIcon as FireSolid } from "@heroicons/react/24/solid";
+import { useAuth } from "../contexts/AuthContext";
+import CalendarSakuraPetals from "./calendar/CalendarSakuraPetals";
+import CalendarLoadingScreen from "./calendar/CalendarLoadingScreen";
+import NewEventModal from "./calendar/NewEventModal";
+import ProgressTracking from "./journey/ProgressTracking";
 
-import { useAuth } from '../contexts/AuthContext';
-import CalendarSakuraPetals from './calendar/CalendarSakuraPetals';
-import CalendarLoadingScreen from './calendar/CalendarLoadingScreen';
-import NewEventModal from './calendar/NewEventModal';
-
-import ProgressTracking from './journey/ProgressTracking';
-
-// Colori tema dell'app
-const colors = {
-    primary: "#5B4B8A",
-    secondary: "#7E6BC4",
-    accent: "#399D9E",
-    light: "#F7FAFA",
-    success: "#4CB19C",
-    highlight: "#FFC857",
-    calm: "#BEE3D4",
-    meditation: "#D8C1E9",
-    course: "#F0BED2",
-    error: "#EF4444"
+// ─── DARK LUXURY TOKENS ───────────────────────────────────────────────────────
+const DL = {
+    gold: "#C9A84C", goldBr: "#EDD980", goldDim: "rgba(201,168,76,0.12)",
+    goldB: "rgba(201,168,76,0.25)", alch: "#9B74E0", stra: "#4A9ED4",
+    guer: "#D4603A", white: "#F0EBE0", muted: "#6A6560",
+    glass: "rgba(255,255,255,0.035)", glassB: "rgba(255,255,255,0.07)",
+    dim: "#252330", deep: "#09091A", surface: "#0D0D20",
 };
 
-// Tipi di eventi
-const eventTypes: Record<string, any> = {
-    session: {
-        color: colors.accent,
-        icon: <UserGroupIcon className="w-4 h-4" />,
-        label: "Sessione Live",
-        bgColor: "#E5F5F5"
-    },
-    course: {
-        color: colors.course,
-        icon: <BookOpenIcon className="w-4 h-4" />,
-        label: "Corso",
-        bgColor: "#FFEBF0"
-    },
-    meditation: {
-        color: colors.meditation,
-        icon: <MoonIcon className="w-4 h-4" />,
-        label: "Meditazione",
-        bgColor: "#F0EDFA"
-    },
-    calm: {
-        color: colors.calm,
-        icon: <HeartIcon className="w-4 h-4" />,
-        label: "Relax",
-        bgColor: "#F0FDF4"
-    },
-    personal: {
-        color: colors.highlight,
-        icon: <StarIcon className="w-4 h-4" />,
-        label: "Personale",
-        bgColor: "#FEF3C7"
-    }
+// ─── EVENT TYPES ─────────────────────────────────────────────────────────────
+const EVENT_TYPES: Record<string, { color: string; icon: React.ReactNode; label: string; bg: string }> = {
+    session: { color: "#4A9ED4", icon: <UserGroupIcon className="w-4 h-4" />, label: "Sessione Live", bg: "rgba(74,158,212,0.08)" },
+    course: { color: "#C9A84C", icon: <BookOpenIcon className="w-4 h-4" />, label: "Corso", bg: "rgba(201,168,76,0.08)" },
+    meditation: { color: "#9B74E0", icon: <MoonIcon className="w-4 h-4" />, label: "Meditazione", bg: "rgba(155,116,224,0.08)" },
+    calm: { color: "#10B981", icon: <HeartIcon className="w-4 h-4" />, label: "Calm Space", bg: "rgba(16,185,129,0.08)" },
+    quest: { color: "#D4603A", icon: <FireIcon className="w-4 h-4" />, label: "Reality Quest", bg: "rgba(212,96,58,0.08)" },
+    personal: { color: "#F59E0B", icon: <StarIcon className="w-4 h-4" />, label: "Personale", bg: "rgba(245,158,11,0.08)" },
 };
 
-// Eventi di esempio
-const sampleEvents = [
-    {
-        id: 'session-1',
-        title: "Mindful Stretching",
-        type: "session",
-        date: new Date(),
-        time: "11:00",
-        duration: 45,
-        trainer: "Elena",
-        plan: "free",
-        completed: false,
-        booked: true,
-        description: "Sessione di stretching consapevole per rilassare corpo e mente"
-    },
-    {
-        id: 'meditation-1',
-        title: "Respirazione Consapevole",
-        type: "meditation",
-        date: new Date(),
-        time: "18:30",
-        duration: 15,
-        plan: "free",
-        completed: false,
-        booked: true,
-        description: "Pratica di respirazione per centrarsi e trovare calma"
-    },
-    {
-        id: 'course-1',
-        title: "Self-Love Foundations",
-        type: "course",
-        date: new Date(Date.now() + 24 * 60 * 60 * 1000),
-        time: "10:00",
-        duration: 60,
-        plan: "premium",
-        completed: false,
-        booked: false,
-        description: "Fondamenti per sviluppare un rapporto sano con se stessi"
-    },
-    {
-        id: 'session-2',
-        title: "Yoga Flow Mattutino",
-        type: "session",
-        date: new Date(Date.now() + 24 * 60 * 60 * 1000),
-        time: "07:30",
-        duration: 45,
-        trainer: "Marco",
-        plan: "premium",
-        completed: false,
-        booked: true,
-        description: "Sequenza di yoga energizzante per iniziare la giornata"
-    }
-];
+// ─── SAMPLE EVENTS — collegati ai dati reali dell'app ─────────────────────────
+const makeEvents = () => {
+    const today = new Date();
+    const d = (days: number) => { const x = new Date(today); x.setDate(today.getDate() + days); return x; };
+    return [
+        { id: "rq-1", title: "Reality Quest · Decisione Rimasta nel Cassetto", type: "quest", date: today, time: "09:00", duration: 30, plan: "free", completed: false, booked: true, desc: "Identifica UNA decisione che rimandi. Prendila entro 3 ore.", linked: "quests" },
+        { id: "med-breath", title: "Respirazione Consapevole", type: "meditation", date: today, time: "07:30", duration: 10, plan: "free", completed: true, booked: true, desc: "Tecnica 4-7-8 per iniziare la giornata con chiarezza.", linked: "experiences" },
+        { id: "calm-1", title: "Gamma Wave · Focus Estremo", type: "calm", date: today, time: "15:00", duration: 25, plan: "premium", completed: false, booked: true, desc: "Frequenza 40Hz per produttività e creatività avanzata.", linked: "experiences" },
+        { id: "course-ml", title: "The Art of Mindful Living · Day 18", type: "course", date: today, time: "20:00", duration: 20, plan: "free", completed: false, booked: true, desc: "Integrazione Profonda — visualizza la tua versione più alta.", linked: "courses", progress: 85 },
+        { id: "session-1", title: "Sessione AI · Shadow Work", type: "session", date: d(1), time: "10:00", duration: 45, plan: "premium", completed: false, booked: false, desc: "Sessione profonda con Luminel — modalità Shadow Work.", linked: "chat" },
+        { id: "course-ei", title: "Emotional Intelligence · Day 20", type: "course", date: d(1), time: "08:00", duration: 25, plan: "premium", completed: false, booked: true, desc: "Empatia Attiva: ascolta senza preparare la risposta.", linked: "courses", progress: 65 },
+        { id: "council-1", title: "Il Consiglio degli Archetipi", type: "session", date: d(1), time: "18:00", duration: 60, plan: "vip", completed: false, booked: false, desc: "Convoca i 4 archetipi per analizzare la tua sfida attuale.", linked: "council" },
+        { id: "rq-2", title: "Reality Quest · Lettera a Te Stesso", type: "quest", date: d(2), time: "09:00", duration: 30, plan: "free", completed: false, booked: true, desc: "Scrivi una lettera a te stesso di 3 mesi fa. Cosa ha cambiato?", linked: "quests" },
+        { id: "med-zen", title: "Meditazione Zen · 45 min", type: "meditation", date: d(2), time: "21:00", duration: 45, plan: "vip", completed: false, booked: false, desc: "Pratica tradizionale Zen per meditatori avanzati.", linked: "experiences" },
+        { id: "course-dt", title: "Deep Transformation · Day 23", type: "course", date: d(3), time: "08:00", duration: 30, plan: "vip", completed: false, booked: true, desc: "La Mappa delle Credenze — sfida una credenza limitante oggi.", linked: "courses", progress: 38 },
+        { id: "calm-2", title: "Theta Wave · Riprogrammazione Profonda", type: "calm", date: d(3), time: "22:00", duration: 30, plan: "premium", completed: false, booked: false, desc: "6Hz — accesso all'inconscio e creatività espansa.", linked: "experiences" },
+        { id: "session-call", title: "Voice Coach · Sessione Vocale", type: "session", date: d(4), time: "11:00", duration: 60, plan: "vip", completed: false, booked: false, desc: "Sessione vocale HD con Luminel — analisi emotiva post-call.", linked: "call" },
+        { id: "personal-1", title: "Journaling Ikigai", type: "personal", date: d(-1), time: "20:00", duration: 20, plan: "free", completed: true, booked: true, desc: "Riflessione quotidiana sui 4 cerchi dell'Ikigai.", linked: "quests" },
+        { id: "personal-2", title: "Lettura · The Power of Now", type: "personal", date: d(-2), time: "21:00", duration: 30, plan: "free", completed: true, booked: true, desc: "30 minuti di lettura contemplativa.", linked: null },
+    ];
+};
 
+const PLAN_ORDER: Record<string, number> = { free: 0, premium: 1, vip: 2 };
+const canAccess = (userPlan: string, eventPlan: string) => PLAN_ORDER[userPlan] >= PLAN_ORDER[eventPlan];
+
+// ─── STAT ROW (mini stat nel header) ─────────────────────────────────────────
+const MiniStat: React.FC<{ icon: React.ReactNode; label: string; value: string; color: string }> = ({ icon, label, value, color }) => (
+    <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg" style={{ background: `${color}10`, border: `0.5px solid ${color}25` }}>
+        <span style={{ color }}>{icon}</span>
+        <div>
+            <div className="text-[10px]" style={{ color: DL.muted }}>{label}</div>
+            <div className="text-[12px] font-medium" style={{ color: DL.white }}>{value}</div>
+        </div>
+    </div>
+);
+
+// ─── EVENT CARD ───────────────────────────────────────────────────────────────
+const EventCard: React.FC<{ event: any; userPlan: string; onSelect: (e: any) => void; delay?: number }> = ({ event, userPlan, onSelect, delay = 0 }) => {
+    const et = EVENT_TYPES[event.type];
+    const ok = canAccess(userPlan, event.plan);
+    return (
+        <motion.div initial={{ opacity: 0, x: -12 }} animate={{ opacity: 1, x: 0 }} transition={{ delay }}
+            onClick={() => onSelect(event)}
+            className="group relative rounded-xl overflow-hidden cursor-pointer transition-all duration-200"
+            style={{ background: event.completed ? "rgba(16,185,129,0.06)" : et.bg, border: `0.5px solid ${event.completed ? "rgba(16,185,129,0.3)" : et.color + "30"}`, opacity: ok ? 1 : 0.55 }}
+            whileHover={ok ? { y: -1, borderColor: `${et.color}60` } : {}}>
+            {/* Left accent */}
+            <div className="absolute left-0 top-0 bottom-0 w-0.5" style={{ background: et.color }} />
+            <div className="pl-4 pr-4 py-3.5 flex items-start gap-3">
+                {/* Icon */}
+                <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5"
+                    style={{ background: `${et.color}20`, color: et.color }}>
+                    {event.completed ? <CheckSolid className="w-4 h-4" style={{ color: "#10B981" }} /> : et.icon}
+                </div>
+                <div className="flex-1 min-w-0">
+                    <div className="flex items-start justify-between gap-2">
+                        <div className="min-w-0">
+                            <div className="text-[13px] font-medium leading-snug truncate" style={{ color: event.completed ? "#10B981" : DL.white }}>{event.title}</div>
+                            <div className="flex items-center gap-2 mt-1 flex-wrap">
+                                <span className="flex items-center gap-1 text-[10px]" style={{ color: DL.muted }}>
+                                    <ClockIcon className="w-3 h-3" />{event.time} · {event.duration}min
+                                </span>
+                                {event.progress !== undefined && (
+                                    <span className="text-[10px]" style={{ color: et.color }}>{event.progress}% completato</span>
+                                )}
+                            </div>
+                            {/* Mini progress bar for courses/quests */}
+                            {event.progress !== undefined && (
+                                <div className="mt-1.5 h-1 rounded-full overflow-hidden w-32" style={{ background: "rgba(255,255,255,0.05)" }}>
+                                    <div className="h-full rounded-full" style={{ width: `${event.progress}%`, background: et.color }} />
+                                </div>
+                            )}
+                        </div>
+                        <div className="flex flex-col items-end gap-1 flex-shrink-0">
+                            {!ok && <span className="text-[9px] px-1.5 py-0.5 rounded" style={{ background: `${et.color}12`, color: et.color }}>{event.plan.toUpperCase()}</span>}
+                            {event.booked && !event.completed && ok && (
+                                <span className="text-[9px]" style={{ color: "#4A9ED4" }}>• Prenotato</span>
+                            )}
+                            {event.completed && <span className="text-[9px]" style={{ color: "#10B981" }}>✓ Fatto</span>}
+                            {!ok && <LockClosedIcon className="w-3.5 h-3.5" style={{ color: DL.muted }} />}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </motion.div>
+    );
+};
+
+// ─── EVENT DETAIL MODAL ───────────────────────────────────────────────────────
+const EventModal: React.FC<{
+    event: any; userPlan: string;
+    onClose: () => void;
+    onToggleBook: (id: string) => void;
+    onComplete: (id: string) => void;
+}> = ({ event, userPlan, onClose, onToggleBook, onComplete }) => {
+    const et = EVENT_TYPES[event.type];
+    const ok = canAccess(userPlan, event.plan);
+    const linkedLabels: Record<string, string> = {
+        chat: "Apri Chat AI", courses: "Vai ai Corsi", experiences: "Vai alle Experiences",
+        quests: "Vai alle Quests", council: "Vai al Consiglio", call: "Vai al Voice Coach",
+    };
+    return (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4"
+            style={{ background: "rgba(6,6,15,0.88)", backdropFilter: "blur(12px)" }}
+            onClick={e => e.target === e.currentTarget && onClose()}>
+            <motion.div initial={{ opacity: 0, y: 20, scale: 0.97 }} animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: 12 }} transition={{ duration: 0.24, ease: "easeOut" }}
+                className="w-full max-w-md rounded-2xl overflow-hidden"
+                style={{ background: DL.surface, border: `0.5px solid ${et.color}35` }}>
+                {/* Header */}
+                <div className="p-5 pb-4 relative" style={{ background: `${et.color}10` }}>
+                    <div className="absolute top-0 left-0 right-0 h-px" style={{ background: `linear-gradient(90deg,transparent,${et.color}55,transparent)` }} />
+                    <div className="flex items-start justify-between">
+                        <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: `${et.color}20`, color: et.color }}>
+                                {et.icon}
+                            </div>
+                            <div>
+                                <div className="text-[9px] tracking-[0.16em] uppercase mb-0.5" style={{ color: et.color }}>{et.label}</div>
+                                <div className="text-[16px] font-medium leading-tight" style={{ color: DL.white, fontFamily: "'Cormorant Garamond',serif" }}>{event.title}</div>
+                            </div>
+                        </div>
+                        <button onClick={onClose} className="w-7 h-7 rounded-full flex items-center justify-center"
+                            style={{ background: "rgba(255,255,255,0.05)", color: DL.muted }}>
+                            <XMarkIcon className="w-4 h-4" />
+                        </button>
+                    </div>
+                </div>
+                {/* Body */}
+                <div className="p-5">
+                    {/* Meta */}
+                    <div className="grid grid-cols-2 gap-3 mb-4">
+                        {[
+                            { label: "Orario", value: event.time },
+                            { label: "Durata", value: `${event.duration} min` },
+                            ...(event.trainer ? [{ label: "Istruttore", value: event.trainer }] : []),
+                            { label: "Piano richiesto", value: event.plan.toUpperCase() },
+                        ].map((m, i) => (
+                            <div key={i} className="px-3 py-2.5 rounded-xl" style={{ background: DL.glass, border: `0.5px solid ${DL.glassB}` }}>
+                                <div className="text-[9px] uppercase tracking-[0.12em] mb-0.5" style={{ color: DL.muted }}>{m.label}</div>
+                                <div className="text-[13px] font-medium" style={{ color: DL.white }}>{m.value}</div>
+                            </div>
+                        ))}
+                    </div>
+                    {/* Progress */}
+                    {event.progress !== undefined && (
+                        <div className="mb-4 px-3 py-2.5 rounded-xl" style={{ background: DL.glass, border: `0.5px solid ${DL.glassB}` }}>
+                            <div className="flex justify-between text-[11px] mb-2">
+                                <span style={{ color: DL.muted }}>Progresso percorso</span>
+                                <span style={{ color: et.color }}>{event.progress}%</span>
+                            </div>
+                            <div className="h-1.5 rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.05)" }}>
+                                <div className="h-full rounded-full" style={{ width: `${event.progress}%`, background: et.color }} />
+                            </div>
+                        </div>
+                    )}
+                    {/* Desc */}
+                    {event.desc && (
+                        <p className="text-[12px] leading-relaxed mb-5" style={{ color: "rgba(240,235,224,0.65)" }}>{event.desc}</p>
+                    )}
+                    {/* Actions */}
+                    {ok ? (
+                        <div className="flex flex-col gap-2">
+                            {!event.completed && (
+                                <div className="flex gap-2">
+                                    <button onClick={() => onToggleBook(event.id)}
+                                        className="flex-1 py-2.5 rounded-xl text-[12px] font-medium transition-all"
+                                        style={event.booked
+                                            ? { background: "rgba(255,255,255,0.04)", color: DL.muted, border: `0.5px solid ${DL.glassB}` }
+                                            : { background: `${et.color}18`, color: et.color, border: `0.5px solid ${et.color}35` }}>
+                                        {event.booked ? "Annulla prenotazione" : "Prenota"}
+                                    </button>
+                                    {event.booked && (
+                                        <button onClick={() => { onComplete(event.id); onClose(); }}
+                                            className="flex-1 py-2.5 rounded-xl text-[12px] font-medium transition-all"
+                                            style={{ background: "rgba(16,185,129,0.15)", color: "#10B981", border: "0.5px solid rgba(16,185,129,0.3)" }}>
+                                            ✓ Segna completato
+                                        </button>
+                                    )}
+                                </div>
+                            )}
+                            {event.completed && (
+                                <div className="py-2.5 rounded-xl text-[12px] text-center"
+                                    style={{ background: "rgba(16,185,129,0.08)", color: "#10B981", border: "0.5px solid rgba(16,185,129,0.25)" }}>
+                                    <CheckSolid className="w-4 h-4 inline mr-1.5 -mt-0.5" />Completato
+                                </div>
+                            )}
+                            {event.linked && (
+                                <button className="w-full py-2.5 rounded-xl text-[12px] font-medium flex items-center justify-center gap-2 transition-all"
+                                    style={{ background: `${et.color}10`, color: et.color, border: `0.5px solid ${et.color}25` }}>
+                                    <PlayIcon className="w-3.5 h-3.5" />
+                                    {linkedLabels[event.linked] || "Apri"}
+                                </button>
+                            )}
+                        </div>
+                    ) : (
+                        <div className="py-4 rounded-xl text-center" style={{ background: "rgba(212,96,58,0.06)", border: "0.5px solid rgba(212,96,58,0.2)" }}>
+                            <LockClosedIcon className="w-5 h-5 mx-auto mb-1.5" style={{ color: "#D4603A" }} />
+                            <p className="text-[12px] font-medium" style={{ color: "#D4603A" }}>Piano {event.plan.toUpperCase()} richiesto</p>
+                            <p className="text-[10px] mt-0.5" style={{ color: DL.muted }}>Aggiorna il tuo piano per accedere</p>
+                        </div>
+                    )}
+                </div>
+            </motion.div>
+        </div>
+    );
+};
+
+// ─── MAIN PAGE ────────────────────────────────────────────────────────────────
 const CalendarPage: React.FC = () => {
     const { user } = useAuth();
+    const userPlan = (user as any)?.plan ?? "vip";
 
-    const [activeTab, setActiveTab] = useState<'calendar' | 'tracking'>('calendar');
+    const [activeTab, setActiveTab] = useState<"calendar" | "tracking">("tracking");
     const [currentDate, setCurrentDate] = useState(new Date());
     const [selectedDate, setSelectedDate] = useState(new Date());
-    const [viewMode, setViewMode] = useState<'day' | 'week' | 'month'>('week');
+    const [viewMode, setViewMode] = useState<"day" | "week" | "month">("week");
     const [selectedEvent, setSelectedEvent] = useState<any>(null);
-    const [activeFilters, setActiveFilters] = useState(['session', 'course', 'meditation', 'calm', 'personal']);
+    const [activeFilters, setActiveFilters] = useState(Object.keys(EVENT_TYPES));
     const [isLoading, setIsLoading] = useState(true);
-    const [userPlan, setUserPlan] = useState('premium'); // Default to premium for demo
-    const [events, setEvents] = useState(sampleEvents);
+    const [events, setEvents] = useState<any[]>(makeEvents);
     const [showNewEventModal, setShowNewEventModal] = useState(false);
 
+    // ── calendar helpers ──────────────────────────────────────────────────────
     const getDaysInMonth = (date: Date) => {
-        const year = date.getFullYear();
-        const month = date.getMonth();
-        const firstDay = new Date(year, month, 1);
-        const lastDay = new Date(year, month + 1, 0);
-
-        const daysInMonth = [];
+        const year = date.getFullYear(); const month = date.getMonth();
+        const firstDay = new Date(year, month, 1); const lastDay = new Date(year, month + 1, 0);
+        const days: { date: Date; isCurrentMonth: boolean }[] = [];
         const startDay = firstDay.getDay() === 0 ? 6 : firstDay.getDay() - 1;
+        for (let i = 0; i < startDay; i++) days.push({ date: new Date(year, month, -startDay + i + 1), isCurrentMonth: false });
+        for (let i = 1; i <= lastDay.getDate(); i++) days.push({ date: new Date(year, month, i), isCurrentMonth: true });
+        while (days.length < 42) days.push({ date: new Date(year, month + 1, days.length - startDay - lastDay.getDate() + 1), isCurrentMonth: false });
+        return days;
+    };
 
-        for (let i = 0; i < startDay; i++) {
-            const prevDate = new Date(year, month, -startDay + i + 1);
-            daysInMonth.push({ date: prevDate, isCurrentMonth: false });
+    const getEventsForDate = (date: Date) =>
+        events.filter(e => activeFilters.includes(e.type) && e.date.toDateString() === date.toDateString());
+
+    const getWeekDays = () => {
+        const start = new Date(selectedDate);
+        const day = start.getDay(); start.setDate(start.getDate() - day + (day === 0 ? -6 : 1));
+        return Array.from({ length: 7 }, (_, i) => { const d = new Date(start); d.setDate(start.getDate() + i); return { date: d, events: getEventsForDate(d) }; });
+    };
+
+    const navigate = (dir: number) => {
+        if (viewMode === "month") { const d = new Date(currentDate); d.setMonth(d.getMonth() + dir); setCurrentDate(d); }
+        else if (viewMode === "week") { const d = new Date(selectedDate); d.setDate(d.getDate() + dir * 7); setSelectedDate(d); }
+        else { const d = new Date(selectedDate); d.setDate(d.getDate() + dir); setSelectedDate(d); }
+    };
+
+    const toggleBook = (id: string) => setEvents(ev => ev.map(e => e.id === id ? { ...e, booked: !e.booked } : e));
+    const complete = (id: string) => setEvents(ev => ev.map(e => e.id === id ? { ...e, completed: true } : e));
+
+    const formatTitle = () => {
+        if (viewMode === "month") return currentDate.toLocaleDateString("it-IT", { month: "long", year: "numeric" });
+        if (viewMode === "week") {
+            const w = getWeekDays(); const s = w[0].date; const end = w[6].date;
+            return s.getMonth() === end.getMonth()
+                ? `${s.getDate()}–${end.getDate()} ${s.toLocaleDateString("it-IT", { month: "long", year: "numeric" })}`
+                : `${s.toLocaleDateString("it-IT", { day: "numeric", month: "short" })} – ${end.toLocaleDateString("it-IT", { day: "numeric", month: "short", year: "numeric" })}`;
         }
-
-        for (let i = 1; i <= lastDay.getDate(); i++) {
-            daysInMonth.push({ date: new Date(year, month, i), isCurrentMonth: true });
-        }
-
-        const remainingDays = 42 - daysInMonth.length;
-        for (let i = 1; i <= remainingDays; i++) {
-            daysInMonth.push({ date: new Date(year, month + 1, i), isCurrentMonth: false });
-        }
-
-        return daysInMonth;
+        return selectedDate.toLocaleDateString("it-IT", { day: "numeric", month: "long", year: "numeric" });
     };
 
-    const getEventsForDate = (date: Date) => {
-        return events.filter(event => {
-            if (!activeFilters.includes(event.type)) return false;
-            return event.date.toDateString() === date.toDateString();
-        });
-    };
-
-    const getWeekEvents = () => {
-        const startOfWeek = new Date(selectedDate);
-        const day = startOfWeek.getDay();
-        const diff = startOfWeek.getDate() - day + (day === 0 ? -6 : 1);
-        startOfWeek.setDate(diff);
-
-        const weekEvents = [];
-        for (let i = 0; i < 7; i++) {
-            const date = new Date(startOfWeek);
-            date.setDate(startOfWeek.getDate() + i);
-            weekEvents.push({
-                date: new Date(date),
-                events: getEventsForDate(date)
-            });
-        }
-        return weekEvents;
-    };
-
-    const navigateCalendar = (direction: number) => {
-        if (viewMode === 'month') {
-            const newDate = new Date(currentDate);
-            newDate.setMonth(currentDate.getMonth() + direction);
-            setCurrentDate(newDate);
-        } else if (viewMode === 'week') {
-            const newDate = new Date(selectedDate);
-            newDate.setDate(selectedDate.getDate() + (direction * 7));
-            setSelectedDate(newDate);
-        } else {
-            const newDate = new Date(selectedDate);
-            newDate.setDate(selectedDate.getDate() + direction);
-            setSelectedDate(newDate);
-        }
-    };
-
-    const toggleEventBooking = (eventId: string) => {
-        setEvents(events.map(event => {
-            if (event.id === eventId) {
-                return { ...event, booked: !event.booked };
-            }
-            return event;
-        }));
-    };
-
-    const completeEvent = (eventId: string) => {
-        setEvents(events.map(event => {
-            if (event.id === eventId) {
-                return { ...event, completed: true };
-            }
-            return event;
-        }));
-    };
-
-    const formatMonth = (date: Date) => {
-        return date.toLocaleDateString('it-IT', { month: 'long', year: 'numeric' });
-    };
-
-    const formatWeek = () => {
-        const weekEvents = getWeekEvents();
-        const startDate = weekEvents[0].date;
-        const endDate = weekEvents[6].date;
-
-        if (startDate.getMonth() === endDate.getMonth()) {
-            return `${startDate.getDate()}-${endDate.getDate()} ${startDate.toLocaleDateString('it-IT', { month: 'long', year: 'numeric' })}`;
-        } else {
-            return `${startDate.toLocaleDateString('it-IT', { day: 'numeric', month: 'short' })} - ${endDate.toLocaleDateString('it-IT', { day: 'numeric', month: 'short', year: 'numeric' })}`;
-        }
-    };
-
-    const canAccessEvent = (event: any) => {
-        if (userPlan === 'vip') return true;
-        if (userPlan === 'premium') return event.plan !== 'vip';
-        return event.plan === 'free';
-    };
+    // stats for mini bar
+    const todayEvents = getEventsForDate(new Date());
+    const completedToday = todayEvents.filter(e => e.completed).length;
+    const bookedToday = todayEvents.filter(e => e.booked && !e.completed).length;
+    const weekAll = getWeekDays().flatMap(d => d.events);
+    const weekDone = weekAll.filter(e => e.completed).length;
 
     return (
-        <div className="relative min-h-screen bg-gradient-to-br from-luminel-champagne/20 via-white to-luminel-gold-soft/10 pb-24 max-w-full mx-auto overflow-hidden">
+        <div className="relative min-h-screen pb-24 max-w-full mx-auto overflow-hidden" style={{ background: "#06060F" }}>
             <CalendarSakuraPetals intensity="low" />
-
-            {/* Background Decorative Elements */}
-            <div className="fixed top-20 right-10 w-[400px] h-[400px] bg-luminel-gold-soft/10 rounded-full blur-3xl pointer-events-none animate-pulse" style={{ animationDuration: '8s' }} />
-            <div className="fixed bottom-20 left-10 w-[300px] h-[300px] bg-luminel-champagne/20 rounded-full blur-3xl pointer-events-none animate-pulse" style={{ animationDuration: '10s' }} />
+            {/* Ambient */}
+            <div className="fixed inset-0 pointer-events-none overflow-hidden -z-10">
+                <div className="absolute top-[-10%] right-[-5%] w-96 h-96 rounded-full" style={{ background: "rgba(201,168,76,0.04)", filter: "blur(100px)" }} />
+                <div className="absolute bottom-[-5%] left-[-5%] w-80 h-80 rounded-full" style={{ background: "rgba(155,116,224,0.05)", filter: "blur(100px)" }} />
+            </div>
 
             <AnimatePresence>
                 {isLoading ? (
                     <CalendarLoadingScreen onComplete={() => setIsLoading(false)} />
                 ) : (
                     <>
-                        {/* Header Sticky */}
-                        <div className="bg-white/80 backdrop-blur-xl shadow-sm sticky top-0 z-20 border-b border-slate-100">
-                            <div className="px-6 py-5 max-w-7xl mx-auto">
-                                {/* Title & Tabs */}
-                                <div className="flex flex-col md:flex-row md:items-center justify-between mb-6">
+                        {/* ── STICKY HEADER ── */}
+                        <div className="sticky top-0 z-20" style={{ background: "rgba(9,9,26,0.88)", borderBottom: `0.5px solid ${DL.dim}`, backdropFilter: "blur(20px)" }}>
+                            <div className="px-5 py-4 max-w-7xl mx-auto">
+                                {/* Title row */}
+                                <div className="flex items-start justify-between mb-4">
                                     <div>
-                                        <h1 className="text-4xl font-serif font-bold text-slate-800 mb-2 flex items-center gap-3">
-                                            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-luminel-gold-soft to-luminel-gold-dark flex items-center justify-center shadow-lg">
-                                                <CalendarDaysSolid className="w-6 h-6 text-white" />
-                                            </div>
-                                            My Journey
+                                        <div className="text-[9px] tracking-[0.24em] uppercase mb-1 opacity-70" style={{ color: DL.gold }}>Metodo Jara · Percorso nel tempo</div>
+                                        <h1 className="font-serif text-[28px] font-normal leading-tight mb-0.5" style={{ color: DL.white }}>
+                                            My <em className="italic" style={{ color: DL.gold }}>Journey</em>
                                         </h1>
-                                        <p className="text-slate-600">
-                                            {activeTab === 'calendar' ? 'Organizza il tuo percorso trasformazionale' : 'Traccia la tua evoluzione'}
+                                        <p className="text-[12px]" style={{ color: DL.muted }}>
+                                            {activeTab === "calendar" ? "Organizza il tuo percorso trasformazionale" : "Segui la tua evoluzione"}
                                         </p>
                                     </div>
-
-                                    {activeTab === 'calendar' && (
-                                        <motion.button
-                                            whileHover={{ scale: 1.05 }}
-                                            whileTap={{ scale: 0.95 }}
-                                            onClick={() => setShowNewEventModal(true)}
-                                            className="mt-4 md:mt-0 px-6 py-3 rounded-2xl bg-gradient-to-r from-luminel-gold-soft to-luminel-gold-dark text-white font-semibold shadow-lg shadow-luminel-gold-soft/30 flex items-center gap-2"
-                                        >
-                                            <PlusIcon className="w-5 h-5" />
-                                            Nuovo Evento
-                                        </motion.button>
-                                    )}
+                                    <div className="flex items-center gap-2">
+                                        {activeTab === "calendar" && (
+                                            <button onClick={() => setShowNewEventModal(true)}
+                                                className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-[12px] font-medium transition-all"
+                                                style={{ background: DL.goldDim, border: `0.5px solid ${DL.goldB}`, color: DL.gold }}>
+                                                <PlusIcon className="w-4 h-4" />Evento
+                                            </button>
+                                        )}
+                                    </div>
                                 </div>
 
-                                {/* Tab Navigation */}
-                                <div className="flex gap-3 mb-6">
-                                    <button
-                                        onClick={() => setActiveTab('calendar')}
-                                        className={`px-8 py-3.5 rounded-[1.5rem] font-serif font-bold text-lg transition-all duration-300 ${activeTab === 'calendar'
-                                                ? 'bg-gradient-to-r from-luminel-gold-soft to-luminel-gold-dark text-white shadow-xl shadow-luminel-gold-soft/40 scale-105'
-                                                : 'bg-white/60 text-slate-700 border border-slate-200 hover:shadow-md hover:bg-white'
-                                            }`}
-                                    >
-                                        📅 Calendario
-                                    </button>
-                                    <button
-                                        onClick={() => setActiveTab('tracking')}
-                                        className={`px-8 py-3.5 rounded-[1.5rem] font-serif font-bold text-lg transition-all duration-300 ${activeTab === 'tracking'
-                                                ? 'bg-gradient-to-r from-luminel-gold-soft to-luminel-gold-dark text-white shadow-xl shadow-luminel-gold-soft/40 scale-105'
-                                                : 'bg-white/60 text-slate-700 border border-slate-200 hover:shadow-md hover:bg-white'
-                                            }`}
-                                    >
-                                        📊 Il Mio Progresso
-                                    </button>
+                                {/* Mini stats (always visible) */}
+                                <div className="flex gap-2 flex-wrap mb-4">
+                                    <MiniStat icon={<FireSolid className="w-3.5 h-3.5" />} label="Oggi" value={`${completedToday}/${todayEvents.length} eventi`} color={DL.guer} />
+                                    <MiniStat icon={<BellIcon className="w-3.5 h-3.5" />} label="Prenotati oggi" value={`${bookedToday}`} color={DL.stra} />
+                                    <MiniStat icon={<CheckSolid className="w-3.5 h-3.5" />} label="Settimana" value={`${weekDone}/${weekAll.length} completati`} color="#10B981" />
                                 </div>
 
-                                {/* Calendar Controls - Only show when in calendar tab */}
-                                {activeTab === 'calendar' && (
-                                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                                        {/* View Mode Selector */}
-                                        <div className="flex bg-slate-100 rounded-2xl p-1.5">
-                                            {(['day', 'week', 'month'] as const).map((mode) => (
-                                                <button
-                                                    key={mode}
-                                                    onClick={() => setViewMode(mode)}
-                                                    className={`px-4 py-2 rounded-xl text-sm font-semibold transition-all ${viewMode === mode
-                                                            ? 'bg-white text-luminel-gold-soft shadow-md'
-                                                            : 'text-slate-600 hover:text-slate-800'
-                                                        }`}
-                                                >
-                                                    {mode === 'day' ? 'Giorno' : mode === 'week' ? 'Settimana' : 'Mese'}
+                                {/* Tabs */}
+                                <div className="flex gap-2 mb-4">
+                                    {(["calendar", "tracking"] as const).map(tab => (
+                                        <button key={tab} onClick={() => setActiveTab(tab)}
+                                            className="px-5 py-2 rounded-xl text-[12px] font-medium transition-all border"
+                                            style={activeTab === tab
+                                                ? { background: DL.goldDim, borderColor: DL.goldB, color: DL.goldBr }
+                                                : { background: "rgba(255,255,255,0.02)", borderColor: DL.glassB, color: DL.muted }}>
+                                            {tab === "calendar" ? "📅 Calendario" : "📊 Il Mio Progresso"}
+                                        </button>
+                                    ))}
+                                </div>
+
+                                {/* Calendar controls */}
+                                {activeTab === "calendar" && (
+                                    <div className="flex flex-col md:flex-row md:items-center gap-3">
+                                        {/* View mode */}
+                                        <div className="flex rounded-xl overflow-hidden flex-shrink-0" style={{ border: `0.5px solid ${DL.glassB}` }}>
+                                            {(["day", "week", "month"] as const).map(m => (
+                                                <button key={m} onClick={() => setViewMode(m)}
+                                                    className="px-4 py-2 text-[11px] transition-all"
+                                                    style={viewMode === m
+                                                        ? { background: DL.goldDim, color: DL.gold }
+                                                        : { background: "transparent", color: DL.muted }}>
+                                                    {m === "day" ? "Giorno" : m === "week" ? "Settimana" : "Mese"}
                                                 </button>
                                             ))}
                                         </div>
-
-                                        {/* Date Navigator */}
-                                        <div className="flex items-center gap-4">
-                                            <button
-                                                onClick={() => navigateCalendar(-1)}
-                                                className="p-2.5 rounded-xl bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 hover:shadow-md transition-all"
-                                            >
-                                                <ChevronLeftIcon className="w-5 h-5" />
+                                        {/* Nav */}
+                                        <div className="flex items-center gap-3">
+                                            <button onClick={() => navigate(-1)} className="w-7 h-7 rounded-lg flex items-center justify-center transition-all"
+                                                style={{ background: DL.glass, border: `0.5px solid ${DL.glassB}`, color: DL.muted }}
+                                                onMouseEnter={e => e.currentTarget.style.color = DL.white} onMouseLeave={e => e.currentTarget.style.color = DL.muted}>
+                                                <ChevronLeftIcon className="w-4 h-4" />
                                             </button>
-
-                                            <h2 className="font-serif text-xl font-bold text-slate-800 min-w-[200px] text-center capitalize">
-                                                {viewMode === 'month' ? formatMonth(currentDate) : viewMode === 'week' ? formatWeek() : selectedDate.toLocaleDateString('it-IT', { day: 'numeric', month: 'long', year: 'numeric' })}
-                                            </h2>
-
-                                            <button
-                                                onClick={() => navigateCalendar(1)}
-                                                className="p-2.5 rounded-xl bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 hover:shadow-md transition-all"
-                                            >
-                                                <ChevronRightIcon className="w-5 h-5" />
+                                            <span className="text-[13px] font-medium min-w-[180px] text-center capitalize" style={{ color: DL.white }}>{formatTitle()}</span>
+                                            <button onClick={() => navigate(1)} className="w-7 h-7 rounded-lg flex items-center justify-center transition-all"
+                                                style={{ background: DL.glass, border: `0.5px solid ${DL.glassB}`, color: DL.muted }}
+                                                onMouseEnter={e => e.currentTarget.style.color = DL.white} onMouseLeave={e => e.currentTarget.style.color = DL.muted}>
+                                                <ChevronRightIcon className="w-4 h-4" />
                                             </button>
                                         </div>
-
                                         {/* Filters */}
-                                        <div className="flex flex-wrap gap-2">
-                                            {Object.entries(eventTypes).map(([type, config]) => (
-                                                <button
-                                                    key={type}
-                                                    onClick={() => {
-                                                        if (activeFilters.includes(type)) {
-                                                            setActiveFilters(activeFilters.filter(f => f !== type));
-                                                        } else {
-                                                            setActiveFilters([...activeFilters, type]);
-                                                        }
-                                                    }}
-                                                    className={`px-4 py-2 rounded-full text-sm font-medium flex items-center gap-2 transition-all ${activeFilters.includes(type)
-                                                            ? 'text-white shadow-md scale-105'
-                                                            : 'bg-white/80 text-slate-600 border border-slate-200 hover:shadow-md'
-                                                        }`}
-                                                    style={{
-                                                        backgroundColor: activeFilters.includes(type) ? config.color : undefined
-                                                    }}
-                                                >
-                                                    {config.icon}
-                                                    {config.label}
-                                                </button>
-                                            ))}
+                                        <div className="flex flex-wrap gap-1.5">
+                                            {Object.entries(EVENT_TYPES).map(([type, cfg]) => {
+                                                const on = activeFilters.includes(type);
+                                                return (
+                                                    <button key={type} onClick={() => setActiveFilters(f => on ? f.filter(x => x !== type) : [...f, type])}
+                                                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[10px] transition-all border"
+                                                        style={on
+                                                            ? { background: `${cfg.color}14`, borderColor: `${cfg.color}40`, color: cfg.color }
+                                                            : { background: "rgba(255,255,255,0.02)", borderColor: DL.glassB, color: DL.muted }}>
+                                                        {cfg.icon}{cfg.label}
+                                                    </button>
+                                                );
+                                            })}
                                         </div>
                                     </div>
                                 )}
                             </div>
                         </div>
 
-                        {/* Content Area */}
-                        {activeTab === 'tracking' ? (
-                            <div className="px-4 py-8 relative z-10">
-                                <ProgressTracking />
-                            </div>
+                        {/* ── CONTENT ── */}
+                        {activeTab === "tracking" ? (
+                            <div className="px-4 py-8 relative z-10"><ProgressTracking /></div>
                         ) : (
-                            <div className="px-6 py-8 relative z-10 max-w-7xl mx-auto">
-                                {/* Week View */}
-                                {viewMode === 'week' && (
-                                    <div className="space-y-8">
-                                        {getWeekEvents().map((day, index) => {
-                                            const isToday = day.date.toDateString() === new Date().toDateString();
+                            <div className="px-5 py-8 max-w-7xl mx-auto relative z-10">
 
+                                {/* ── WEEK VIEW ── */}
+                                {viewMode === "week" && (
+                                    <div className="space-y-8">
+                                        {getWeekDays().map((day, i) => {
+                                            const isToday = day.date.toDateString() === new Date().toDateString();
                                             return (
-                                                <motion.div
-                                                    key={index}
-                                                    initial={{ opacity: 0, y: 20 }}
-                                                    animate={{ opacity: 1, y: 0 }}
-                                                    transition={{ delay: index * 0.05 }}
-                                                >
-                                                    {/* Day Header */}
-                                                    <div className={`mb-5 flex items-center gap-4 ${isToday ? 'ml-2' : ''}`}>
-                                                        {isToday && (
-                                                            <div className="w-2 h-10 rounded-full bg-gradient-to-b from-luminel-gold-soft to-luminel-gold-dark shadow-lg" />
-                                                        )}
+                                                <motion.div key={i} initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}>
+                                                    {/* Day header */}
+                                                    <div className="flex items-center gap-3 mb-4">
+                                                        <div className="w-10 h-10 rounded-xl flex flex-col items-center justify-center flex-shrink-0"
+                                                            style={isToday
+                                                                ? { background: DL.goldDim, border: `0.5px solid ${DL.goldB}` }
+                                                                : { background: DL.glass, border: `0.5px solid ${DL.glassB}` }}>
+                                                            <div className="text-[9px]" style={{ color: isToday ? DL.gold : DL.muted }}>
+                                                                {day.date.toLocaleDateString("it-IT", { weekday: "short" }).toUpperCase()}
+                                                            </div>
+                                                            <div className="text-[15px] font-medium leading-tight" style={{ color: isToday ? DL.goldBr : DL.white }}>
+                                                                {day.date.getDate()}
+                                                            </div>
+                                                        </div>
                                                         <div>
-                                                            <h3 className={`font-serif text-3xl font-bold ${isToday ? 'text-luminel-gold-soft' : 'text-slate-800'
-                                                                }`}>
-                                                                {day.date.toLocaleDateString('it-IT', { weekday: 'long' })}
-                                                                {isToday && <span className="ml-3 text-base font-normal text-luminel-gold-soft/70">• Oggi</span>}
-                                                            </h3>
-                                                            <p className="text-sm text-slate-500 font-medium">
-                                                                {day.date.toLocaleDateString('it-IT', { day: 'numeric', month: 'long' })}
-                                                            </p>
+                                                            <div className="text-[14px] font-medium capitalize" style={{ color: isToday ? DL.gold : DL.white }}>
+                                                                {day.date.toLocaleDateString("it-IT", { weekday: "long" })}
+                                                                {isToday && <span className="ml-2 text-[11px] opacity-70">· Oggi</span>}
+                                                            </div>
+                                                            <div className="text-[11px]" style={{ color: DL.muted }}>
+                                                                {day.events.length} {day.events.length === 1 ? "evento" : "eventi"}
+                                                                {day.events.filter(e => e.completed).length > 0 && (
+                                                                    <span style={{ color: "#10B981" }}> · {day.events.filter(e => e.completed).length} completati</span>
+                                                                )}
+                                                            </div>
                                                         </div>
                                                     </div>
-
                                                     {/* Events */}
                                                     {day.events.length > 0 ? (
-                                                        <div className="space-y-4 pl-6">
-                                                            {day.events.map((event, eventIdx) => (
-                                                                <motion.div
-                                                                    key={event.id}
-                                                                    initial={{ opacity: 0, x: -10 }}
-                                                                    animate={{ opacity: 1, x: 0 }}
-                                                                    transition={{ delay: index * 0.05 + eventIdx * 0.03 }}
-                                                                    onClick={() => setSelectedEvent(event)}
-                                                                    className={`group relative overflow-hidden rounded-[2rem] cursor-pointer transition-all duration-300 ${canAccessEvent(event)
-                                                                            ? 'hover:shadow-2xl hover:scale-[1.02]'
-                                                                            : 'opacity-60 cursor-not-allowed'
-                                                                        } ${event.completed
-                                                                            ? 'bg-gradient-to-br from-emerald-50 to-green-50/50 border-2 border-emerald-200'
-                                                                            : 'bg-white/90 backdrop-blur-sm border-2 border-slate-100 shadow-lg'
-                                                                        }`}
-                                                                >
-                                                                    {/* Type Accent Bar */}
-                                                                    <div
-                                                                        className="absolute left-0 top-0 bottom-0 w-2"
-                                                                        style={{ backgroundColor: eventTypes[event.type].color }}
-                                                                    />
-
-                                                                    {/* Content */}
-                                                                    <div className="p-6 pl-8">
-                                                                        <div className="flex items-start justify-between">
-                                                                            <div className="flex-grow">
-                                                                                <div className="flex items-center gap-4 mb-3">
-                                                                                    {/* Icon */}
-                                                                                    <div
-                                                                                        className="w-14 h-14 rounded-2xl flex items-center justify-center text-white shadow-lg"
-                                                                                        style={{ backgroundColor: eventTypes[event.type].color }}
-                                                                                    >
-                                                                                        {React.cloneElement(eventTypes[event.type].icon, { className: "w-7 h-7" })}
-                                                                                    </div>
-
-                                                                                    {/* Title & Info */}
-                                                                                    <div className="flex-grow">
-                                                                                        <h4 className={`font-serif text-2xl font-bold mb-1.5 ${event.completed ? 'text-green-700' : 'text-slate-800'
-                                                                                            }`}>
-                                                                                            {event.title}
-                                                                                        </h4>
-                                                                                        <div className="flex items-center gap-3 text-sm text-slate-600">
-                                                                                            <div className="flex items-center gap-1.5 font-medium">
-                                                                                                <ClockIcon className="w-4 h-4" />
-                                                                                                <span>{event.time}</span>
-                                                                                            </div>
-                                                                                            <span className="text-slate-300">•</span>
-                                                                                            <span>{event.duration} min</span>
-                                                                                            {event.trainer && (
-                                                                                                <>
-                                                                                                    <span className="text-slate-300">•</span>
-                                                                                                    <span className="font-semibold">{event.trainer}</span>
-                                                                                                </>
-                                                                                            )}
-                                                                                        </div>
-                                                                                    </div>
-                                                                                </div>
-
-                                                                                {/* Description */}
-                                                                                {event.description && (
-                                                                                    <p className="text-sm text-slate-600 leading-relaxed ml-[4.5rem]">
-                                                                                        {event.description}
-                                                                                    </p>
-                                                                                )}
-                                                                            </div>
-
-                                                                            {/* Status Badges */}
-                                                                            <div className="flex flex-col items-end gap-2">
-                                                                                {event.completed && (
-                                                                                    <div className="flex items-center gap-2 px-4 py-2 bg-green-100 text-green-700 rounded-full text-sm font-bold shadow-sm">
-                                                                                        <CheckCircleIcon className="w-5 h-5" />
-                                                                                        Completato
-                                                                                    </div>
-                                                                                )}
-
-                                                                                {event.booked && !event.completed && (
-                                                                                    <div className="flex items-center gap-2 px-4 py-2 bg-blue-50 text-blue-700 rounded-full text-sm font-bold shadow-sm">
-                                                                                        <BellIcon className="w-5 h-5" />
-                                                                                        Prenotato
-                                                                                    </div>
-                                                                                )}
-
-                                                                                {!canAccessEvent(event) && (
-                                                                                    <div className="px-4 py-2 bg-amber-50 text-amber-700 rounded-full text-sm font-bold shadow-sm">
-                                                                                        {event.plan === 'premium' ? '⭐ Premium' : '👑 VIP'}
-                                                                                    </div>
-                                                                                )}
-                                                                            </div>
-                                                                        </div>
-                                                                    </div>
-
-                                                                    {/* Hover Gradient Overlay */}
-                                                                    <div className="absolute inset-0 bg-gradient-to-r from-luminel-gold-soft/0 to-luminel-gold-soft/10 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
-                                                                </motion.div>
+                                                        <div className="space-y-2 pl-13 ml-13" style={{ marginLeft: "52px" }}>
+                                                            {day.events.sort((a, b) => a.time.localeCompare(b.time)).map((ev, j) => (
+                                                                <EventCard key={ev.id} event={ev} userPlan={userPlan}
+                                                                    onSelect={setSelectedEvent} delay={i * 0.05 + j * 0.03} />
                                                             ))}
                                                         </div>
                                                     ) : (
-                                                        <motion.div
-                                                            initial={{ opacity: 0 }}
-                                                            animate={{ opacity: 1 }}
-                                                            className="text-center py-16 bg-white/60 backdrop-blur-sm rounded-[2rem] border-2 border-dashed border-slate-200"
-                                                        >
-                                                            <CalendarDaysIcon className="w-20 h-20 mx-auto mb-4 text-slate-300" />
-                                                            <p className="text-slate-500 font-serif text-lg font-semibold">Nessun evento programmato</p>
-                                                            <p className="text-sm text-slate-400 mt-2">Goditi una giornata libera ✨</p>
-                                                        </motion.div>
+                                                        <div className="ml-13 text-center py-8 rounded-xl" style={{ marginLeft: "52px", background: DL.glass, border: `0.5px solid ${DL.glassB}` }}>
+                                                            <CalendarDaysIcon className="w-8 h-8 mx-auto mb-2" style={{ color: DL.muted, opacity: 0.4 }} />
+                                                            <p className="text-[12px]" style={{ color: DL.muted }}>Nessun evento · Giornata libera ✨</p>
+                                                        </div>
                                                     )}
                                                 </motion.div>
                                             );
@@ -536,62 +471,52 @@ const CalendarPage: React.FC = () => {
                                     </div>
                                 )}
 
-                                {/* Month View - Simplified luxury version */}
-                                {viewMode === 'month' && (
-                                    <div className="bg-white/90 backdrop-blur-sm rounded-[2.5rem] shadow-xl overflow-hidden border-2 border-slate-100">
-                                        {/* Week Days Header */}
-                                        <div className="grid grid-cols-7 bg-gradient-to-r from-luminel-champagne/30 to-luminel-gold-soft/20 border-b border-slate-200">
-                                            {['Lun', 'Mar', 'Mer', 'Gio', 'Ven', 'Sab', 'Dom'].map((day) => (
-                                                <div key={day} className="p-4 text-center text-sm font-serif font-bold text-slate-700">
-                                                    {day}
-                                                </div>
+                                {/* ── MONTH VIEW ── */}
+                                {viewMode === "month" && (
+                                    <div className="rounded-2xl overflow-hidden" style={{ background: DL.surface, border: `0.5px solid ${DL.glassB}` }}>
+                                        {/* Header giorni */}
+                                        <div className="grid grid-cols-7" style={{ borderBottom: `0.5px solid ${DL.dim}`, background: "rgba(201,168,76,0.04)" }}>
+                                            {["Lun", "Mar", "Mer", "Gio", "Ven", "Sab", "Dom"].map(d => (
+                                                <div key={d} className="py-3 text-center text-[10px] tracking-[0.12em] uppercase" style={{ color: DL.muted }}>{d}</div>
                                             ))}
                                         </div>
-
-                                        {/* Calendar Grid */}
+                                        {/* Grid */}
                                         <div className="grid grid-cols-7">
-                                            {getDaysInMonth(currentDate).map((day, index) => {
-                                                const dayEvents = getEventsForDate(day.date);
-                                                const isSelected = day.date.toDateString() === selectedDate.toDateString();
+                                            {getDaysInMonth(currentDate).map((day, i) => {
+                                                const dayEvs = getEventsForDate(day.date);
+                                                const isSel = day.date.toDateString() === selectedDate.toDateString();
                                                 const isToday = day.date.toDateString() === new Date().toDateString();
-
                                                 return (
-                                                    <motion.div
-                                                        key={index}
-                                                        whileHover={{ scale: 1.05, zIndex: 10 }}
-                                                        whileTap={{ scale: 0.98 }}
-                                                        onClick={() => setSelectedDate(day.date)}
-                                                        className={`min-h-[100px] p-2 border-b border-r border-slate-100 cursor-pointer transition-all ${day.isCurrentMonth
-                                                                ? 'bg-white hover:bg-luminel-champagne/10'
-                                                                : 'bg-slate-50 text-slate-400'
-                                                            } ${isSelected ? 'bg-luminel-gold-soft/20 ring-2 ring-luminel-gold-soft' : ''
-                                                            }`}
-                                                    >
-                                                        <div className={`text-sm font-bold mb-2 ${isToday
-                                                                ? 'text-white bg-gradient-to-br from-luminel-gold-soft to-luminel-gold-dark w-7 h-7 rounded-full flex items-center justify-center shadow-md'
-                                                                : ''
-                                                            }`}>
-                                                            {day.date.getDate()}
+                                                    <motion.div key={i} whileHover={{ scale: 1.02, zIndex: 10 }} whileTap={{ scale: 0.98 }}
+                                                        onClick={() => { setSelectedDate(day.date); setViewMode("day"); }}
+                                                        className="min-h-[90px] p-2 cursor-pointer transition-all"
+                                                        style={{
+                                                            borderBottom: `0.5px solid ${DL.dim}`, borderRight: `0.5px solid ${DL.dim}`,
+                                                            background: isSel ? DL.goldDim : isToday ? "rgba(201,168,76,0.04)" : day.isCurrentMonth ? "transparent" : "rgba(255,255,255,0.01)",
+                                                            opacity: day.isCurrentMonth ? 1 : 0.4,
+                                                        }}>
+                                                        <div className="flex items-center justify-between mb-1">
+                                                            <div className={`text-[12px] font-medium w-6 h-6 flex items-center justify-center rounded-full`}
+                                                                style={isToday ? { background: DL.gold, color: "#06060F" } : { color: isSel ? DL.goldBr : DL.white }}>
+                                                                {day.date.getDate()}
+                                                            </div>
+                                                            {dayEvs.length > 0 && (
+                                                                <div className="flex gap-0.5">
+                                                                    {[...new Set(dayEvs.slice(0, 3).map(e => e.type))].map(t => (
+                                                                        <div key={t} className="w-1.5 h-1.5 rounded-full" style={{ background: EVENT_TYPES[t].color }} />
+                                                                    ))}
+                                                                </div>
+                                                            )}
                                                         </div>
-
-                                                        <div className="space-y-1">
-                                                            {dayEvents.slice(0, 2).map((event) => (
-                                                                <div
-                                                                    key={event.id}
-                                                                    onClick={(e) => {
-                                                                        e.stopPropagation();
-                                                                        setSelectedEvent(event);
-                                                                    }}
-                                                                    className="text-xs p-1.5 rounded-lg truncate cursor-pointer hover:opacity-90 text-white font-medium shadow-sm"
-                                                                    style={{ backgroundColor: eventTypes[event.type].color }}
-                                                                >
-                                                                    {event.time} {event.title}
+                                                        <div className="space-y-0.5">
+                                                            {dayEvs.slice(0, 2).map(ev => (
+                                                                <div key={ev.id} className="text-[9px] px-1.5 py-0.5 rounded truncate"
+                                                                    style={{ background: `${EVENT_TYPES[ev.type].color}20`, color: EVENT_TYPES[ev.type].color }}>
+                                                                    {ev.time} {ev.title}
                                                                 </div>
                                                             ))}
-                                                            {dayEvents.length > 2 && (
-                                                                <div className="text-xs text-slate-500 font-semibold pl-1">
-                                                                    +{dayEvents.length - 2} altri
-                                                                </div>
+                                                            {dayEvs.length > 2 && (
+                                                                <div className="text-[9px] pl-1" style={{ color: DL.muted }}>+{dayEvs.length - 2}</div>
                                                             )}
                                                         </div>
                                                     </motion.div>
@@ -601,255 +526,78 @@ const CalendarPage: React.FC = () => {
                                     </div>
                                 )}
 
-                                {/* Day View */}
-                                {viewMode === 'day' && (
-                                    <div className="bg-white/90 backdrop-blur-sm rounded-[2.5rem] shadow-xl overflow-hidden border-2 border-slate-100">
-                                        <div className={`px-8 py-6 border-b-2 ${selectedDate.toDateString() === new Date().toDateString()
-                                                ? 'bg-gradient-to-r from-luminel-gold-soft/20 to-luminel-champagne/20 border-luminel-gold-soft'
-                                                : 'bg-luminel-champagne/10 border-slate-200'
-                                            }`}>
-                                            <h2 className={`font-serif text-3xl font-bold ${selectedDate.toDateString() === new Date().toDateString()
-                                                    ? 'text-luminel-gold-soft'
-                                                    : 'text-slate-800'
-                                                }`}>
-                                                {selectedDate.toLocaleDateString('it-IT', { weekday: 'long', day: 'numeric', month: 'long' })}
-                                                {selectedDate.toDateString() === new Date().toDateString() && (
-                                                    <span className="ml-3 text-lg font-normal text-luminel-gold-soft/70">• Oggi</span>
-                                                )}
-                                            </h2>
+                                {/* ── DAY VIEW ── */}
+                                {viewMode === "day" && (
+                                    <div>
+                                        {/* Timeline header */}
+                                        <div className="flex items-center justify-between mb-6">
+                                            <div>
+                                                <div className="font-serif text-[22px] font-normal capitalize" style={{ color: selectedDate.toDateString() === new Date().toDateString() ? DL.gold : DL.white }}>
+                                                    {selectedDate.toLocaleDateString("it-IT", { weekday: "long", day: "numeric", month: "long" })}
+                                                    {selectedDate.toDateString() === new Date().toDateString() && <span className="ml-2 text-[14px] opacity-70">· Oggi</span>}
+                                                </div>
+                                                <div className="text-[12px]" style={{ color: DL.muted }}>
+                                                    {getEventsForDate(selectedDate).length} eventi in programma
+                                                </div>
+                                            </div>
                                         </div>
-
-                                        <div className="p-8">
-                                            {getEventsForDate(selectedDate).length > 0 ? (
+                                        {getEventsForDate(selectedDate).length > 0 ? (
+                                            <div className="relative">
+                                                {/* Timeline line */}
+                                                <div className="absolute left-[58px] top-0 bottom-0 w-px" style={{ background: `${DL.goldB}` }} />
                                                 <div className="space-y-4">
-                                                    {getEventsForDate(selectedDate)
-                                                        .sort((a, b) => a.time.localeCompare(b.time))
-                                                        .map((event, idx) => (
-                                                            <motion.div
-                                                                key={event.id}
-                                                                initial={{ opacity: 0, x: -10 }}
-                                                                animate={{ opacity: 1, x: 0 }}
-                                                                transition={{ delay: idx * 0.05 }}
-                                                                onClick={() => setSelectedEvent(event)}
-                                                                className={`p-6 rounded-2xl border-2 cursor-pointer transition-all ${canAccessEvent(event)
-                                                                        ? 'hover:shadow-xl hover:scale-[1.02]'
-                                                                        : 'opacity-60 cursor-not-allowed'
-                                                                    } ${event.completed
-                                                                        ? 'bg-green-50 border-green-200'
-                                                                        : 'bg-white border-slate-200'
-                                                                    }`}
-                                                            >
-                                                                <div className="flex items-start justify-between">
-                                                                    <div className="flex items-center gap-4">
-                                                                        <div
-                                                                            className="w-12 h-12 rounded-2xl flex items-center justify-center text-white shadow-md"
-                                                                            style={{ backgroundColor: eventTypes[event.type].color }}
-                                                                        >
-                                                                            {React.cloneElement(eventTypes[event.type].icon, { className: "w-6 h-6" })}
-                                                                        </div>
-                                                                        <div>
-                                                                            <h3 className={`font-serif text-xl font-bold mb-1 ${event.completed ? 'text-green-700' : 'text-slate-800'
-                                                                                }`}>
-                                                                                {event.title}
-                                                                            </h3>
-                                                                            <div className="flex items-center gap-3 text-sm text-slate-600">
-                                                                                <ClockIcon className="w-4 h-4" />
-                                                                                <span className="font-medium">{event.time}</span>
-                                                                                <span>•</span>
-                                                                                <span>{event.duration} min</span>
-                                                                            </div>
-                                                                        </div>
-                                                                    </div>
-
-                                                                    <div className="flex flex-col items-end gap-2">
-                                                                        {event.completed && (
-                                                                            <CheckCircleIcon className="w-6 h-6 text-green-500" />
-                                                                        )}
-                                                                        {event.booked && !event.completed && (
-                                                                            <BellIcon className="w-6 h-6 text-blue-500" />
-                                                                        )}
-                                                                    </div>
-                                                                </div>
-                                                            </motion.div>
-                                                        ))}
+                                                    {getEventsForDate(selectedDate).sort((a, b) => a.time.localeCompare(b.time)).map((ev, i) => (
+                                                        <motion.div key={ev.id} initial={{ opacity: 0, x: -12 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.06 }}
+                                                            className="flex items-start gap-4">
+                                                            {/* Time label */}
+                                                            <div className="w-14 flex-shrink-0 text-right pt-3">
+                                                                <span className="text-[11px]" style={{ color: DL.muted }}>{ev.time}</span>
+                                                            </div>
+                                                            {/* Dot */}
+                                                            <div className="w-3 h-3 rounded-full flex-shrink-0 mt-3.5 relative z-10"
+                                                                style={{ background: EVENT_TYPES[ev.type].color, border: `2px solid #06060F`, boxShadow: `0 0 8px ${EVENT_TYPES[ev.type].color}50` }} />
+                                                            {/* Card */}
+                                                            <div className="flex-1">
+                                                                <EventCard event={ev} userPlan={userPlan} onSelect={setSelectedEvent} />
+                                                            </div>
+                                                        </motion.div>
+                                                    ))}
                                                 </div>
-                                            ) : (
-                                                <div className="text-center py-20">
-                                                    <CalendarDaysIcon className="w-24 h-24 mx-auto mb-6 text-slate-300" />
-                                                    <h3 className="font-serif text-2xl font-bold text-slate-700 mb-2">Giornata libera</h3>
-                                                    <p className="text-slate-500">Non hai eventi programmati per questo giorno ✨</p>
-                                                </div>
-                                            )}
-                                        </div>
+                                            </div>
+                                        ) : (
+                                            <div className="text-center py-16 rounded-xl" style={{ background: DL.glass, border: `0.5px solid ${DL.glassB}` }}>
+                                                <CalendarDaysIcon className="w-10 h-10 mx-auto mb-3" style={{ color: DL.muted, opacity: 0.4 }} />
+                                                <p className="text-[14px] mb-1" style={{ color: DL.white }}>Giornata libera</p>
+                                                <p className="text-[12px]" style={{ color: DL.muted }}>Nessun evento programmato · Goditi il riposo ✨</p>
+                                                <button onClick={() => setShowNewEventModal(true)}
+                                                    className="mt-4 inline-flex items-center gap-2 px-4 py-2 rounded-xl text-[12px] transition-all"
+                                                    style={{ background: DL.goldDim, border: `0.5px solid ${DL.goldB}`, color: DL.gold }}>
+                                                    <PlusIcon className="w-4 h-4" />Aggiungi evento
+                                                </button>
+                                            </div>
+                                        )}
                                     </div>
                                 )}
                             </div>
                         )}
 
-                        {/* Plan Badge */}
-                        <div className="fixed bottom-24 right-6 bg-white/90 backdrop-blur-md rounded-2xl shadow-xl p-4 border-2 border-slate-100 z-30">
-                            <div className="flex items-center gap-3">
-                                <div
-                                    className="w-4 h-4 rounded-full shadow-sm"
-                                    style={{
-                                        backgroundColor: userPlan === 'vip' ? '#F59E0B' : userPlan === 'premium' ? '#7E6BC4' : '#6B7280'
-                                    }}
-                                />
-                                <span className="text-sm font-bold text-slate-700">
-                                    Piano {userPlan}
-                                </span>
-                            </div>
-                        </div>
-
-                        {/* New Event Modal */}
+                        {/* ── MODALS ── */}
                         <AnimatePresence>
                             {showNewEventModal && (
-                                <NewEventModal
-                                    onClose={() => setShowNewEventModal(false)}
-                                    onSave={(eventData: any) => {
-                                        const newEvent = {
-                                            id: `custom-${Date.now()}`,
-                                            ...eventData,
-                                            plan: userPlan,
-                                            completed: false,
-                                            booked: true
-                                        };
-                                        setEvents([...events, newEvent]);
+                                <NewEventModal onClose={() => setShowNewEventModal(false)}
+                                    onSave={(data: any) => {
+                                        setEvents(ev => [...ev, { id: `custom-${Date.now()}`, ...data, plan: userPlan, completed: false, booked: true }]);
                                         setShowNewEventModal(false);
-                                    }}
-                                />
+                                    }} />
                             )}
                         </AnimatePresence>
 
-                        {/* Event Detail Modal */}
                         <AnimatePresence>
                             {selectedEvent && (
-                                <motion.div
-                                    initial={{ opacity: 0 }}
-                                    animate={{ opacity: 1 }}
-                                    exit={{ opacity: 0 }}
-                                    className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4"
-                                    onClick={() => setSelectedEvent(null)}
-                                >
-                                    <motion.div
-                                        initial={{ scale: 0.9, opacity: 0 }}
-                                        animate={{ scale: 1, opacity: 1 }}
-                                        exit={{ scale: 0.9, opacity: 0 }}
-                                        onClick={(e) => e.stopPropagation()}
-                                        className="bg-white rounded-[2.5rem] max-w-lg w-full max-h-[85vh] overflow-y-auto shadow-2xl"
-                                    >
-                                        {/* Header */}
-                                        <div
-                                            className="p-8 text-white rounded-t-[2.5rem] relative overflow-hidden"
-                                            style={{ backgroundColor: eventTypes[selectedEvent.type].color }}
-                                        >
-                                            <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-2xl" />
-                                            <div className="relative z-10 flex items-start justify-between">
-                                                <div className="flex items-center gap-4">
-                                                    {React.cloneElement(eventTypes[selectedEvent.type].icon, { className: "w-8 h-8" })}
-                                                    <div>
-                                                        <h2 className="font-serif text-2xl font-bold">{selectedEvent.title}</h2>
-                                                        <p className="text-white/90 text-sm mt-1">{eventTypes[selectedEvent.type].label}</p>
-                                                    </div>
-                                                </div>
-
-                                                <button
-                                                    onClick={() => setSelectedEvent(null)}
-                                                    className="w-10 h-10 rounded-full bg-white/20 hover:bg-white/30 flex items-center justify-center transition-colors"
-                                                >
-                                                    <span className="text-2xl leading-none">×</span>
-                                                </button>
-                                            </div>
-                                        </div>
-
-                                        {/* Body */}
-                                        <div className="p-8">
-                                            {/* Details Grid */}
-                                            <div className="grid grid-cols-2 gap-4 mb-6">
-                                                <div className="bg-slate-50 rounded-2xl p-4">
-                                                    <div className="flex items-center gap-2 text-slate-500 text-sm mb-1">
-                                                        <ClockIcon className="w-4 h-4" />
-                                                        Orario
-                                                    </div>
-                                                    <div className="font-bold text-slate-800">{selectedEvent.time}</div>
-                                                </div>
-                                                <div className="bg-slate-50 rounded-2xl p-4">
-                                                    <div className="flex items-center gap-2 text-slate-500 text-sm mb-1">
-                                                        <ClockSolid className="w-4 h-4" />
-                                                        Durata
-                                                    </div>
-                                                    <div className="font-bold text-slate-800">{selectedEvent.duration} min</div>
-                                                </div>
-                                            </div>
-
-                                            {selectedEvent.trainer && (
-                                                <div className="bg-luminel-champagne/20 rounded-2xl p-4 mb-6">
-                                                    <div className="text-slate-500 text-sm mb-1">Istruttore</div>
-                                                    <div className="font-bold text-slate-800">{selectedEvent.trainer}</div>
-                                                </div>
-                                            )}
-
-                                            {selectedEvent.description && (
-                                                <div className="mb-6">
-                                                    <h3 className="font-serif font-bold text-slate-800 mb-3">Descrizione</h3>
-                                                    <p className="text-slate-600 leading-relaxed">{selectedEvent.description}</p>
-                                                </div>
-                                            )}
-
-                                            {/* Actions */}
-                                            {canAccessEvent(selectedEvent) && (
-                                                <div className="flex gap-3">
-                                                    {!selectedEvent.completed && (
-                                                        <>
-                                                            <button
-                                                                onClick={() => {
-                                                                    toggleEventBooking(selectedEvent.id);
-                                                                    setSelectedEvent({ ...selectedEvent, booked: !selectedEvent.booked });
-                                                                }}
-                                                                className={`flex-1 py-3 px-6 rounded-2xl font-bold transition-all ${selectedEvent.booked
-                                                                        ? 'bg-slate-100 text-slate-700 hover:bg-slate-200'
-                                                                        : 'bg-blue-500 text-white hover:bg-blue-600 shadow-lg'
-                                                                    }`}
-                                                            >
-                                                                {selectedEvent.booked ? 'Annulla Prenotazione' : 'Prenota'}
-                                                            </button>
-
-                                                            {selectedEvent.booked && (
-                                                                <button
-                                                                    onClick={() => {
-                                                                        completeEvent(selectedEvent.id);
-                                                                        setSelectedEvent(null);
-                                                                    }}
-                                                                    className="flex-1 py-3 px-6 rounded-2xl bg-green-500 text-white font-bold hover:bg-green-600 shadow-lg transition-all"
-                                                                >
-                                                                    Segna Completato
-                                                                </button>
-                                                            )}
-                                                        </>
-                                                    )}
-
-                                                    {selectedEvent.completed && (
-                                                        <div className="flex-1 py-3 px-6 rounded-2xl bg-green-100 text-green-700 font-bold text-center flex items-center justify-center gap-2">
-                                                            <CheckCircleIcon className="w-5 h-5" />
-                                                            Completato
-                                                        </div>
-                                                    )}
-                                                </div>
-                                            )}
-
-                                            {!canAccessEvent(selectedEvent) && (
-                                                <div className="bg-amber-50 border-2 border-amber-200 rounded-2xl p-6 text-center">
-                                                    <p className="text-amber-800 font-bold mb-2">
-                                                        {selectedEvent.plan === 'premium' ? '⭐ Contenuto Premium' : '👑 Contenuto VIP'}
-                                                    </p>
-                                                    <p className="text-amber-700 text-sm">
-                                                        Aggiornare il tuo piano per accedere a questo evento
-                                                    </p>
-                                                </div>
-                                            )}
-                                        </div>
-                                    </motion.div>
-                                </motion.div>
+                                <EventModal event={selectedEvent} userPlan={userPlan}
+                                    onClose={() => setSelectedEvent(null)}
+                                    onToggleBook={(id) => { toggleBook(id); setSelectedEvent((e: any) => ({ ...e, booked: !e.booked })); }}
+                                    onComplete={(id) => { complete(id); setSelectedEvent(null); }} />
                             )}
                         </AnimatePresence>
                     </>

@@ -1,203 +1,254 @@
-import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import {
-    FireIcon,
-    SparklesIcon,
-    PlayCircleIcon,
-    PauseCircleIcon,
-    LockClosedIcon
-} from '@heroicons/react/24/outline';
-import { predefinedPaths, moodBasedSuggestions, Path } from './data';
-import { useAuth } from '../../contexts/AuthContext';
+import React, { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { PlayCircleIcon, PauseCircleIcon, LockClosedIcon, ArrowRightIcon } from "@heroicons/react/24/outline";
+import { predefinedPaths, moodBasedSuggestions, Path } from "./data";
+import { useAuth } from "../../contexts/AuthContext";
+import { useNavigate } from "react-router-dom";
 
-// Colors from beta
-const colors = {
-    primary: "#45597E",
-    secondary: "#C7D0DA",
-    accent: "#399D9E",
-    accentLight: "#E5F5F5",
-    light: "#F7FAFA",
-    textDark: "#2D3B45",
-    textLight: "#687D8C",
-    highlight: "#EAD19C",
-    success: "#4CB19C"
+const PLAN_CFG = {
+    free: { label: "FREE", color: "#4A9ED4", bg: "rgba(74,158,212,0.1)", border: "rgba(74,158,212,0.3)" },
+    premium: { label: "PREMIUM", color: "#C9A84C", bg: "rgba(201,168,76,0.1)", border: "rgba(201,168,76,0.3)" },
+    vip: { label: "VIP", color: "#9B74E0", bg: "rgba(155,116,224,0.1)", border: "rgba(155,116,224,0.3)" },
 };
 
-import { useNavigate } from 'react-router-dom';
+const CALM_MOODS = [
+    { label: "Sereno", emoji: "😌", color: "#4A9ED4" },
+    { label: "Felice", emoji: "😊", color: "#C9A84C" },
+    { label: "Neutro", emoji: "😐", color: "#6A6560" },
+    { label: "Ansioso", emoji: "😰", color: "#D4603A" },
+    { label: "Giù", emoji: "😔", color: "#9B74E0" },
+];
 
-const CalmView: React.FC = () => {
+const CalmView: React.FC<{ initialMood?: string }> = ({ initialMood }) => {
     const { user } = useAuth();
     const navigate = useNavigate();
-    const [currentMood, setCurrentMood] = useState<string | null>(null);
+
+    const [currentMood, setCurrentMood] = useState<string | null>(initialMood ?? null);
     const [suggestedPaths, setSuggestedPaths] = useState<Path[]>([]);
     const [playingPath, setPlayingPath] = useState<string | null>(null);
+    const [activeCategory, setActiveCategory] = useState<string | null>(null);
 
+    const userPlan = (user as any)?.plan ?? "free";
     const isUnlocked = (plan: string) => {
-        const userPlan = user?.plan || 'free';
-        if (plan === 'free') return true;
-        if (plan === 'premium' && (userPlan === 'premium' || userPlan === 'vip')) return true;
-        if (plan === 'vip' && userPlan === 'vip') return true;
+        if (plan === "free") return true;
+        if (plan === "premium" && (userPlan === "premium" || userPlan === "vip")) return true;
+        if (plan === "vip" && userPlan === "vip") return true;
         return false;
     };
 
-    const getBadgeColor = (plan: string) => {
-        switch (plan) {
-            case 'free': return 'bg-luminel-sage-100 text-luminel-sage-700';
-            case 'premium': return 'bg-luminel-champagne text-luminel-smoke';
-            case 'vip': return 'bg-luminel-gold-soft text-white';
-            default: return 'bg-gray-100 text-gray-700';
-        }
-    };
-
-    const moods = [
-        { label: "Sereno", emoji: "😌", color: "#BEE3D4" },
-        { label: "Felice", emoji: "😊", color: "#F8D49B" },
-        { label: "Neutro", emoji: "😐", color: "#E0EBEF" },
-        { label: "Ansioso", emoji: "😰", color: "#D1DBE3" },
-        { label: "Giù", emoji: "😔", color: "#C1D3E9" }
-    ];
-
     useEffect(() => {
-        if (currentMood) {
-            const categories = moodBasedSuggestions[currentMood] || [];
-            const paths = categories.flatMap(cat => predefinedPaths[cat] || []);
-            setSuggestedPaths(paths);
-        } else {
-            setSuggestedPaths([...(predefinedPaths["Mindfulness"] || []), ...(predefinedPaths["Pace"] || [])]);
-        }
+        const moodKey = currentMood ?? "calm";
+        const cats = moodBasedSuggestions[moodKey] ?? ["Mindfulness", "Pace"];
+        setSuggestedPaths(cats.flatMap(c => predefinedPaths[c] ?? []));
+        setActiveCategory(null);
     }, [currentMood]);
 
-    const togglePlay = (id: string) => {
-        if (playingPath === id) {
-            setPlayingPath(null);
-        } else {
-            setPlayingPath(id);
-        }
-    };
+    const displayPaths = activeCategory
+        ? (predefinedPaths[activeCategory] ?? [])
+        : suggestedPaths;
 
     return (
-        <div className="space-y-8 pb-20">
-            {/* Header */}
-            <div className="flex items-center justify-between">
-                <div>
-                    <h2 className="text-2xl font-bold text-slate-800 flex items-center gap-2">
-                        <FireIcon className="w-6 h-6 text-teal-500" />
-                        Calm Space
-                    </h2>
-                    <p className="text-slate-500">Trova il tuo equilibrio interiore</p>
-                </div>
-            </div>
+        <div className="pb-16 space-y-10">
 
-            {/* Mood Selector */}
-            <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
-                <h3 className="text-lg font-semibold mb-4 text-slate-700">Come ti senti oggi?</h3>
-                <div className="flex justify-between gap-2 overflow-x-auto pb-2">
-                    {moods.map((mood) => (
-                        <button
-                            key={mood.label}
-                            onClick={() => setCurrentMood(mood.label)}
-                            className={`flex flex-col items-center gap-2 p-4 rounded-xl transition-all min-w-[80px] ${currentMood === mood.label
-                                ? 'bg-teal-50 ring-2 ring-teal-500 scale-105'
-                                : 'hover:bg-slate-50'
-                                }`}
-                        >
-                            <span className="text-3xl">{mood.emoji}</span>
-                            <span className="text-sm font-medium text-slate-600">{mood.label}</span>
-                        </button>
-                    ))}
+            {/* ── HEADER ── */}
+            <motion.div initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }}>
+                <div style={{ fontSize: 9, letterSpacing: ".24em", textTransform: "uppercase", color: "rgba(74,158,212,0.7)", marginBottom: 5 }}>
+                    Spazio di pace
                 </div>
-            </div>
+                <h2 style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: "clamp(28px,3.5vw,38px)", fontWeight: 400, color: "#F0EBE0", marginBottom: 6 }}>
+                    Calm <em style={{ color: "#4A9ED4", fontStyle: "italic" }}>Space</em>
+                </h2>
+                <p style={{ fontSize: 13, color: "#6A6560" }}>Trova il tuo equilibrio interiore in questo momento</p>
+            </motion.div>
 
-            {/* Suggested Paths */}
+            {/* ── MOOD SELECTOR ── */}
+            <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }}
+                style={{ background: "rgba(255,255,255,0.025)", border: "0.5px solid rgba(255,255,255,0.07)", borderRadius: 14, padding: "20px 20px 16px" }}>
+                <div style={{ fontSize: 9, letterSpacing: ".2em", textTransform: "uppercase", color: "#6A6560", marginBottom: 14 }}>
+                    Come ti senti in questo momento?
+                </div>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(5,1fr)", gap: 10 }}>
+                    {CALM_MOODS.map(m => {
+                        const on = currentMood === m.label;
+                        return (
+                            <motion.button key={m.label} whileHover={{ y: -3 }} whileTap={{ scale: 0.97 }}
+                                onClick={() => setCurrentMood(on ? null : m.label)}
+                                style={{
+                                    padding: "14px 8px 11px", textAlign: "center",
+                                    background: on ? `${m.color}18` : "rgba(255,255,255,0.02)",
+                                    border: `0.5px solid ${on ? m.color + "50" : "rgba(255,255,255,0.06)"}`,
+                                    borderRadius: 12, cursor: "pointer", position: "relative", overflow: "hidden",
+                                    boxShadow: on ? `0 8px 24px rgba(0,0,0,0.35), 0 0 16px ${m.color}12` : "none",
+                                }}>
+                                {on && <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 1, background: `linear-gradient(90deg,transparent,${m.color}60,transparent)` }} />}
+                                <motion.div style={{ fontSize: 24, display: "block", marginBottom: 5 }}
+                                    animate={on ? { scale: [1, 1.15, 1] } : { scale: 1 }} transition={{ duration: 0.4 }}>
+                                    {m.emoji}
+                                </motion.div>
+                                <div style={{ fontSize: 10, color: on ? m.color : "#6A6560" }}>{m.label}</div>
+                            </motion.button>
+                        );
+                    })}
+                </div>
+                {currentMood && (
+                    <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0 }}
+                        style={{ marginTop: 12, padding: "10px 14px", borderRadius: 10, background: "rgba(255,255,255,0.02)", border: "0.5px solid rgba(255,255,255,0.06)" }}>
+                        <span style={{ fontSize: 11, color: "#6A6560" }}>
+                            Suggeriti per <strong style={{ color: "#F0EBE0" }}>{currentMood}</strong> ·{" "}
+                            <span style={{ color: "#4A9ED4" }}>{displayPaths.length} percorsi disponibili</span>
+                        </span>
+                    </motion.div>
+                )}
+            </motion.div>
+
+            {/* ── CATEGORY FILTER ── */}
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.1 }}>
+                <div style={{ fontSize: 9, letterSpacing: ".2em", textTransform: "uppercase", color: "#6A6560", marginBottom: 12 }}>
+                    Esplora per categoria
+                </div>
+                <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+                    {Object.keys(predefinedPaths).map(cat => {
+                        const on = activeCategory === cat;
+                        const count = predefinedPaths[cat].length;
+                        return (
+                            <motion.button key={cat} whileHover={{ y: -2 }} whileTap={{ scale: 0.97 }}
+                                onClick={() => setActiveCategory(on ? null : cat)}
+                                style={{
+                                    padding: "6px 14px", borderRadius: 20, fontSize: 12, cursor: "pointer",
+                                    background: on ? "rgba(74,158,212,0.1)" : "rgba(255,255,255,0.025)",
+                                    border: `0.5px solid ${on ? "rgba(74,158,212,0.35)" : "rgba(255,255,255,0.07)"}`,
+                                    color: on ? "#4A9ED4" : "#6A6560",
+                                    transition: "all .18s",
+                                }}>
+                                {cat}
+                                <span style={{ marginLeft: 5, fontSize: 9, opacity: 0.6 }}>({count})</span>
+                            </motion.button>
+                        );
+                    })}
+                </div>
+            </motion.div>
+
+            {/* ── PATHS GRID ── */}
             <div>
-                <h3 className="text-lg font-semibold mb-4 text-slate-700 flex items-center gap-2">
-                    <SparklesIcon className="w-5 h-5 text-yellow-500" />
-                    {currentMood ? `Consigliati per "${currentMood}"` : 'Suggeriti per te'}
-                </h3>
+                <div style={{ fontSize: 9, letterSpacing: ".2em", textTransform: "uppercase", color: "#6A6560", marginBottom: 16, display: "flex", alignItems: "center", gap: 8 }}>
+                    <span>{activeCategory ?? (currentMood ? `Consigliati per "${currentMood}"` : "Suggeriti per te")}</span>
+                    <span style={{ color: "#4A9ED4" }}>· {displayPaths.length} percorsi</span>
+                </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {suggestedPaths.map((path) => (
-                        <motion.div
-                            key={path.id}
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            className="group relative bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-all border border-slate-100"
-                        >
-                            <div className="aspect-video relative overflow-hidden">
-                                <img
-                                    src={path.imageUrl}
-                                    alt={path.title}
-                                    className={`w-full h-full object-cover transition-transform duration-500 ${isUnlocked(path.plan) ? 'group-hover:scale-105' : 'grayscale opacity-70'}`}
-                                />
-                                <div className={`absolute inset-0 transition-colors ${isUnlocked(path.plan) ? 'bg-black/20 group-hover:bg-black/30' : 'bg-black/50'}`} />
+                {displayPaths.length === 0 ? (
+                    <div style={{ textAlign: "center", padding: "60px 20px", color: "#6A6560" }}>
+                        <div style={{ fontSize: 40, marginBottom: 12 }}>🌊</div>
+                        <div style={{ fontSize: 14, color: "#F0EBE0", marginBottom: 6 }}>Nessun percorso trovato</div>
+                        <div style={{ fontSize: 12 }}>Prova un'altra categoria o umore</div>
+                    </div>
+                ) : (
+                    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(280px,1fr))", gap: 14 }}>
+                        <AnimatePresence mode="popLayout">
+                            {displayPaths.map((path, i) => {
+                                const pc = PLAN_CFG[path.plan as keyof typeof PLAN_CFG];
+                                const unlocked = isUnlocked(path.plan);
+                                const isPlaying = playingPath === path.id;
+                                return (
+                                    <motion.div key={path.id} layout
+                                        initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95 }}
+                                        transition={{ delay: i * 0.05 }}
+                                        whileHover={unlocked ? { y: -4, transition: { duration: 0.2 } } : {}}
+                                        style={{
+                                            borderRadius: 14, overflow: "hidden",
+                                            background: "rgba(255,255,255,0.022)",
+                                            border: `0.5px solid rgba(255,255,255,0.07)`,
+                                            opacity: unlocked ? 1 : 0.6, cursor: unlocked ? "default" : "pointer",
+                                            boxShadow: "0 2px 12px rgba(0,0,0,0.2)",
+                                        }}
+                                        onClick={() => !unlocked && navigate("/plans")}>
 
-                                {isUnlocked(path.plan) ? (
-                                    <button
-                                        onClick={() => togglePlay(path.id)}
-                                        className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
-                                    >
-                                        <div className="w-12 h-12 rounded-full bg-white/90 backdrop-blur-sm flex items-center justify-center shadow-lg transform hover:scale-110 transition-all">
-                                            {playingPath === path.id ? (
-                                                <PauseCircleIcon className="w-8 h-8 text-teal-600" />
-                                            ) : (
-                                                <PlayCircleIcon className="w-8 h-8 text-teal-600" />
+                                        {/* Image */}
+                                        <div style={{ position: "relative", aspectRatio: "16/9", overflow: "hidden" }}>
+                                            <img src={path.imageUrl} alt={path.title}
+                                                style={{ width: "100%", height: "100%", objectFit: "cover", filter: unlocked ? "none" : "grayscale(80%)", transition: "transform 0.5s" }}
+                                                onMouseEnter={e => unlocked && ((e.target as HTMLElement).style.transform = "scale(1.05)")}
+                                                onMouseLeave={e => ((e.target as HTMLElement).style.transform = "scale(1)")} />
+                                            <div style={{ position: "absolute", inset: 0, background: "rgba(6,6,15,0.35)" }} />
+
+                                            {/* Play button */}
+                                            {unlocked && (
+                                                <motion.button whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.95 }}
+                                                    onClick={e => { e.stopPropagation(); setPlayingPath(p => p === path.id ? null : path.id); }}
+                                                    style={{
+                                                        position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center",
+                                                        background: "none", border: "none", cursor: "pointer", opacity: 0,
+                                                    }}
+                                                    className="group"
+                                                    onMouseEnter={e => (e.currentTarget.style.opacity = "1")}
+                                                    onMouseLeave={e => (e.currentTarget.style.opacity = "0")}>
+                                                    <div style={{ width: 48, height: 48, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", background: "rgba(13,13,32,0.85)", border: `0.5px solid ${pc.color}50`, backdropFilter: "blur(8px)" }}>
+                                                        {isPlaying
+                                                            ? <PauseCircleIcon style={{ width: 26, height: 26, color: pc.color }} />
+                                                            : <PlayCircleIcon style={{ width: 26, height: 26, color: pc.color }} />}
+                                                    </div>
+                                                </motion.button>
+                                            )}
+
+                                            {/* Lock overlay */}
+                                            {!unlocked && (
+                                                <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", background: "rgba(6,6,15,0.55)", backdropFilter: "blur(4px)" }}>
+                                                    <LockClosedIcon style={{ width: 28, height: 28, color: "rgba(240,235,224,0.4)", marginBottom: 6 }} />
+                                                    <span style={{ fontSize: 10, letterSpacing: ".12em", textTransform: "uppercase", color: "rgba(240,235,224,0.4)" }}>Piano {pc.label}</span>
+                                                </div>
+                                            )}
+
+                                            {/* Badges */}
+                                            <div style={{ position: "absolute", top: 10, left: 10 }}>
+                                                <span style={{ fontSize: 9, letterSpacing: ".12em", textTransform: "uppercase", padding: "3px 8px", borderRadius: 20, background: "rgba(13,13,32,0.75)", color: pc.color, border: `0.5px solid ${pc.color}40`, backdropFilter: "blur(8px)" }}>
+                                                    {pc.label}
+                                                </span>
+                                            </div>
+                                            <div style={{ position: "absolute", top: 10, right: 10 }}>
+                                                <span style={{ fontSize: 10, padding: "3px 8px", borderRadius: 20, background: "rgba(13,13,32,0.75)", color: "rgba(240,235,224,0.7)", backdropFilter: "blur(8px)" }}>
+                                                    {path.duration}
+                                                </span>
+                                            </div>
+
+                                            {/* Playing wave */}
+                                            {isPlaying && (
+                                                <div style={{ position: "absolute", bottom: 10, left: 12, display: "flex", alignItems: "flex-end", gap: 2 }}>
+                                                    {[3, 5, 4, 6, 3].map((h, n) => (
+                                                        <motion.div key={n} style={{ width: 3, borderRadius: 2, background: pc.color }}
+                                                            animate={{ height: [h * 2, h * 3, h * 2] }}
+                                                            transition={{ duration: 0.5 + n * 0.1, repeat: Infinity, ease: "easeInOut" }} />
+                                                    ))}
+                                                    <span style={{ fontSize: 10, color: pc.color, marginLeft: 4 }}>In riproduzione</span>
+                                                </div>
                                             )}
                                         </div>
-                                    </button>
-                                ) : (
-                                    <button
-                                        onClick={() => navigate('/plans')}
-                                        className="absolute inset-0 flex items-center justify-center"
-                                    >
-                                        <div className="flex flex-col items-center">
-                                            <LockClosedIcon className="w-10 h-10 text-white/80 mb-2" />
-                                            <span className="px-3 py-1 bg-white/20 backdrop-blur-md rounded-full text-white text-xs font-bold border border-white/30">
-                                                Upgrade to {path.plan}
-                                            </span>
+
+                                        {/* Body */}
+                                        <div style={{ padding: "14px 16px" }}>
+                                            <div style={{ fontSize: 9, letterSpacing: ".14em", textTransform: "uppercase", color: pc.color, marginBottom: 5 }}>
+                                                {path.category}
+                                            </div>
+                                            <h4 style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: 17, fontWeight: 400, color: "#F0EBE0", marginBottom: 5, lineHeight: 1.25 }}>
+                                                {path.title}
+                                            </h4>
+                                            <p style={{ fontSize: 11, color: "#6A6560", lineHeight: 1.55, marginBottom: path.benefits ? 10 : 0 }}>
+                                                {path.description}
+                                            </p>
+                                            {path.benefits && path.benefits.length > 0 && (
+                                                <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
+                                                    {path.benefits.slice(0, 2).map((b, bi) => (
+                                                        <div key={bi} style={{ display: "flex", alignItems: "center", gap: 5, fontSize: 10, color: "rgba(201,168,76,0.7)" }}>
+                                                            <span>✦</span>{b}
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            )}
                                         </div>
-                                    </button>
-                                )}
-
-                                <div className="absolute top-2 right-2 flex gap-2">
-                                    <span className={`px-2 py-1 rounded-md text-xs font-bold uppercase ${getBadgeColor(path.plan)}`}>
-                                        {path.plan}
-                                    </span>
-                                    <span className="px-2 py-1 rounded-md bg-black/40 backdrop-blur-md text-white text-xs font-medium">
-                                        {path.duration}
-                                    </span>
-                                </div>
-                            </div>
-
-                            <div className="p-4">
-                                <div className="flex justify-between items-start mb-1">
-                                    <span className="text-xs font-semibold text-teal-600 uppercase tracking-wider">
-                                        {path.category}
-                                    </span>
-                                </div>
-                                <h4 className="font-bold text-slate-800 mb-1">{path.title}</h4>
-                                <p className="text-sm text-slate-500 line-clamp-2">{path.description}</p>
-                            </div>
-                        </motion.div>
-                    ))}
-                </div>
-            </div>
-
-            {/* Categories Grid */}
-            <div>
-                <h3 className="text-lg font-semibold mb-4 text-slate-700">Esplora Categorie</h3>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    {Object.keys(predefinedPaths).map((category) => (
-                        <button
-                            key={category}
-                            className="p-4 rounded-xl bg-white border border-slate-100 shadow-sm hover:shadow-md hover:border-teal-200 transition-all text-left"
-                        >
-                            <h4 className="font-bold text-slate-800">{category}</h4>
-                            <p className="text-xs text-slate-500 mt-1">
-                                {predefinedPaths[category].length} percorsi
-                            </p>
-                        </button>
-                    ))}
-                </div>
+                                    </motion.div>
+                                );
+                            })}
+                        </AnimatePresence>
+                    </div>
+                )}
             </div>
         </div>
     );

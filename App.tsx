@@ -19,6 +19,7 @@ import CalendarPage from './components/CalendarPage';
 import SettingsPage from './components/SettingsPage';
 import ExperiencesPage from './components/ExperiencesPage';
 import QuestsPage from './components/QuestsPage';
+import CouncilPage from './pages/CouncilPage';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { ProgressProvider } from './contexts/ProgressContext';
 import { ThemeProvider } from './contexts/ThemeContext';
@@ -161,6 +162,16 @@ const AppRoutes: React.FC = () => {
           <RequireAuth>
             <Layout>
               <CalendarPage />
+            </Layout>
+          </RequireAuth>
+        }
+      />
+      <Route
+        path="/council"
+        element={
+          <RequireAuth>
+            <Layout>
+              <CouncilPage />
             </Layout>
           </RequireAuth>
         }
