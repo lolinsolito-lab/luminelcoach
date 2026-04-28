@@ -37,6 +37,7 @@ const SignupPage: React.FC = () => {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [emailSent, setEmailSent] = useState(false);
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -45,22 +46,8 @@ const SignupPage: React.FC = () => {
     setLoading(true); setError("");
     try {
       await signup(name, email, password);
-
-      // Sincronizza dati onboarding salvati prima della registrazione
-      const onboardingRaw = localStorage.getItem('luminel_onboarding_data');
-      if (onboardingRaw) {
-        try {
-          const onboardingData = JSON.parse(onboardingRaw);
-          // updateUserProfile viene chiamato dopo che Supabase ha creato la sessione
-          // Piccolo delay per assicurarsi che il trigger abbia creato il profilo
-          await new Promise(r => setTimeout(r, 1200));
-          // Il nome dall'onboarding sovrascrive quello del signup se presente
-          if (onboardingData.fullName) name = onboardingData.fullName;
-          localStorage.removeItem('luminel_onboarding_data');
-        } catch { /* dati onboarding corrotti, ignora */ }
-      }
-
-      navigate("/");
+      // Mostra messaggio di conferma email
+      setEmailSent(true);
     } catch (err: any) {
       setError(err.message ?? "Errore durante la registrazione");
     } finally { setLoading(false); }
@@ -71,6 +58,44 @@ const SignupPage: React.FC = () => {
     try { await loginWithGoogle(); }
     catch (err: any) { setError(err.message ?? "Errore Google"); setLoading(false); }
   };
+
+  // ── Email confirmation screen ──
+  if (emailSent) {
+    return (
+      <div style={{ minHeight: "100vh", background: "#06060F", display: "flex", alignItems: "center", justifyContent: "center", padding: 20 }}>
+        <div style={{ position: "absolute", top: -100, right: -60, width: 300, height: 300, borderRadius: "50%", background: "rgba(201,168,76,0.04)", filter: "blur(90px)", pointerEvents: "none" }} />
+        <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}
+          style={{ width: "100%", maxWidth: 400, textAlign: "center", position: "relative", zIndex: 1 }}>
+          <div style={{ display: "inline-flex", alignItems: "center", gap: 9, marginBottom: 28 }}>
+            <div style={{ width: 16, height: 16, background: "linear-gradient(135deg,#EDD980,#C9A84C)", clipPath: "polygon(50% 0%,100% 50%,50% 100%,0% 50%)" }} />
+            <span style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: 20, fontWeight: 500, letterSpacing: ".22em", color: "#EDD980" }}>LUMINEL</span>
+          </div>
+          <div style={{ width: 64, height: 64, borderRadius: "50%", background: "rgba(16,185,129,0.12)", border: "0.5px solid rgba(16,185,129,0.3)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 20px" }}>
+            <span style={{ fontSize: 28 }}>✉️</span>
+          </div>
+          <h2 style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: 28, fontWeight: 400, color: "#F0EBE0", marginBottom: 10 }}>
+            Controlla la tua email
+          </h2>
+          <p style={{ fontSize: 13, color: "#6A6560", lineHeight: 1.6, marginBottom: 6 }}>
+            Abbiamo inviato un link di conferma a
+          </p>
+          <p style={{ fontSize: 14, color: "#F0EBE0", marginBottom: 24, fontWeight: 500 }}>{email}</p>
+          <div style={{ padding: "14px 18px", borderRadius: 10, background: "rgba(201,168,76,0.07)", border: "0.5px solid rgba(201,168,76,0.25)", marginBottom: 24 }}>
+            <p style={{ fontSize: 12, color: "rgba(201,168,76,0.8)", lineHeight: 1.6, margin: 0 }}>
+              Clicca <strong>"Confirm your mail"</strong> nell'email per attivare il tuo account Luminel.
+            </p>
+          </div>
+          <p style={{ fontSize: 11, color: "#6A6560", marginBottom: 20 }}>
+            Non la trovi? Controlla spam o cartella promozioni.
+          </p>
+          <button onClick={() => navigate("/login")}
+            style={{ width: "100%", padding: "12px", borderRadius: 10, background: "#C9A84C", color: "#06060F", border: "none", fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: "'DM Sans',sans-serif" }}>
+            Vai al Login →
+          </button>
+        </motion.div>
+      </div>
+    );
+  }
 
   return (
     <div style={{ minHeight: "100vh", background: DL.void, display: "flex", alignItems: "center", justifyContent: "center", padding: 20, position: "relative", overflow: "hidden" }}>
