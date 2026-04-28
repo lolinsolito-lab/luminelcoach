@@ -1,9 +1,11 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import { useProgress } from "../contexts/ProgressContext";
 import { ArrowRightIcon, LockClosedIcon, XMarkIcon } from "@heroicons/react/24/outline";
+import WelcomeVideoModal from "./WelcomeVideoModal";
+import FOMOSection from "./FOMOSection";
 
 // ─── DATA ─────────────────────────────────────────────────────────────────────
 const MOODS = [
@@ -143,7 +145,6 @@ const Dashboard: React.FC = () => {
   const [prevMoodId, setPrevMoodId] = useState("focused");
   const [nudge, setNudge] = useState(false);
   const timer = useTimer(3);
-  const moodResponseRef = useRef<HTMLDivElement>(null);
 
   const name = (user as any)?.user_metadata?.full_name?.split(" ")[0] ?? (user as any)?.fullName?.split(" ")[0] ?? "Michael";
   const plan = (user as any)?.plan ?? "free";
@@ -159,10 +160,6 @@ const Dashboard: React.FC = () => {
     if (id === moodId) return;
     setPrevMoodId(moodId);
     setMoodId(id);
-    // Su mobile scrolla il box risposta in vista
-    setTimeout(() => {
-      moodResponseRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-    }, 120);
   };
 
   useEffect(() => {
@@ -171,13 +168,15 @@ const Dashboard: React.FC = () => {
 
   return (
     <div className="w-full pb-14" style={{ perspective: 1400 }}>
+      {/* ══ WELCOME MODAL (prima visita) ══ */}
+      <WelcomeVideoModal />
 
       {/* ══ HEADER ══ */}
       <motion.div initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} className="mb-8">
         <div style={{ fontSize: 9, letterSpacing: ".32em", textTransform: "uppercase", color: "rgba(201,168,76,0.45)", marginBottom: 6 }}>
           Luminel Daily Guidance · {today}
         </div>
-        <h1 style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: "clamp(28px,4.5vw,56px)", fontWeight: 400, lineHeight: 1.02, color: "#F0EBE0", letterSpacing: "-0.01em" }}>
+        <h1 style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: "clamp(38px,4.5vw,56px)", fontWeight: 400, lineHeight: 1.02, color: "#F0EBE0", letterSpacing: "-0.01em" }}>
           Bentornato,{" "}
           <em style={{ color: "#C9A84C", fontStyle: "italic", textShadow: "0 0 40px rgba(201,168,76,0.3)" }}>{name}</em>
         </h1>
@@ -187,7 +186,7 @@ const Dashboard: React.FC = () => {
       {/* ══ MOOD SELECTOR ══ */}
       <div className="mb-3">
         <div style={{ fontSize: 9, letterSpacing: ".24em", textTransform: "uppercase", color: "#6A6560", marginBottom: 12 }}>Come ti senti oggi?</div>
-        <div className="mood-grid" style={{ display: "grid", gridTemplateColumns: "repeat(6,1fr)", gap: 10 }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(6,1fr)", gap: 10 }}>
           {MOODS.map((m, idx) => {
             const on = moodId === m.id;
             return (
@@ -222,7 +221,6 @@ const Dashboard: React.FC = () => {
       </div>
 
       {/* ══ LUMINEL RISPONDE AL MOOD ══ */}
-      <div ref={moodResponseRef}>
       <AnimatePresence mode="wait">
         <motion.div key={moodId}
           initial={{ opacity: 0, y: -6, height: 0 }}
@@ -248,58 +246,9 @@ const Dashboard: React.FC = () => {
           </div>
         </motion.div>
       </AnimatePresence>
-      </div>
-
-      {/* ══ REALITY QUEST — mood-adaptive, FULL WIDTH before grid ══ */}
-      <AnimatePresence mode="wait">
-        <motion.div key={`rq-${moodId}`}
-          initial={{ opacity: 0, y: 12, scale: 0.99 }}
-          animate={{ opacity: 1, y: 0, scale: 1 }}
-          exit={{ opacity: 0, y: -8 }}
-          transition={{ duration: 0.35, ease: [0.34, 1.2, 0.64, 1] }}
-          whileHover={{ y: -5, z: 10, rotateX: 0.8, transition: { duration: 0.28 } }}
-          className="mb-4"
-          style={{
-            transformStyle: "preserve-3d",
-            padding: "26px 28px",
-            background: "linear-gradient(135deg,rgba(212,96,58,0.1) 0%,rgba(201,168,76,0.05) 50%,rgba(6,6,15,0.3) 100%)",
-            border: "0.5px solid rgba(212,96,58,0.32)", borderRadius: 18,
-            position: "relative", overflow: "hidden",
-            boxShadow: "0 4px 20px rgba(0,0,0,0.3)",
-          }}>
-          <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 1, background: "linear-gradient(90deg,transparent,rgba(212,96,58,0.7),rgba(201,168,76,0.3),transparent)" }} />
-          <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse at 5% 50%,rgba(212,96,58,0.09) 0%,transparent 50%)", pointerEvents: "none" }} />
-          <motion.div style={{ position: "absolute", inset: 0, borderRadius: 18, pointerEvents: "none" }}
-            animate={{ boxShadow: ["0 0 0 rgba(212,96,58,0)", "0 0 24px rgba(212,96,58,0.14)", "0 0 0 rgba(212,96,58,0)"] }}
-            transition={{ duration: 5, repeat: Infinity }} />
-          <div style={{ position: "relative", zIndex: 1 }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
-              <motion.div style={{ width: 7, height: 7, borderRadius: "50%", background: "#D4603A", boxShadow: "0 0 8px rgba(212,96,58,0.8),0 0 18px rgba(212,96,58,0.4)" }}
-                animate={{ opacity: [1, 0.2, 1], scale: [1, 1.2, 1] }} transition={{ duration: 1.5, repeat: Infinity }} />
-              <span style={{ fontSize: 9, letterSpacing: ".26em", textTransform: "uppercase", color: "rgba(212,96,58,0.85)" }}>
-                Reality Quest · AI · Oggi
-              </span>
-            </div>
-            <h3 style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: "clamp(20px,2.2vw,27px)", fontWeight: 400, color: "#F0EBE0", marginBottom: 10, lineHeight: 1.15, textShadow: "0 2px 12px rgba(0,0,0,0.4)" }}>
-              {mood.quest.title}
-            </h3>
-            <p style={{ fontSize: 13, color: "rgba(240,235,224,0.65)", lineHeight: 1.68, marginBottom: 20, maxWidth: 680 }}
-              dangerouslySetInnerHTML={{ __html: mood.quest.body }} />
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 12 }}>
-              <div style={{ display: "inline-flex", alignItems: "center", gap: 8, fontSize: 11, color: "#D4603A", padding: "6px 15px", border: "0.5px solid rgba(212,96,58,0.4)", borderRadius: 24, background: "rgba(212,96,58,0.08)" }}>
-                ⏱ {timer} rimanenti · Missione critica
-              </div>
-              <motion.button whileHover={{ x: 4 }} onClick={() => navigate("/quests")}
-                style={{ fontSize: 12, color: "#D4603A", background: "none", border: "none", cursor: "pointer", display: "flex", alignItems: "center", gap: 5, fontFamily: "'DM Sans',sans-serif" }}>
-                Vai alla Quest <ArrowRightIcon style={{ width: 14, height: 14 }} />
-              </motion.button>
-            </div>
-          </div>
-        </motion.div>
-      </AnimatePresence>
 
       {/* ══ MAIN GRID ══ */}
-      <div className="home-grid" style={{ display: "grid", gridTemplateColumns: "1fr 306px", gap: 18, alignItems: "start" }}>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 306px", gap: 18, alignItems: "start" }}>
 
         {/* ── LEFT ── */}
         <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
@@ -332,7 +281,7 @@ const Dashboard: React.FC = () => {
           </Card3D>
 
           {/* STATS */}
-          <div className="stats-grid" style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 10 }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 10 }}>
             {[
               { l: "Giorni di fila", v: `${streak ?? 3}`, s: "↑ 2% settimana", c: "#D4603A", delay: 0.1 },
               { l: "Livello", v: lvName, s: `Lv${level ?? 1} · ${xp ?? 300} xp`, c: "#C9A84C", delay: 0.14 },
@@ -342,6 +291,53 @@ const Dashboard: React.FC = () => {
               <StatCard key={i} label={s.l} value={s.v} sub={s.s} color={s.c} delay={s.delay} />
             ))}
           </div>
+
+          {/* REALITY QUEST — mood-adaptive */}
+          <AnimatePresence mode="wait">
+            <motion.div key={`rq-${moodId}`}
+              initial={{ opacity: 0, y: 12, scale: 0.99 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: 0.35, ease: [0.34, 1.2, 0.64, 1] }}
+              whileHover={{ y: -5, z: 10, rotateX: 0.8, transition: { duration: 0.28 } }}
+              style={{
+                transformStyle: "preserve-3d",
+                padding: "26px 28px",
+                background: "linear-gradient(135deg,rgba(212,96,58,0.1) 0%,rgba(201,168,76,0.05) 50%,rgba(6,6,15,0.3) 100%)",
+                border: "0.5px solid rgba(212,96,58,0.32)", borderRadius: 18,
+                position: "relative", overflow: "hidden",
+                boxShadow: "0 4px 20px rgba(0,0,0,0.3)",
+              }}>
+              <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 1, background: "linear-gradient(90deg,transparent,rgba(212,96,58,0.7),rgba(201,168,76,0.3),transparent)" }} />
+              <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse at 5% 50%,rgba(212,96,58,0.09) 0%,transparent 50%)", pointerEvents: "none" }} />
+              <motion.div style={{ position: "absolute", inset: 0, borderRadius: 18, pointerEvents: "none" }}
+                animate={{ boxShadow: ["0 0 0 rgba(212,96,58,0)", "0 0 24px rgba(212,96,58,0.14)", "0 0 0 rgba(212,96,58,0)"] }}
+                transition={{ duration: 5, repeat: Infinity }} />
+              <div style={{ position: "relative", zIndex: 1 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
+                  <motion.div style={{ width: 7, height: 7, borderRadius: "50%", background: "#D4603A", boxShadow: "0 0 8px rgba(212,96,58,0.8),0 0 18px rgba(212,96,58,0.4)" }}
+                    animate={{ opacity: [1, 0.2, 1], scale: [1, 1.2, 1] }} transition={{ duration: 1.5, repeat: Infinity }} />
+                  <span style={{ fontSize: 9, letterSpacing: ".26em", textTransform: "uppercase", color: "rgba(212,96,58,0.85)" }}>
+                    Reality Quest · AI · Oggi
+                  </span>
+                </div>
+                <h3 style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: "clamp(20px,2.2vw,27px)", fontWeight: 400, color: "#F0EBE0", marginBottom: 10, lineHeight: 1.15, textShadow: "0 2px 12px rgba(0,0,0,0.4)" }}>
+                  {mood.quest.title}
+                </h3>
+                <p style={{ fontSize: 13, color: "rgba(240,235,224,0.65)", lineHeight: 1.68, marginBottom: 20, maxWidth: 680 }}
+                  dangerouslySetInnerHTML={{ __html: mood.quest.body }} />
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 12 }}>
+                  <div style={{ display: "inline-flex", alignItems: "center", gap: 8, fontSize: 11, color: "#D4603A", padding: "6px 15px", border: "0.5px solid rgba(212,96,58,0.4)", borderRadius: 24, background: "rgba(212,96,58,0.08)" }}>
+                    ⏱ {timer} rimanenti · Missione critica
+                  </div>
+                  <motion.button whileHover={{ x: 4 }} onClick={() => navigate("/quests")}
+                    style={{ fontSize: 12, color: "#D4603A", background: "none", border: "none", cursor: "pointer", display: "flex", alignItems: "center", gap: 5, fontFamily: "'DM Sans',sans-serif" }}>
+                    Vai alla Quest <ArrowRightIcon style={{ width: 14, height: 14 }} />
+                  </motion.button>
+                </div>
+              </div>
+            </motion.div>
+          </AnimatePresence>
 
           {/* COUNCIL LOCK / WEEKLY GOAL */}
           <AnimatePresence mode="wait">
