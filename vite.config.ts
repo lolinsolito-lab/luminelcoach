@@ -32,8 +32,9 @@ export default defineConfig(({ mode }) => {
       minify: 'terser',
       terserOptions: {
         compress: {
-          drop_console: mode === 'production', // Remove console.log in production
+          drop_console: false,       // NON eliminare console — la firma Luminel deve restare
           drop_debugger: true,
+          pure_funcs: [],            // nessuna funzione da eliminare
         },
       },
 
