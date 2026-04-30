@@ -2,6 +2,8 @@ import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { XMarkIcon, CheckCircleIcon, SparklesIcon, StarIcon } from '@heroicons/react/24/solid';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
+import { useState } from 'react';
 
 interface UpgradeModalProps {
   isOpen: boolean;
@@ -75,7 +77,45 @@ const planData = {
 
 const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose, planType }) => {
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const [loading, setLoading] = useState(false);
   const plan = planData[planType];
+
+  const handleCheckout = async () => {
+    if (!user) {
+      navigate('/login');
+      return;
+    }
+    
+    setLoading(true);
+    try {
+      const priceId = planType === 'vip' 
+        ? import.meta.env.VITE_STRIPE_PRICE_VIP 
+        : import.meta.env.VITE_STRIPE_PRICE_PREMIUM;
+        
+      const res = await fetch('/api/stripe/create-checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          priceId,
+          userId: user.id,
+          successUrl: `${window.location.origin}/dashboard?checkout=success`,
+          cancelUrl: `${window.location.origin}/plans?checkout=canceled`,
+        }),
+      });
+      
+      const data = await res.json();
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        throw new Error(data.error || 'Errore checkout');
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Impossibile connettersi al pagamento. Riprova più tardi.');
+      setLoading(false);
+    }
+  };
 
   return (
     <AnimatePresence>
@@ -179,17 +219,20 @@ const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose, planType }
             {/* CTA */}
             <div className="px-8 pb-8 flex flex-col gap-3">
               <motion.button
-                whileHover={{ opacity: 0.9 }}
-                whileTap={{ scale: 0.98 }}
-                onClick={() => { onClose(); navigate('/plans'); }}
-                className="w-full py-3.5 rounded-xl text-[13px] font-medium tracking-wide transition-all"
+                whileHover={!loading ? { opacity: 0.9 } : undefined}
+                whileTap={!loading ? { scale: 0.98 } : undefined}
+                onClick={handleCheckout}
+                disabled={loading}
+                className="w-full py-3.5 rounded-xl text-[13px] font-medium tracking-wide transition-all flex items-center justify-center gap-2"
                 style={{
                   background: plan.color,
                   color: planType === 'vip' ? '#FFFFFF' : '#06060F',
                   boxShadow: `0 0 24px ${plan.colorDim}`,
+                  opacity: loading ? 0.7 : 1,
+                  cursor: loading ? 'wait' : 'pointer'
                 }}
               >
-                {plan.cta}
+                {loading ? 'Attendere...' : plan.cta}
               </motion.button>
 
               <button
