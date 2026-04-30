@@ -18,6 +18,7 @@ const ProfileIcon = () => <svg viewBox="0 0 24 24" fill="none" stroke="currentCo
 const MenuIcon = () => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M4 6h16M4 12h16M4 18h16"/></svg>;
 const XIcon = () => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M6 18L18 6M6 6l12 12"/></svg>;
 const MoreIcon = () => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><circle cx="5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/></svg>;
+const AdminIcon = () => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>;
 
 interface LayoutProps { children: React.ReactNode; }
 
@@ -26,6 +27,9 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   const location = useLocation();
   const { user } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  // Admin access: solo jaramichael@hotmail.com o chi ha role=admin nel profilo
+  const isAdminUser = user?.email === 'jaramichael@hotmail.com' || (user as any)?.role === 'admin';
 
   const isActive = (path: string) => {
     if (path === '/' && location.pathname === '/') return true;
@@ -99,6 +103,19 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           <div className="mt-auto"></div>
           <div className={cn("ni", isActive('/settings') && "on")} onClick={() => navigate('/settings')}><SettingsIcon /> Settings</div>
           <div className={cn("ni", isActive('/profile') && "on")} onClick={() => navigate('/profile')}><ProfileIcon /> Profile</div>
+          {isAdminUser && (
+            <div
+              className={cn("ni", isActive('/admin') && "on")}
+              onClick={() => navigate('/admin')}
+              style={{ marginTop: 8, borderTop: '0.5px solid rgba(201,168,76,0.15)', paddingTop: 10 }}>
+              <AdminIcon />
+              <span>Admin</span>
+              <span style={{ marginLeft:'auto', fontSize:9, padding:'2px 6px', borderRadius:4,
+                background:'rgba(201,168,76,0.12)', color:'#C9A84C', border:'0.5px solid rgba(201,168,76,0.25)' }}>
+                CTRL
+              </span>
+            </div>
+          )}
         </nav>
 
         <div className="sb-bottom">
@@ -210,6 +227,18 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
               ))}
               {/* Plan card at bottom */}
               <div style={{ marginTop:'auto', padding:'0 12px' }}>
+                {isAdminUser && (
+                  <div
+                    onClick={() => navTo('/admin')}
+                    style={{ display:'flex', alignItems:'center', gap:10, padding:'10px 12px', marginBottom:8,
+                      borderRadius:9, background:'rgba(201,168,76,0.06)', border:'0.5px solid rgba(201,168,76,0.2)',
+                      cursor:'pointer', color:'#C9A84C', fontSize:13 }}>
+                    <div style={{ width:16, height:16 }}><AdminIcon /></div>
+                    <span>Admin Dashboard</span>
+                    <span style={{ marginLeft:'auto', fontSize:9, padding:'2px 6px', borderRadius:4,
+                      background:'rgba(201,168,76,0.12)', border:'0.5px solid rgba(201,168,76,0.25)' }}>CTRL</span>
+                  </div>
+                )}
                 <div className="plan-card">
                   <div className="plan-tier">Piano attuale</div>
                   <div className="plan-name">{user?.plan === 'vip' ? 'VIP · Sovereign' : 'Free · Explorer'}</div>

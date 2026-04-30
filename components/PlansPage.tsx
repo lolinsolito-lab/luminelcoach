@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import ReactDOM from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { CheckIcon, SparklesIcon, StarIcon } from "@heroicons/react/24/solid";
 import {
@@ -360,7 +361,10 @@ const PlansPage: React.FC = () => {
 
   return (
     <div className="min-h-screen pb-24">
-      <UpgradeModal isOpen={showUpgradeModal} onClose={() => setShowUpgradeModal(false)} planType={selectedPlanType} />
+      {ReactDOM.createPortal(
+        <UpgradeModal isOpen={showUpgradeModal} onClose={() => setShowUpgradeModal(false)} planType={selectedPlanType} />,
+        document.body
+      )}
 
       {/* Ambient */}
       <div className="fixed inset-0 pointer-events-none -z-10 overflow-hidden">

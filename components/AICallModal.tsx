@@ -127,8 +127,8 @@ const AICallModal: React.FC<AICallModalProps> = ({ onClose }) => {
   };
 
   return (
-    <div className="fixed inset-0 z-[100] bg-slate-900 flex flex-col items-center justify-between py-12 px-6">
-      <button onClick={onClose} className="absolute top-6 right-6 text-white/50 hover:text-white">
+    <div style={{ position:"fixed", inset:0, top:0, left:0, right:0, bottom:0, zIndex:9999, background:"#0a0a1a", display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"space-between", paddingTop:"48px", paddingBottom:"48px", paddingLeft:"24px", paddingRight:"24px" }}>
+      <button onClick={onClose} style={{ position:"absolute", top:24, right:24, color:"rgba(255,255,255,0.5)", background:"none", border:"none", cursor:"pointer" }}>
         <PhoneXMarkIcon className="w-8 h-8" />
       </button>
 

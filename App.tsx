@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { HashRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import Layout from './components/Layout';
 import Dashboard from './components/Dashboard';
 import WelcomePage from './components/WelcomePage';
@@ -20,6 +20,7 @@ import SettingsPage from './components/SettingsPage';
 import ExperiencesPage from './components/ExperiencesPage';
 import QuestsPage from './components/QuestsPage';
 import CouncilPage from './pages/CouncilPage';
+import AdminDashboard from './pages/AdminDashboard';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { ProgressProvider } from './contexts/ProgressContext';
 import { ThemeProvider } from './contexts/ThemeContext';
@@ -186,6 +187,7 @@ const AppRoutes: React.FC = () => {
           </RequireAuth>
         }
       />
+      <Route path="/admin" element={<AdminDashboard />} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
@@ -193,7 +195,7 @@ const AppRoutes: React.FC = () => {
 
 const App: React.FC = () => {
   return (
-    <HashRouter>
+    <BrowserRouter>
       <ThemeProvider>
         <AuthProvider>
           <ZenAudioProvider>
@@ -205,7 +207,7 @@ const App: React.FC = () => {
           </ZenAudioProvider>
         </AuthProvider>
       </ThemeProvider>
-    </HashRouter>
+    </BrowserRouter>
   );
 };
 

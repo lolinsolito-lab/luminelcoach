@@ -5,8 +5,7 @@ import {
   EllipsisHorizontalIcon, Bars3Icon, XMarkIcon,
   LockClosedIcon, ArrowUpTrayIcon,
 } from "@heroicons/react/24/solid";
-import { GoogleGenAI, Chat, GenerateContentResponse } from "@google/genai";
-import { LUMINEL_SYSTEM_PROMPT as LUMINEL_SYSTEM_INSTRUCTION } from "../lib/coach/system-prompt";
+import { supabase } from "../services/supabase";
 import { ChatMessage } from "../types";
 import { useAuth } from "../contexts/AuthContext";
 import ChatIntroDemo from "./ChatIntroDemo";
@@ -127,7 +126,6 @@ const ChatPage: React.FC = () => {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [chatSession, setChatSession] = useState<Chat | null>(null);
   const [showSidebar, setShowSidebar] = useState(false);
   const [activeConversationId, setActiveConversationId] = useState("new");
   const [messageCount, setMessageCount] = useState(0);
@@ -146,25 +144,10 @@ const ChatPage: React.FC = () => {
   // Init chat
   useEffect(() => {
     if (!user || showIntro) return;
-    const init = async () => {
-      try {
-        const apiKey = import.meta.env?.VITE_GEMINI_API_KEY || "";
-        if (apiKey) {
-          const ai = new GoogleGenAI({ apiKey });
-          const chat = ai.chats.create({ model: "gemini-2.5-flash", config: { systemInstruction: LUMINEL_SYSTEM_INSTRUCTION } });
-          setChatSession(chat);
-        }
-        if (messages.length === 0) {
-          setMessages([{ id: "init", role: "model", text: `Bentornato, ${user?.fullName?.split(" ")[0] || "Viaggiatore"}. Sono Luminel. Ho riletto le nostre ultime sessioni. Come posso illuminare il tuo percorso oggi?`, timestamp: new Date() }]);
-        }
-      } catch {
-        if (messages.length === 0) {
-          setMessages([{ id: "init-fallback", role: "model", text: `Ciao. Sono Luminel, il tuo Coach Trasformativo. Come posso aiutarti oggi?`, timestamp: new Date() }]);
-        }
-      }
-    };
-    init();
-  }, [user, showIntro]);
+    if (messages.length === 0) {
+      setMessages([{ id: "init", role: "model", text: `Bentornato, ${user?.fullName?.split(" ")[0] || "Viaggiatore"}. Sono Luminel. Ho riletto le nostre ultime sessioni. Come posso illuminare il tuo percorso oggi?`, timestamp: new Date() }]);
+    }
+  }, [user, showIntro, messages.length]);
 
   // Load conversation
   const loadConversation = (id: string) => {
@@ -218,28 +201,34 @@ const ChatPage: React.FC = () => {
     setMessageCount(p => p + 1);
 
     try {
-      let responseText = "";
-      if (chatSession) {
-        try {
-          const result: GenerateContentResponse = await chatSession.sendMessage({ message: text });
-          responseText = result.text;
-        } catch { responseText = ""; }
+      const history = messages
+        .filter(m => m.id !== "init" && m.id !== "init-fallback" && m.id !== "init-new" && !["1","2","3"].includes(m.id))
+        .map(m => ({ role: m.role === "user" ? "user" : "assistant", content: m.text }));
+
+      const { data, error } = await supabase.functions.invoke("luminel-chat", {
+        body: {
+          message: text,
+          history: history,
+          mode: mode,
+          sessionId: activeConversationId !== "new" ? activeConversationId : undefined,
+          source: "chat"
+        }
+      });
+
+      if (error) throw error;
+      
+      const responseText = data?.text || "Mi dispiace, ho avuto un momento. Puoi ripetere?";
+      if (data?.sessionId && activeConversationId === "new") {
+        setActiveConversationId(data.sessionId);
       }
-      if (!responseText) {
-        await new Promise(r => setTimeout(r, 1200));
-        const mocks = [
-          "Capisco profondamente. Come ti fa sentire questo nel corpo, in questo momento?",
-          "È un'osservazione potente. Cosa succederebbe nella tua vita se agissi su questo oggi, imperfettamente?",
-          "La tua consapevolezza è già trasformazione. Qual è la decisione più piccola che puoi prendere nelle prossime 2 ore?",
-          "Noto un pattern interessante in quello che dici. Raccontami di più — da quando senti questa sensazione?",
-          "Il tuo Guerriero interiore sa già la risposta. Il problema non è la chiarezza — è il permesso. Chi ti ha insegnato che non meriti di agire ora?",
-        ];
-        responseText = mocks[Math.floor(Math.random() * mocks.length)];
-      }
-      setMessages(prev => [...prev, { id: (Date.now() + 1).toString(), role: "model", text: responseText, timestamp: new Date() }]);
-    } catch {
-      setMessages(prev => [...prev, { id: (Date.now() + 1).toString(), role: "model", text: "Mi dispiace, ho avuto un momento. Puoi ripetere?", timestamp: new Date() }]);
-    } finally { setIsLoading(false); }
+
+      setMessages(prev => [...prev, { id: data?.id || (Date.now() + 1).toString(), role: "model", text: responseText, timestamp: new Date() }]);
+    } catch (err) {
+      console.error(err);
+      setMessages(prev => [...prev, { id: (Date.now() + 1).toString(), role: "model", text: "Si è verificato un errore di connessione con il Cervello AI. Riprova tra poco.", timestamp: new Date() }]);
+    } finally { 
+      setIsLoading(false); 
+    }
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {

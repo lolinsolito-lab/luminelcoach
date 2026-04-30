@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import ReactDOM from "react-dom";
 import { motion } from "framer-motion";
 import {
   MicrophoneIcon, CheckCircleIcon, StarIcon,
@@ -106,8 +107,14 @@ const CallPage: React.FC = () => {
 
   return (
     <div className="pb-20 max-w-5xl mx-auto">
-      {isCallModalOpen && <AICallModal onClose={() => setIsCallModalOpen(false)} />}
-      <UpgradeModal isOpen={isUpgradeModalOpen} onClose={() => setIsUpgradeModalOpen(false)} planType="vip" />
+      {isCallModalOpen && ReactDOM.createPortal(
+        <AICallModal onClose={() => setIsCallModalOpen(false)} />,
+        document.body
+      )}
+      {ReactDOM.createPortal(
+        <UpgradeModal isOpen={isUpgradeModalOpen} onClose={() => setIsUpgradeModalOpen(false)} planType="vip" />,
+        document.body
+      )}
 
       {/* ── HERO ── */}
       <motion.section initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
