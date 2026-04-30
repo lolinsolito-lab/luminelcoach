@@ -481,6 +481,9 @@ const Dashboard: React.FC = () => {
         </div>
       </div>
 
+      {/* ══ FOMO SECTION ══ */}
+      <FOMOSection plan={plan} streak={streak ?? 0} navigate={navigate} />
+
       {/* ══ VIP NUDGE ══ */}
       <AnimatePresence>
         {nudge && (

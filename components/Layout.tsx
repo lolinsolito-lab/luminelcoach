@@ -70,7 +70,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
 
   return (
     <div className="app">
-      {/* â”€â”€ SIDEBAR (desktop only) â”€â”€ */}
+      {/* ── SIDEBAR (desktop only) ── */}
       <aside className="sb hidden lg:flex">
         <div className="sb-logo">
           <div className="sb-logo-row">
@@ -104,13 +104,13 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         <div className="sb-bottom">
           <div className="plan-card">
             <div className="plan-tier">Piano attuale</div>
-            <div className="plan-name">{user?.plan === 'vip' ? 'VIP Â· Sovereign' : 'Free Â· Explorer'}</div>
-            <button className="plan-btn" onClick={() => navigate('/plans')}>Gestisci â†’</button>
+            <div className="plan-name">{user?.plan === 'vip' ? 'VIP · Sovereign' : 'Free · Explorer'}</div>
+            <button className="plan-btn" onClick={() => navigate('/plans')}>Gestisci →</button>
           </div>
         </div>
       </aside>
 
-      {/* â”€â”€ MAIN CONTENT â”€â”€ */}
+      {/* ── MAIN CONTENT ── */}
       <div className="main">
         {/* Ambient orbs */}
         <div className="amb">
@@ -119,7 +119,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           <div className="orb o3"></div>
         </div>
 
-        {/* TOPBAR â€” desktop tabs */}
+        {/* TOPBAR — desktop tabs */}
         <div className="tb">
           {/* Desktop tabs */}
           <div className="tb-tabs hidden lg:flex">
@@ -212,8 +212,8 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
               <div style={{ marginTop:'auto', padding:'0 12px' }}>
                 <div className="plan-card">
                   <div className="plan-tier">Piano attuale</div>
-                  <div className="plan-name">{user?.plan === 'vip' ? 'VIP Â· Sovereign' : 'Free Â· Explorer'}</div>
-                  <button className="plan-btn" onClick={() => navTo('/plans')}>Gestisci â†’</button>
+                  <div className="plan-name">{user?.plan === 'vip' ? 'VIP · Sovereign' : 'Free · Explorer'}</div>
+                  <button className="plan-btn" onClick={() => navTo('/plans')}>Gestisci →</button>
                 </div>
               </div>
             </div>
@@ -226,7 +226,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         </div>
       </div>
       
-      {/* â”€â”€ MOBILE BOTTOM NAV â”€â”€ */}
+      {/* ── MOBILE BOTTOM NAV ── */}
       <nav
         className="lg:hidden fixed bottom-0 left-0 w-full z-50"
         style={{ background:'rgba(9,9,26,0.95)', backdropFilter:'blur(24px)',
