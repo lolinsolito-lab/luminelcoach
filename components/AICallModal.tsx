@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { PhoneXMarkIcon, MicrophoneIcon, MicrophoneIcon as MicrophoneSolid, SparklesIcon } from '@heroicons/react/24/solid';
 import { GoogleGenAI } from "@google/genai";
 import { LUMINEL_SYSTEM_PROMPT as LUMINEL_SYSTEM_INSTRUCTION } from '../lib/coach/system-prompt';
+import { supabase } from "../services/supabase";
 
 interface AICallModalProps {
   onClose: () => void;
@@ -21,6 +22,33 @@ const AICallModal: React.FC<AICallModalProps> = ({ onClose }) => {
   useEffect(() => {
     const init = async () => {
       try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+          const currentMonth = new Date().toISOString().slice(0, 7);
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('monthly_voice_count, last_voice_month, plan')
+            .eq('id', user.id)
+            .single();
+
+          const count = profile?.last_voice_month === currentMonth 
+            ? (profile?.monthly_voice_count ?? 0) 
+            : 0;
+
+          if (profile?.plan !== 'vip' && count >= 1) {
+            alert('Hai già usato la tua demo vocale del mese. Passa a VIP per accesso illimitato.');
+            onClose();
+            return;
+          }
+
+          await supabase.from('profiles').upsert({
+            id: user.id,
+            monthly_voice_count: count + 1,
+            last_voice_month: currentMonth,
+            updated_at: new Date().toISOString(),
+          });
+        }
+
         aiRef.current = new GoogleGenAI({ apiKey: process.env.API_KEY });
         
         // Fix for TypeScript error: Property 'SpeechRecognition' does not exist on type 'Window'

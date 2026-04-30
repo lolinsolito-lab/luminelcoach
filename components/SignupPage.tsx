@@ -46,7 +46,16 @@ const SignupPage: React.FC = () => {
     setLoading(true); setError("");
     try {
       await signup(name, email, password);
-      // Mostra messaggio di conferma email
+      
+      // Sync dati onboarding da localStorage
+      const raw = localStorage.getItem('luminel_onboarding_data');
+      if (raw) {
+        // Piccolo delay per trigger Supabase
+        await new Promise(r => setTimeout(r, 1500));
+        localStorage.setItem('luminel_pending_onboarding', raw);
+        localStorage.removeItem('luminel_onboarding_data');
+      }
+      
       setEmailSent(true);
     } catch (err: any) {
       setError(err.message ?? "Errore durante la registrazione");

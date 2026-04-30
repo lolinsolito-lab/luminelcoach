@@ -141,6 +141,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     // Se il profilo non esiste ancora (primo login), il trigger lo crea
     // ma potrebbe non essere ancora disponibile — ritentiamo
+    let finalData = data;
     if (!data) {
       await new Promise(r => setTimeout(r, 800));
       const { data: retryData } = await supabase
@@ -148,9 +149,37 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         .select('*')
         .eq('id', sbUser.id)
         .single();
+      finalData = retryData;
       setProfile(mapProfile(sbUser, retryData));
     } else {
       setProfile(mapProfile(sbUser, data));
+    }
+
+    // AGGIUNGI: sync onboarding pending
+    const pendingRaw = localStorage.getItem('luminel_pending_onboarding');
+    if (pendingRaw && finalData) {
+      try {
+        const onboarding = JSON.parse(pendingRaw);
+        await supabase.from('profiles').upsert({
+          id: sbUser.id,
+          full_name:          onboarding.fullName || finalData.full_name,
+          ikigai_loves:       onboarding.goals || [],
+          ikigai_stage:       'scoperta',
+          preferred_language: 'it',
+          updated_at:         new Date().toISOString(),
+        });
+        localStorage.removeItem('luminel_pending_onboarding');
+        
+        // Refresh profile to get updated data
+        const { data: updatedData } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', sbUser.id)
+          .single();
+        if (updatedData) {
+          setProfile(mapProfile(sbUser, updatedData));
+        }
+      } catch { /* ignora */ }
     }
   };
 
@@ -330,12 +359,24 @@ export const useAuth = () => {
 // ─── HELPER: messaggi errore in italiano ─────────────────────────────────────
 function mapAuthError(error: AuthError): Error {
   const map: Record<string, string> = {
-    'Invalid login credentials': 'Email o password non corretti.',
-    'Email not confirmed': 'Conferma la tua email prima di accedere.',
-    'User already registered': 'Questo indirizzo email è già registrato.',
-    'Password should be at least 6 characters': 'La password deve avere almeno 6 caratteri.',
-    'Email rate limit exceeded': 'Troppi tentativi. Riprova tra qualche minuto.',
-    'Invalid email': 'Indirizzo email non valido.',
+    'Invalid login credentials':
+      'Email o password non corretti.',
+    'Email not confirmed':
+      'Conferma la tua email prima di accedere. Controlla la casella di posta.',
+    'User already registered':
+      'Questo indirizzo email è già registrato. Prova ad accedere.',
+    'Password should be at least 6 characters':
+      'La password deve avere almeno 6 caratteri.',
+    'Email rate limit exceeded':
+      'Troppi tentativi. Riprova tra qualche minuto.',
+    'Invalid email':
+      'Indirizzo email non valido.',
+    'Signup requires a valid password':
+      'Inserisci una password valida.',
+    'User not found':
+      'Nessun account trovato con questa email.',
+    'Token has expired or is invalid':
+      'Il link è scaduto. Richiedi un nuovo link di reset.',
   };
   return new Error(map[error.message] ?? error.message);
 }
