@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import ReactDOM from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { XMarkIcon, PlayIcon } from "@heroicons/react/24/outline";
 import { useAuth } from "../contexts/AuthContext";
@@ -43,7 +44,7 @@ const WelcomeVideoModal: React.FC = () => {
   const VIDEO_SRC = "/videos/michael-jara-welcome.mp4"; // carica qui il tuo video
   const hasRealVideo = false; // ← cambia in true quando carichi il video reale
 
-  return (
+  const modalContent = (
     <AnimatePresence>
       {visible && (
         <motion.div
@@ -174,6 +175,8 @@ const WelcomeVideoModal: React.FC = () => {
       )}
     </AnimatePresence>
   );
+
+  return ReactDOM.createPortal(modalContent, document.body);
 };
 
 export default WelcomeVideoModal;
