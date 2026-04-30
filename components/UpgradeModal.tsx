@@ -26,9 +26,9 @@ const planData = {
   premium: {
     label: 'Premium',
     sublabel: 'Illuminated',
-    price: '€29',
+    price: '€49',
     period: '/mese',
-    annualNote: 'oppure €290/anno (risparmi 2 mesi)',
+    annualNote: 'oppure €490/anno (risparmi 2 mesi)',
     color: DL.gold,
     colorDim: DL.goldDim,
     colorB: DL.goldB,
@@ -50,9 +50,9 @@ const planData = {
   vip: {
     label: 'VIP Sovereign',
     sublabel: 'Il massimo del percorso Luminel',
-    price: '€99',
+    price: '€199',
     period: '/mese',
-    annualNote: 'oppure €990/anno (risparmi 2 mesi)',
+    annualNote: 'oppure €1.990/anno (risparmi 2 mesi)',
     color: '#9B74E0',
     colorDim: 'rgba(155,116,224,0.10)',
     colorB: 'rgba(155,116,224,0.30)',
