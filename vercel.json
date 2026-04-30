@@ -1,5 +1,19 @@
 {
   "rewrites": [
     { "source": "/(.*)", "destination": "/index.html" }
+  ],
+  "crons": [
+    {
+      "path": "/api/cron/reset-daily",
+      "schedule": "0 0 * * *"
+    },
+    {
+      "path": "/api/cron/reset-monthly",
+      "schedule": "0 0 1 * *"
+    },
+    {
+      "path": "/api/cron/reset-streaks",
+      "schedule": "5 0 * * *"
+    }
   ]
 }
