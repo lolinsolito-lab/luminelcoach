@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import { useProgress } from "../contexts/ProgressContext";
+import { supabase } from "../services/supabase";
 import { ArrowRightIcon, LockClosedIcon, XMarkIcon } from "@heroicons/react/24/outline";
 import WelcomeVideoModal from "./WelcomeVideoModal";
 import FOMOSection from "./FOMOSection";
@@ -144,10 +145,32 @@ const Dashboard: React.FC = () => {
   const [moodId, setMoodId] = useState("focused");
   const [prevMoodId, setPrevMoodId] = useState("focused");
   const [nudge, setNudge] = useState(false);
+  const [dbPlan, setDbPlan] = useState<string>("free");
   const timer = useTimer(3);
 
+  // Carica piano e mood salvato da Supabase
+  useEffect(() => {
+    if (!user) return;
+    supabase
+      .from("profiles")
+      .select("plan")
+      .eq("id", user.id)
+      .single()
+      .then(({ data }) => {
+        if (data?.plan) setDbPlan(data.plan);
+      });
+    supabase
+      .from("user_context")
+      .select("current_mood")
+      .eq("user_id", user.id)
+      .single()
+      .then(({ data }) => {
+        if (data?.current_mood) setMoodId(data.current_mood);
+      });
+  }, [user]);
+
   const name = (user as any)?.user_metadata?.full_name?.split(" ")[0] ?? (user as any)?.fullName?.split(" ")[0] ?? "Michael";
-  const plan = (user as any)?.plan ?? "free";
+  const plan = dbPlan;
   const isVIP = plan === "vip";
   const isPremium = plan === "premium" || isVIP;
   const mins = Math.floor((xp ?? 300) / 2);
@@ -156,10 +179,19 @@ const Dashboard: React.FC = () => {
 
   const mood = MOODS.find(m => m.id === moodId) ?? MOODS[0];
 
-  const handleMoodSelect = (id: string) => {
+  const handleMoodSelect = async (id: string) => {
     if (id === moodId) return;
     setPrevMoodId(moodId);
     setMoodId(id);
+    // Salva su Supabase user_context
+    if (user) {
+      await supabase
+        .from("user_context")
+        .upsert(
+          { user_id: user.id, current_mood: id, mood_updated_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+          { onConflict: "user_id" }
+        );
+    }
   };
 
   useEffect(() => {
