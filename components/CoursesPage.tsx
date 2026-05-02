@@ -12,7 +12,7 @@ import { useAuth } from "../contexts/AuthContext";
 import { useCourses } from "../hooks/useCourses";
 
 // ─── TYPES ────────────────────────────────────────────────────────────────────
-type Plan = "free" | "premium" | "vip";
+type Plan = "free" | "starter" | "premium" | "vip";
 
 interface Course {
   id: string;
@@ -37,13 +37,15 @@ interface Course {
 
 // ─── PLAN CONFIG ──────────────────────────────────────────────────────────────
 const PLAN_CONFIG: Record<Plan, { label: string; color: string; border: string; bg: string; dot: string }> = {
-  free: { label: "FREE", color: "#4A9ED4", border: "rgba(74,158,212,0.3)", bg: "rgba(74,158,212,0.08)", dot: "#4A9ED4" },
+  free: { label: "FREE", color: "#6A6560", border: "rgba(106,101,96,0.3)", bg: "rgba(106,101,96,0.08)", dot: "#6A6560" },
+  starter: { label: "STARTER", color: "#4A9ED4", border: "rgba(74,158,212,0.3)", bg: "rgba(74,158,212,0.08)", dot: "#4A9ED4" },
   premium: { label: "PREMIUM", color: "#C9A84C", border: "rgba(201,168,76,0.3)", bg: "rgba(201,168,76,0.08)", dot: "#C9A84C" },
   vip: { label: "VIP", color: "#9B74E0", border: "rgba(155,116,224,0.3)", bg: "rgba(155,116,224,0.08)", dot: "#9B74E0" },
 };
 
 const SECTION_CONFIG: Record<Plan, { icon: string; title: string; sub: string; accent: string }> = {
-  free: { icon: "✦", title: "Corsi Gratuiti", sub: "Disponibili per tutti · Nessuna carta di credito", accent: "#4A9ED4" },
+  free: { icon: "✦", title: "Corsi Gratuiti", sub: "Disponibili per tutti · Nessuna carta di credito", accent: "#6A6560" },
+  starter: { icon: "🚀", title: "Corsi Starter", sub: "Le fondamenta del metodo · Inclusi nel piano Starter", accent: "#4A9ED4" },
   premium: { icon: "⭐", title: "Corsi Premium", sub: "Sblocca con il piano Premium · €49/mese", accent: "#C9A84C" },
   vip: { icon: "♛", title: "Corsi VIP", sub: "Esclusivi per i membri Sovereign · €199/mese", accent: "#9B74E0" },
 };
@@ -246,7 +248,7 @@ const CoursesPage: React.FC = () => {
   const [showFilters, setShowFilters] = useState(false);
 
   const {
-    filteredCourses, freeCourses, premiumCourses, vipCourses,
+    filteredCourses, freeCourses, starterCourses, premiumCourses, vipCourses,
     isLoading, isCourseUnlocked, unlockCourse,
   } = useCourses({
     userPlan: user?.plan ?? "free",
@@ -423,6 +425,39 @@ const CoursesPage: React.FC = () => {
         </motion.section>
       )}
 
+      {/* STARTER COURSES */}
+      {starterCourses.length > 0 && (
+        <motion.section initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.12 }}
+          className="mb-14">
+          <SectionHeader plan="starter" count={starterCourses.length} />
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {starterCourses.map((course, idx) => (
+              <CourseCard key={course.id} course={course} idx={idx}
+                isUnlocked={isCourseUnlocked(course.id)} onNavigate={handleCourseClick} />
+            ))}
+          </div>
+          {user?.plan === "free" && (
+            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }}
+              className="mt-5 p-5 rounded-xl flex flex-col md:flex-row md:items-center justify-between gap-4"
+              style={{ background: "rgba(74,158,212,0.05)", border: "0.5px solid rgba(74,158,212,0.2)" }}>
+              <div>
+                <div className="text-[13px] font-medium mb-1" style={{ color: "#F0EBE0" }}>
+                  Sblocca tutti i corsi Starter
+                </div>
+                <div className="text-[12px]" style={{ color: "#6A6560" }}>
+                  Le fondamenta del metodo e 30 messaggi AI al giorno · €9,99/mese
+                </div>
+              </div>
+              <button onClick={() => navigate("/plans")}
+                className="flex-shrink-0 px-5 py-2.5 rounded-lg text-[12px] font-medium whitespace-nowrap"
+                style={{ background: "#4A9ED4", color: "#06060F" }}>
+                Diventa Starter →
+              </button>
+            </motion.div>
+          )}
+        </motion.section>
+      )}
+
       {/* PREMIUM COURSES */}
       {premiumCourses.length > 0 && (
         <motion.section initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}
@@ -435,7 +470,7 @@ const CoursesPage: React.FC = () => {
             ))}
           </div>
           {/* Upgrade nudge se non ha premium */}
-          {user?.plan === "free" && (
+          {(user?.plan === "free" || user?.plan === "starter") && (
             <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}
               className="mt-5 p-5 rounded-xl flex flex-col md:flex-row md:items-center justify-between gap-4"
               style={{ background: "rgba(201,168,76,0.05)", border: "0.5px solid rgba(201,168,76,0.2)" }}>

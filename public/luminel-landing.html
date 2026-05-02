@@ -1,0 +1,1194 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Luminel — Coach Trasformational</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&family=Cinzel:wght@400;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --gold:#C9A84C;--goldBr:#EDD980;--goldDim:rgba(201,168,76,0.12);--goldB:rgba(201,168,76,0.25);
+  --alch:#9B74E0;--stra:#4A9ED4;--guer:#D4603A;
+  --void:#06060F;--deep:#09091A;--surface:#0D0D20;
+  --white:#F0EBE0;--muted:#6A6560;--glass:rgba(255,255,255,0.035);--glassB:rgba(255,255,255,0.07);
+}
+html{scroll-behavior:smooth}
+body{background:var(--void);color:var(--white);font-family:'DM Sans',sans-serif;overflow-x:hidden;cursor:none}
+
+.cursor{position:fixed;width:8px;height:8px;background:var(--gold);border-radius:50%;pointer-events:none;z-index:99999;transform:translate(-50%,-50%);mix-blend-mode:difference}
+.cursor-ring{position:fixed;width:36px;height:36px;border:1px solid rgba(201,168,76,0.5);border-radius:50%;pointer-events:none;z-index:99998;transform:translate(-50%,-50%);transition:all .18s ease}
+
+/* ── INTRO ── */
+#intro{position:fixed;inset:0;z-index:1000;background:var(--void);display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden}
+.intro-glow{position:absolute;width:500px;height:500px;border-radius:50%;background:radial-gradient(circle,rgba(201,168,76,0.15),transparent 70%);pointer-events:none;animation:glowPulse 3s ease-in-out infinite}
+@keyframes glowPulse{0%,100%{transform:scale(1);opacity:.6}50%{transform:scale(1.2);opacity:1}}
+#intro-cosmos{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+#orb-canvas{position:absolute;pointer-events:none}
+#typewriter{position:relative;z-index:10;text-align:center;pointer-events:none}
+#tw-line{font-family:'Cormorant Garamond',serif;font-size:clamp(22px,4vw,52px);font-weight:300;color:var(--white);letter-spacing:.02em;min-height:70px;display:flex;align-items:center;justify-content:center;text-shadow:0 2px 40px rgba(6,6,15,0.95),0 0 80px rgba(6,6,15,0.8)}
+#tw-cursor{display:inline-block;width:2px;height:1.1em;background:var(--gold);margin-left:4px;animation:blink .7s infinite;vertical-align:middle}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+#tw-sub{font-size:11px;letter-spacing:.28em;text-transform:uppercase;color:rgba(240,235,224,0.35);margin-top:16px;opacity:0;transition:opacity 1s;text-shadow:0 0 20px rgba(6,6,15,0.8)}
+#skip-btn{position:absolute;bottom:40px;right:40px;background:none;border:0.5px solid rgba(201,168,76,0.3);color:rgba(201,168,76,0.5);padding:8px 20px;border-radius:100px;font-size:11px;letter-spacing:.16em;text-transform:uppercase;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .3s;z-index:20}
+#skip-btn:hover{border-color:var(--goldB);color:var(--gold)}
+#audio-toggle{position:absolute;bottom:40px;left:40px;background:none;border:0.5px solid rgba(201,168,76,0.3);color:rgba(201,168,76,0.5);padding:8px 16px;border-radius:100px;font-size:11px;letter-spacing:.12em;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .3s;z-index:20;display:flex;align-items:center;gap:6px}
+#audio-toggle:hover{border-color:var(--goldB);color:var(--gold)}
+#particle-canvas{position:fixed;inset:0;z-index:1001;pointer-events:none;opacity:0}
+
+/* ── MAIN ── */
+#main-landing{opacity:0;position:relative;z-index:1}
+#cosmos-bg{position:fixed;inset:0;z-index:0;pointer-events:none}
+
+nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:24px 48px;display:flex;align-items:center;justify-content:space-between;transition:all .4s;opacity:0}
+nav.scrolled{background:rgba(6,6,15,0.92);border-bottom:0.5px solid var(--glassB);backdrop-filter:blur(20px)}
+.nav-logo{font-family:'Cinzel',serif;font-size:18px;letter-spacing:.12em;color:var(--gold);text-decoration:none}
+.nav-links{display:flex;align-items:center;gap:32px}
+.nav-links a{color:var(--muted);text-decoration:none;font-size:13px;letter-spacing:.06em;transition:color .2s}
+.nav-links a:hover{color:var(--white)}
+.nav-cta{background:var(--goldDim);border:0.5px solid var(--goldB);color:var(--gold);padding:10px 24px;border-radius:10px;font-size:13px;text-decoration:none;transition:all .2s}
+.nav-cta:hover{background:rgba(201,168,76,0.2)}
+
+/* ── ACT 1: RICONOSCIMENTO ── */
+.act1{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:140px 24px 100px;position:relative;z-index:1}
+.act1-label{font-family:'Cinzel',serif;font-size:11px;letter-spacing:.3em;text-transform:uppercase;color:var(--muted);margin-bottom:40px}
+.act1-title{font-family:'Cormorant Garamond',serif;font-size:clamp(52px,8vw,108px);font-weight:300;line-height:.95;margin-bottom:0}
+.act1-title em{font-style:italic;color:var(--gold);display:block}
+.act1-divider{width:60px;height:1px;background:var(--goldB);margin:40px auto}
+.act1-hook{font-family:'Cormorant Garamond',serif;font-size:clamp(18px,2.5vw,28px);font-weight:300;font-style:italic;color:rgba(240,235,224,0.6);max-width:620px;line-height:1.65}
+.act1-sub{font-size:14px;color:var(--muted);max-width:440px;margin:24px auto 52px;line-height:1.8}
+.hero-actions{display:flex;flex-wrap:wrap;gap:12px;justify-content:center}
+.btn-primary{background:var(--gold);color:#06060F;padding:17px 44px;border-radius:12px;font-size:14px;font-weight:500;text-decoration:none;letter-spacing:.04em;transition:all .3s}
+.btn-primary:hover{transform:translateY(-3px);box-shadow:0 24px 60px rgba(201,168,76,0.3)}
+.btn-ghost{border:0.5px solid var(--goldB);color:var(--gold);padding:17px 44px;border-radius:12px;font-size:14px;text-decoration:none;letter-spacing:.04em;transition:all .3s;background:transparent}
+.btn-ghost:hover{background:var(--goldDim)}
+.scroll-hint{position:absolute;bottom:40px;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:8px;color:var(--muted);font-size:9px;letter-spacing:.22em;text-transform:uppercase}
+.scroll-line{width:1px;height:40px;background:linear-gradient(to bottom,var(--goldB),transparent);animation:scrollLine 2s ease-in-out infinite}
+@keyframes pulse2{0%,100%{opacity:1}50%{opacity:.3}}
+@keyframes scrollLine{0%{transform:scaleY(0);transform-origin:top}50%{transform:scaleY(1);transform-origin:top}51%{transform:scaleY(1);transform-origin:bottom}100%{transform:scaleY(0);transform-origin:bottom}}
+
+/* ── ACT 2: LA ROTTURA ── */
+.act2{padding:140px 24px;position:relative;z-index:1}
+.act2-inner{max-width:900px;margin:0 auto}
+.act2-label{font-size:10px;letter-spacing:.26em;text-transform:uppercase;color:var(--gold);opacity:.7;margin-bottom:24px;display:block;text-align:center}
+.act2-title{font-family:'Cormorant Garamond',serif;font-size:clamp(32px,4.5vw,58px);font-weight:300;color:var(--white);text-align:center;line-height:1.25;margin-bottom:60px}
+.act2-title em{font-style:italic;color:var(--gold)}
+.act2-blocks{display:grid;grid-template-columns:1fr 1fr;gap:2px;background:var(--glassB);border:0.5px solid var(--glassB);margin-bottom:60px}
+@media(max-width:700px){.act2-blocks{grid-template-columns:1fr}}
+.act2-block{background:var(--void);padding:44px 36px}
+.act2-block-label{font-size:9px;letter-spacing:.2em;text-transform:uppercase;margin-bottom:16px;display:block}
+.act2-block-title{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:400;margin-bottom:12px;line-height:1.3}
+.act2-block-text{font-size:13px;line-height:1.85;color:var(--muted)}
+.act2-verdict{text-align:center;padding:52px 40px;background:var(--goldDim);border:0.5px solid var(--goldB)}
+.act2-verdict-text{font-family:'Cormorant Garamond',serif;font-size:clamp(20px,3vw,34px);font-weight:300;font-style:italic;color:var(--white);line-height:1.5}
+.act2-verdict-text em{color:var(--gold);font-style:normal;font-weight:400}
+
+/* ── ACT 3: LO SPECCHIO ── */
+.act3{padding:160px 24px;position:relative;z-index:1;overflow:hidden}
+.act3::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 60% 50% at 50% 50%,rgba(201,168,76,0.04),transparent)}
+.act3-inner{max-width:1100px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:center}
+@media(max-width:900px){.act3-inner{grid-template-columns:1fr;gap:60px}}
+.act3-left{}
+.act3-label{font-size:10px;letter-spacing:.26em;text-transform:uppercase;color:var(--gold);opacity:.7;margin-bottom:24px;display:block}
+.act3-title{font-family:'Cormorant Garamond',serif;font-size:clamp(36px,4vw,58px);font-weight:300;line-height:1.2;margin-bottom:28px}
+.act3-title em{font-style:italic;color:var(--gold)}
+.act3-body{font-size:14px;line-height:1.9;color:rgba(240,235,224,0.6);margin-bottom:36px}
+.act3-quote{font-family:'Cormorant Garamond',serif;font-size:20px;font-style:italic;color:rgba(201,168,76,0.8);border-left:2px solid var(--goldB);padding-left:24px;line-height:1.6}
+.act3-right{display:flex;flex-direction:column;gap:20px}
+.mirror-card{padding:32px;border-radius:16px;border:0.5px solid;position:relative;overflow:hidden;transition:transform .3s}
+.mirror-card:hover{transform:translateX(4px)}
+.mirror-card-icon{font-size:24px;margin-bottom:14px;display:block}
+.mirror-card-title{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:400;margin-bottom:8px}
+.mirror-card-text{font-size:12px;line-height:1.75;color:rgba(240,235,224,0.55)}
+
+/* ── ACT 4: PROVA IN AZIONE ── */
+#luminel-parla{padding:160px 24px;position:relative;z-index:1;background:linear-gradient(to bottom,var(--void),var(--deep) 50%,var(--void))}
+.lp-inner{max-width:720px;margin:0 auto}
+.lp-header{text-align:center;margin-bottom:100px}
+.lp-label{font-size:10px;letter-spacing:.26em;text-transform:uppercase;color:var(--gold);opacity:.7;margin-bottom:20px;display:block}
+.lp-title{font-family:'Cormorant Garamond',serif;font-size:clamp(34px,4vw,56px);font-weight:300;color:var(--white);line-height:1.2;margin-bottom:16px}
+.lp-title em{font-style:italic;color:var(--gold)}
+.lp-sub{font-size:14px;color:var(--muted);line-height:1.8;max-width:480px;margin:0 auto}
+
+.q-block{margin-bottom:72px;opacity:0;transform:translateY(20px);transition:opacity .8s,transform .8s}
+.q-block.visible{opacity:1;transform:translateY(0)}
+.q-num{font-family:'Cormorant Garamond',serif;font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:rgba(201,168,76,0.4);margin-bottom:14px;display:block}
+.q-text{font-family:'Cormorant Garamond',serif;font-size:clamp(22px,3vw,36px);font-weight:300;color:var(--white);line-height:1.4;margin-bottom:24px;min-height:50px}
+.q-input-row{display:flex;align-items:center;gap:10px;padding-bottom:14px;border-bottom:0.5px solid var(--glassB)}
+.q-inp{flex:1;background:none;border:none;outline:none;font-family:'DM Sans',sans-serif;font-size:14px;color:var(--white);caret-color:var(--gold)}
+.q-inp::placeholder{color:var(--muted);font-style:italic}
+.q-btn{background:none;border:none;cursor:pointer;color:var(--gold);font-size:20px;padding:4px;opacity:0;transition:opacity .3s}
+.q-inp:not(:placeholder-shown) ~ .q-btn{opacity:1}
+.q-reply{margin-top:18px;font-family:'Cormorant Garamond',serif;font-size:17px;font-style:italic;color:rgba(201,168,76,.75);line-height:1.7;max-height:0;overflow:hidden;transition:max-height .7s ease}
+.q-reply.open{max-height:160px}
+.q-sep{width:1px;height:44px;background:linear-gradient(to bottom,transparent,var(--glassB),transparent);margin:0 auto}
+
+.lp-cta-box{margin-top:80px;text-align:center;padding:72px 44px;border:0.5px solid var(--goldB);background:var(--goldDim);position:relative;overflow:hidden}
+.lp-cta-box::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--gold),transparent)}
+.lp-cta-title{font-family:'Cormorant Garamond',serif;font-size:clamp(26px,4vw,46px);font-weight:300;margin-bottom:14px}
+.lp-cta-title em{font-style:italic;color:var(--gold)}
+.lp-cta-sub{font-size:14px;color:var(--muted);margin-bottom:36px;line-height:1.8;max-width:420px;margin-left:auto;margin-right:auto}
+
+/* ── ACT 5: LA SCELTA ── */
+.act5{padding:140px 24px;max-width:1200px;margin:0 auto;position:relative;z-index:1}
+.act5-header{text-align:center;margin-bottom:24px}
+.act5-overline{font-size:10px;letter-spacing:.26em;text-transform:uppercase;color:var(--gold);opacity:.7;display:block;margin-bottom:20px}
+.act5-title{font-family:'Cormorant Garamond',serif;font-size:clamp(32px,4vw,54px);font-weight:300;color:var(--white);margin-bottom:12px}
+.act5-title em{font-style:italic;color:var(--gold)}
+.act5-sub{font-size:14px;color:var(--muted);margin-bottom:72px;line-height:1.8}
+.plans-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;background:var(--glassB);border:0.5px solid var(--glassB);margin-bottom:2px}
+@media(max-width:900px){.plans-grid{grid-template-columns:1fr}}
+.plan{background:var(--void);padding:52px 36px;position:relative;overflow:hidden;display:flex;flex-direction:column}
+.plan.featured{background:var(--surface)}
+.plan.featured::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--alch),transparent)}
+.plan-identity{font-size:10px;letter-spacing:.2em;text-transform:uppercase;padding:5px 14px;border-radius:100px;display:inline-block;margin-bottom:28px;width:fit-content}
+.plan-archetype{font-family:'Cormorant Garamond',serif;font-size:13px;font-style:italic;color:var(--muted);margin-bottom:8px}
+.plan-name{font-family:'Cormorant Garamond',serif;font-size:34px;font-weight:300;color:var(--white);margin-bottom:4px}
+.plan-promise{font-size:13px;color:var(--muted);margin-bottom:28px;line-height:1.6;font-style:italic}
+.plan-price-wrap{padding:24px 0;border-top:0.5px solid var(--glassB);border-bottom:0.5px solid var(--glassB);margin-bottom:28px}
+.plan-price{font-family:'Cormorant Garamond',serif;font-size:54px;font-weight:300;line-height:1;color:var(--white)}
+.plan-price span{font-size:20px;color:var(--muted)}
+.plan-period{font-size:12px;color:var(--muted);margin-top:4px}
+.plan-features{list-style:none;display:flex;flex-direction:column;gap:11px;flex:1;margin-bottom:32px}
+.plan-features li{font-size:13px;color:rgba(240,235,224,0.65);padding-left:18px;position:relative;line-height:1.5}
+.plan-features li::before{content:'';position:absolute;left:0;top:7px;width:5px;height:5px;border-radius:50%;background:var(--pfc,var(--muted))}
+.plan-btn{display:block;text-align:center;padding:15px;border-radius:10px;font-size:13px;font-weight:500;text-decoration:none;transition:all .25s;letter-spacing:.04em;margin-top:auto}
+
+.elite-band{padding:44px 40px;border:0.5px solid var(--goldB);background:var(--goldDim);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:20px}
+.elite-left{}
+.elite-tag{font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);margin-bottom:8px;display:block}
+.elite-title{font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:300;color:var(--white);margin-bottom:6px}
+.elite-desc{font-size:13px;color:var(--muted)}
+.elite-right{text-align:right;flex-shrink:0}
+.elite-price{font-family:'Cormorant Garamond',serif;font-size:44px;color:var(--gold)}
+.elite-price span{font-size:16px;color:var(--muted)}
+
+/* ── PROOF ── */
+.proof{padding:120px 24px;position:relative;z-index:1;background:linear-gradient(to bottom,var(--void),var(--deep))}
+.proof-inner{max-width:1200px;margin:0 auto}
+.proof-header{text-align:center;margin-bottom:64px}
+.proof-label{font-size:10px;letter-spacing:.26em;text-transform:uppercase;color:var(--gold);opacity:.7;display:block;margin-bottom:20px}
+.proof-title{font-family:'Cormorant Garamond',serif;font-size:clamp(32px,4vw,50px);font-weight:300;color:var(--white)}
+.proof-title em{font-style:italic;color:var(--gold)}
+.proof-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+@media(max-width:768px){.proof-grid{grid-template-columns:1fr}}
+.proof-card{padding:36px;border-radius:16px;border:0.5px solid var(--glassB);background:var(--void);transition:border-color .3s,transform .3s}
+.proof-card:hover{border-color:var(--goldB);transform:translateY(-4px)}
+.proof-stars{display:flex;gap:3px;margin-bottom:18px}
+.star{width:11px;height:11px;background:var(--gold);clip-path:polygon(50% 0%,61% 35%,98% 35%,68% 57%,79% 91%,50% 70%,21% 91%,32% 57%,2% 35%,39% 35%)}
+.proof-text{font-family:'Cormorant Garamond',serif;font-size:17px;font-style:italic;line-height:1.75;color:rgba(240,235,224,0.8);margin-bottom:20px}
+.proof-result{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);padding:5px 12px;border:0.5px solid var(--goldB);border-radius:100px;display:inline-block;margin-bottom:20px}
+.proof-author{display:flex;align-items:center;gap:12px}
+.proof-avatar{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:500;flex-shrink:0}
+.proof-name{font-size:13px;font-weight:500;color:var(--white)}
+.proof-role{font-size:11px;color:var(--muted)}
+
+/* ── FINAL CTA ── */
+.final{padding:200px 24px;text-align:center;position:relative;overflow:hidden;z-index:1}
+.final::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 70% 50% at 50% 50%,rgba(201,168,76,0.07),transparent)}
+.final-label{font-size:10px;letter-spacing:.26em;text-transform:uppercase;color:var(--gold);opacity:.7;display:block;margin-bottom:24px}
+.final-title{font-family:'Cormorant Garamond',serif;font-size:clamp(44px,7vw,96px);font-weight:300;line-height:1.05;margin-bottom:24px}
+.final-title em{font-style:italic;color:var(--gold)}
+.final-sub{font-size:16px;color:rgba(240,235,224,0.45);max-width:440px;margin:0 auto 52px;line-height:1.85}
+.final-legal{margin-top:44px;font-size:10px;color:var(--muted);letter-spacing:.06em;line-height:2.2}
+
+footer{padding:60px 48px;border-top:0.5px solid var(--glassB);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:20px;position:relative;z-index:1}
+.footer-logo{font-family:'Cinzel',serif;font-size:16px;color:var(--gold);letter-spacing:.12em}
+.footer-info{font-size:11px;color:var(--muted);text-align:center;line-height:1.9}
+.footer-links{display:flex;gap:24px}
+.footer-links a{font-size:11px;color:var(--muted);text-decoration:none;letter-spacing:.06em;transition:color .2s}
+.footer-links a:hover{color:var(--white)}
+
+.reveal{opacity:0;transform:translateY(28px);transition:opacity .9s ease,transform .9s ease}
+.reveal.visible{opacity:1;transform:translateY(0)}
+.d1{transition-delay:.1s}.d2{transition-delay:.2s}.d3{transition-delay:.3s}.d4{transition-delay:.4s}
+
+/* ══════════════════════════════════════════
+   RESPONSIVE — TABLET & MOBILE
+══════════════════════════════════════════ */
+
+/* TABLET — max 1024px */
+@media(max-width:1024px){
+  nav{padding:18px 24px}
+  .nav-links a:not(.nav-cta){display:none}
+  .act1-title{font-size:clamp(44px,7vw,80px)}
+  .act5-header{text-align:center}
+  /* 4 col plans → 2 col */
+  #scelta > div[style*="repeat(4"]{
+    grid-template-columns:repeat(2,1fr) !important;
+  }
+}
+
+/* TABLET SMALL — max 768px */
+@media(max-width:768px){
+  nav{padding:16px 20px}
+  .nav-links{gap:16px}
+  .nav-links a:not(.nav-cta){display:none}
+
+  /* Hero */
+  .act1{padding:100px 20px 80px}
+  .act1-title{font-size:clamp(40px,10vw,72px)}
+  .act1-hook{font-size:clamp(16px,4vw,22px)}
+  .act1-divider{margin:28px auto}
+  .hero-actions{flex-direction:column;align-items:center}
+  .hero-actions a{width:100%;max-width:320px;text-align:center;justify-content:center}
+
+  /* Manifesto */
+  .manifesto{padding:80px 20px}
+
+  /* Act2 */
+  .act2{padding:80px 20px}
+  .act2-verdict{padding:32px 24px}
+
+  /* Act3 */
+  .act3{padding:80px 20px}
+  .act3-inner{grid-template-columns:1fr !important;gap:40px}
+
+  /* Act3 mirror cards */
+  .act3-right{gap:14px}
+
+  /* Luminel parla */
+  #luminel-parla{padding:80px 20px}
+  .q-text{font-size:clamp(18px,5vw,28px)}
+
+  /* Plans 4col → 1col su mobile */
+  #scelta > div[style*="repeat(4"]{
+    grid-template-columns:1fr !important;
+  }
+  .plan{padding:32px 24px}
+
+  /* Elite band */
+  .elite-band{flex-direction:column;padding:32px 24px;gap:16px}
+  .elite-right{text-align:left}
+
+  /* Proof */
+  .proof-grid{grid-template-columns:1fr}
+  .proof{padding:80px 20px}
+
+  /* Final */
+  .final{padding:100px 20px}
+  .final-title{font-size:clamp(36px,8vw,64px)}
+  .final > div[style*="display:flex"]{flex-direction:column;align-items:center}
+  .btn-primary,.btn-ghost{width:100%;max-width:320px;text-align:center;justify-content:center}
+
+  /* Archetipi */
+  .archetipi{padding:80px 20px}
+  .archetipi-grid{grid-template-columns:1fr !important}
+
+  /* Act5 */
+  .act5{padding:80px 20px}
+
+  /* Footer */
+  footer{flex-direction:column;align-items:center;text-align:center;padding:40px 24px}
+  .footer-links{justify-content:center}
+
+  /* Scroll hint */
+  .scroll-hint{display:none}
+
+  /* Compare link */
+  #scelta > div[style*="text-align:center;margin:20px"]{display:block}
+}
+
+/* MOBILE — max 480px */
+@media(max-width:480px){
+  nav{padding:14px 16px}
+  .nav-logo span:first-child{font-size:18px !important}
+  .nav-logo span:last-child{font-size:8px !important; letter-spacing:.25em !important}
+
+  .act1{padding:90px 16px 70px}
+  .manifesto{padding:60px 16px}
+  .act2{padding:60px 16px}
+  .act3{padding:60px 16px}
+  #luminel-parla{padding:60px 16px}
+  .act5{padding:60px 16px}
+  .proof{padding:60px 16px}
+  .final{padding:80px 16px}
+  .archetipi{padding:60px 16px}
+
+  /* Skip btn & audio smaller */
+  #skip-btn{bottom:20px;right:16px;font-size:10px;padding:6px 14px}
+  #audio-toggle{bottom:20px;left:16px;font-size:10px;padding:6px 12px}
+
+  /* Typewriter */
+  #tw-line{font-size:clamp(18px,6vw,32px)}
+  #typewriter{padding:24px 20px}
+
+  /* Act2 verdict */
+  .act2-verdict{padding:24px 18px}
+  .act2-verdict-text{font-size:clamp(18px,5vw,26px)}
+
+  /* Plan cards */
+  .plan{padding:28px 20px}
+  .plan-price{font-size:36px !important}
+
+  /* Lp cta box */
+  .lp-cta-box{padding:40px 24px}
+}
+
+@media(max-width:1024px){.plans-4grid{grid-template-columns:repeat(2,1fr) !important}}
+@media(max-width:768px){.plans-4grid{grid-template-columns:1fr !important}}
+
+/* ══ LEGAL MODALS ══ */
+.legal-overlay{position:fixed;inset:0;z-index:9000;background:rgba(6,6,15,0.92);backdrop-filter:blur(16px);display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;pointer-events:none;transition:opacity .3s}
+.legal-overlay.open{opacity:1;pointer-events:all}
+.legal-modal{background:#0D0D20;border:0.5px solid rgba(201,168,76,0.25);border-radius:20px;width:100%;max-width:680px;max-height:85vh;display:flex;flex-direction:column;position:relative;overflow:hidden}
+.legal-modal::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,#C9A84C,transparent)}
+.legal-header{padding:28px 32px 20px;border-bottom:0.5px solid rgba(255,255,255,0.07);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.legal-title{font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:400;color:#F0EBE0}
+.legal-close{width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,0.05);border:0.5px solid rgba(255,255,255,0.1);color:#6A6560;cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;transition:all .2s;flex-shrink:0}
+.legal-close:hover{background:rgba(201,168,76,0.1);color:#C9A84C;border-color:rgba(201,168,76,0.3)}
+.legal-body{padding:28px 32px;overflow-y:auto;line-height:1.85;font-size:13px;color:#6A6560}
+.legal-body h3{font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:400;color:#F0EBE0;margin:24px 0 8px}
+.legal-body h3:first-child{margin-top:0}
+.legal-body p{margin-bottom:12px}
+.legal-body ul{margin:8px 0 12px 20px;display:flex;flex-direction:column;gap:6px}
+.legal-body li{color:#6A6560}
+.legal-body a{color:#C9A84C;text-decoration:none}
+.legal-body strong{color:#F0EBE0;font-weight:500}
+.legal-badge{display:inline-block;font-size:9px;letter-spacing:.16em;text-transform:uppercase;padding:3px 10px;border-radius:100px;background:rgba(201,168,76,0.1);color:#C9A84C;border:0.5px solid rgba(201,168,76,0.25);margin-bottom:16px}
+@media(max-width:480px){.legal-modal{border-radius:16px}.legal-header,.legal-body{padding:20px}}
+</style>
+</head>
+<body>
+
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+<!-- INTRO -->
+<div id="intro">
+  <div class="intro-glow"></div>
+  <canvas id="intro-cosmos"></canvas>
+  <canvas id="orb-canvas"></canvas>
+  <div id="typewriter" style="padding:32px 48px;background:rgba(6,6,15,0.45);border-radius:4px;backdrop-filter:blur(8px)">
+    <div id="tw-line"><span id="tw-text"></span><span id="tw-cursor"></span></div>
+    <div id="tw-sub">Luminel Coach Trasformational</div>
+  </div>
+  <button id="audio-toggle"><span>♪</span><span id="audio-label">Audio on</span></button>
+  <button id="skip-btn">Salta intro</button>
+</div>
+<canvas id="particle-canvas"></canvas>
+
+<!-- MAIN -->
+<div id="main-landing">
+  <canvas id="cosmos-bg"></canvas>
+  <nav id="nav">
+    <a href="#" class="nav-logo" style="display:flex;flex-direction:column;line-height:1;gap:5px;text-decoration:none">
+    <span style="font-family:'Cinzel',serif;font-size:28px;letter-spacing:.2em;color:var(--goldBr);font-weight:600;text-shadow:0 0 15px rgba(201,168,76,0.8), 0 0 35px rgba(201,168,76,0.6)">LUMINEL</span>
+    <span style="font-family:'DM Sans',sans-serif;font-size:11px;letter-spacing:.36em;color:rgba(237,217,128,0.7);font-weight:400;text-transform:uppercase;text-shadow:0 0 10px rgba(201,168,76,0.4)">Coach Trasformational</span>
+  </a>
+    <div class="nav-links">
+      <a href="#specchio">Il Metodo</a>
+      <a href="#prova">Provalo</a>
+      <a href="#scelta">Piani</a>
+      <a href="/login" class="nav-cta">Accedi</a>
+    </div>
+  </nav>
+
+  <!-- ── ACT 1: RICONOSCIMENTO ── -->
+  <section class="act1">
+    <p class="act1-label" style="font-family:'Cinzel',serif;font-size:10px;letter-spacing:.32em;color:rgba(201,168,76,0.6)">Il tuo specchio trasformativo</p>
+    <h1 class="act1-title">
+      Conosci gi&agrave;<br>
+      <em>la risposta.</em>
+    </h1>
+    <div class="act1-divider"></div>
+    <p class="act1-hook">"Non manca il tempo.<br>Non manca il talento.<br>Manca il coraggio di guardare<br>quello che gi&agrave; sai."</p>
+    <p class="act1-sub">Luminel non motiva. Non insegna. Non consola.<br>Fa qualcosa di pi&ugrave; difficile — ti mostra chi sei davvero.</p>
+    <div class="hero-actions">
+      <a href="/welcome" class="btn-primary">Inizia il tuo viaggio →</a>
+      <a href="#specchio" class="btn-ghost">Scopri come funziona</a>
+    </div>
+    <div class="scroll-hint">
+      <div class="scroll-line"></div>
+      <span>Scorri</span>
+    </div>
+  </section>
+
+  <!-- ── ACT 2: LA ROTTURA ── -->
+  <section class="act2">
+    <div class="act2-inner">
+      <span class="act2-label reveal">Il sistema non funziona</span>
+      <h2 class="act2-title reveal d1">Il problema<br>non &egrave; che non sai<br><em>cosa fare.</em></h2>
+      <div class="act2-blocks">
+        <div class="act2-block reveal">
+          <span class="act2-block-label" style="color:var(--muted)">Il vecchio modello</span>
+          <h3 class="act2-block-title" style="color:rgba(240,235,224,0.5)">Ti d&agrave; risposte.</h3>
+          <p class="act2-block-text">Hai gi&agrave; letto i libri giusti. Hai gi&agrave; sentito i discorsi motivazionali. Sai esattamente cosa dovresti fare. Il problema &egrave; che lo sai da mesi &mdash; e non lo fai. Nessuno ti ha ancora chiesto perch&eacute;.</p>
+        </div>
+        <div class="act2-block reveal d1" style="background:var(--surface)">
+          <span class="act2-block-label" style="color:var(--gold)">Il nuovo paradigma</span>
+          <h3 class="act2-block-title" style="color:var(--white)">Ti fa le domande giuste.</h3>
+          <p class="act2-block-text">Luminel non ti d&agrave; un'altra risposta. Individua la domanda che hai smesso di farti. Perch&eacute; la vera trasformazione non comincia quando capisci cosa fare — comincia quando non puoi pi&ugrave; far finta di non saperlo.</p>
+        </div>
+      </div>
+      <div class="act2-verdict reveal d2">
+        <p class="act2-verdict-text">"Il problema non sei tu.<br>&Egrave; che nessuno ti ha ancora<br>fatto la domanda <em>giusta.</em>"</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── ACT 3: LO SPECCHIO ── -->
+  <section class="act3" id="specchio">
+    <div class="act3-inner">
+      <div class="act3-left">
+        <span class="act3-label reveal">Il Metodo Jara</span>
+        <h2 class="act3-title reveal d1">Il tuo coach<br>pi&ugrave; onesto<br><em>che tu abbia mai avuto.</em></h2>
+        <p class="act3-body reveal d2">
+          Uno specchio non ti consola. Non ti dice cosa vuoi sentirti dire. Riflette ci&ograve; che &egrave; — con precisione chirurgica e rispetto assoluto.<br><br>
+          Luminel lavora su tre livelli simultanei: quello che dici, quello che eviti di dire, e quello che sai gi&agrave; ma non ti permetti di ammettere. Il lavoro vero &egrave; sempre sul terzo.
+        </p>
+        <blockquote class="act3-quote reveal d3">"Il cambiamento non avviene quando sai cosa fare.
+Avviene quando non puoi pi&ugrave; ignorare chi sei."</blockquote>
+      </div>
+      <div class="act3-right">
+        <div class="mirror-card reveal" style="background:rgba(201,168,76,0.05);border-color:rgba(201,168,76,0.2)">
+          <span class="mirror-card-icon">🜔</span>
+          <h3 class="mirror-card-title" style="color:var(--gold)">Memoria trasformativa</h3>
+          <p class="mirror-card-text">Luminel ricorda ogni sessione. Identifica i pattern che si ripetono. La terza volta che eviti lo stesso argomento — te lo dice.</p>
+        </div>
+        <div class="mirror-card reveal d1" style="background:rgba(74,158,212,0.05);border-color:rgba(74,158,212,0.2)">
+          <span class="mirror-card-icon">◈</span>
+          <h3 class="mirror-card-title" style="color:var(--stra)">Reality Quest reali</h3>
+          <p class="mirror-card-text">Niente visioni, niente affermazioni positive. Solo una missione concreta da completare entro 24 ore &mdash; nel mondo reale. Alla sessione successiva Luminel chiede subito: l'hai fatta? La risposta dice tutto.</p>
+        </div>
+        <div class="mirror-card reveal d2" style="background:rgba(155,116,224,0.05);border-color:rgba(155,116,224,0.2)">
+          <span class="mirror-card-icon">♛</span>
+          <h3 class="mirror-card-title" style="color:var(--alch)">Il Consiglio degli Archetipi</h3>
+          <p class="mirror-card-text">Quattro intelligenze con personalit&agrave; opposte &mdash; l'Alchimista, lo Stratega, il Guerriero, il Sovrano &mdash; analizzano la tua sfida. La loro tensione &egrave; brutalmente produttiva. Esclusivo VIP.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── ACT 4: PROVA IN AZIONE ── -->
+  <section id="luminel-parla" id="prova">
+    <div class="lp-inner">
+      <div class="lp-header">
+        <span class="lp-label reveal">Prova adesso · Gratis</span>
+        <h2 class="lp-title reveal d1">Luminel<br><em>ti parla adesso.</em></h2>
+        <p class="lp-sub reveal d2">Cinque domande del Metodo Jara. Rispondi se vuoi — qualcosa si muove comunque.</p>
+      </div>
+
+      <div class="q-block" data-q="0">
+        <span class="q-num">Domanda 01 di 05</span>
+        <div class="q-text" data-full="Cosa faresti se sapessi che non puoi fallire — e perch&eacute; non lo stai gi&agrave; facendo?"></div>
+        <div class="q-input-row">
+          <input class="q-inp" type="text" placeholder="La tua risposta..." data-i="0">
+          <button class="q-btn" onclick="sendQ(0)">→</button>
+        </div>
+        <div class="q-reply" id="qr-0"></div>
+      </div>
+      <div class="q-sep"></div>
+
+      <div class="q-block" data-q="1">
+        <span class="q-num">Domanda 02 di 05</span>
+        <div class="q-text" data-full="Qual &egrave; la bugia pi&ugrave; confortante che ti racconti su questa situazione?"></div>
+        <div class="q-input-row">
+          <input class="q-inp" type="text" placeholder="La tua risposta..." data-i="1">
+          <button class="q-btn" onclick="sendQ(1)">→</button>
+        </div>
+        <div class="q-reply" id="qr-1"></div>
+      </div>
+      <div class="q-sep"></div>
+
+      <div class="q-block" data-q="2">
+        <span class="q-num">Domanda 03 di 05</span>
+        <div class="q-text" data-full="Di tutte le persone nella tua vita — chi non vuoi deludere? E chi stai deludendo proprio ora, evitando questa scelta?"></div>
+        <div class="q-input-row">
+          <input class="q-inp" type="text" placeholder="La tua risposta..." data-i="2">
+          <button class="q-btn" onclick="sendQ(2)">→</button>
+        </div>
+        <div class="q-reply" id="qr-2"></div>
+      </div>
+      <div class="q-sep"></div>
+
+      <div class="q-block" data-q="3">
+        <span class="q-num">Domanda 04 di 05</span>
+        <div class="q-text" data-full="Tra 5 anni — cosa ti coster&agrave; non aver agito oggi?"></div>
+        <div class="q-input-row">
+          <input class="q-inp" type="text" placeholder="La tua risposta..." data-i="3">
+          <button class="q-btn" onclick="sendQ(3)">→</button>
+        </div>
+        <div class="q-reply" id="qr-3"></div>
+      </div>
+      <div class="q-sep"></div>
+
+      <div class="q-block" data-q="4">
+        <span class="q-num">Domanda 05 di 05</span>
+        <div class="q-text" data-full="Hai gi&agrave; la risposta. Cosa ti impedisce di agirla?"></div>
+        <div class="q-input-row">
+          <input class="q-inp" type="text" placeholder="La tua risposta..." data-i="4">
+          <button class="q-btn" onclick="sendQ(4)">→</button>
+        </div>
+        <div class="q-reply" id="qr-4"></div>
+      </div>
+
+      <div class="lp-cta-box reveal">
+        <h3 class="lp-cta-title">Sei pronto a smettere<br><em>di aspettare te stesso?</em></h3>
+        <p class="lp-cta-sub">Luminel costruisce un profilo di te nel tempo. Ricorda i tuoi pattern, le tue resistenze, le tue Reality Quest. Non &egrave; una chat. &Egrave; un percorso.</p>
+        <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
+          <a href="/welcome" class="btn-primary">Inizia gratis →</a>
+          <a href="/login" class="btn-ghost">Ho gi&agrave; un account</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── ACT 5: LA SCELTA ── -->
+  <section class="act5" id="scelta">
+    <div class="act5-header">
+      <span class="act5-overline reveal">Prezzi Fondatori · Limitati nel tempo</span>
+      <h2 class="act5-title reveal d1">Non scegliere un piano.<br><em>Scegli chi vuoi essere.</em></h2>
+      <p class="act5-sub reveal d2">Chi entra adesso mantiene il prezzo per sempre.<br>Da settembre 2026 i prezzi salgono.</p>
+      <!-- Founder alert -->
+      <div class="reveal d3" style="display:inline-flex;align-items:center;gap:8px;padding:8px 20px;border-radius:100px;background:rgba(212,96,58,0.1);border:0.5px solid rgba(212,96,58,0.25);font-size:11px;color:#D4603A;margin-bottom:0">
+        <span style="width:6px;height:6px;border-radius:50%;background:#D4603A;display:inline-block;animation:pulse2 2s infinite"></span>
+        Prezzo Fondatori attivo · Entra adesso
+      </div>
+    </div>
+
+    <!-- 4 piani in griglia -->
+    <div class="plans-4grid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:2px;background:var(--glassB);border:0.5px solid var(--glassB);margin-bottom:2px">
+
+      <!-- EXPLORER -->
+      <div class="plan reveal" style="background:rgba(255,255,255,0.02)">
+        <span class="plan-identity" style="background:var(--glass);color:var(--muted);border:0.5px solid var(--glassB)">L'Esploratore</span>
+        <p class="plan-archetype">Assaggia prima di scegliere</p>
+        <h3 class="plan-name">Explorer</h3>
+        <p class="plan-promise" style="font-size:12px">"Voglio capire se funziona, prima di impegnarmi."</p>
+        <div class="plan-price-wrap">
+          <div class="plan-price" style="font-size:44px"><span>€</span>0</div>
+          <div class="plan-period">per sempre · nessuna carta</div>
+        </div>
+        <ul class="plan-features" style="--pfc:var(--muted)">
+          <li>5 messaggi AI al giorno</li>
+          <li>Ikigai Assessment completo</li>
+          <li>Preview corsi (prime 2 lezioni)</li>
+          <li>1 Reality Quest/settimana</li>
+          <li>Community lettura</li>
+        </ul>
+        <a href="/welcome" class="plan-btn" style="border:0.5px solid var(--glassB);color:var(--muted);font-size:12px">Inizia gratis</a>
+      </div>
+
+      <!-- STARTER -->
+      <div class="plan reveal d1" style="background:rgba(74,158,212,0.05);border-left:0.5px solid rgba(74,158,212,0.2)">
+        <span class="plan-identity" style="background:rgba(74,158,212,0.12);color:var(--stra);border:0.5px solid rgba(74,158,212,0.3)">Il Primo Passo</span>
+        <p class="plan-archetype" style="color:var(--stra);opacity:.6">Per chi vuole provare sul serio</p>
+        <h3 class="plan-name" style="color:var(--stra)">Starter</h3>
+        <p class="plan-promise" style="font-size:12px">"30 domande al giorno che nessuno mi ha mai fatto."</p>
+        <div class="plan-price-wrap" style="border-color:rgba(74,158,212,0.15)">
+          <div class="plan-price" style="color:var(--stra);font-size:44px"><span style="color:var(--muted)">€</span>9<span style="font-size:20px">.99</span></div>
+          <div class="plan-period">al mese · lancio Fondatori</div>
+          <div style="margin-top:6px;font-size:10px;color:var(--muted)">Da settembre: <span style="text-decoration:line-through">€14,99</span></div>
+        </div>
+        <ul class="plan-features" style="--pfc:var(--stra)">
+          <li>30 messaggi AI/giorno</li>
+          <li>Coach + Shadow Work</li>
+          <li>3 corsi base con audio</li>
+          <li>Reality Quest giornaliera</li>
+          <li>Memoria AI base</li>
+        </ul>
+        <a href="/welcome" class="plan-btn" style="background:var(--stra);color:#fff;font-size:12px">Diventa Starter →</a>
+      </div>
+
+      <!-- PREMIUM -->
+      <div class="plan featured reveal d2">
+        <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--gold),transparent)"></div>
+        <span class="plan-identity" style="background:var(--goldDim);color:var(--gold);border:0.5px solid var(--goldB)">Il Cercatore</span>
+        <p class="plan-archetype" style="color:var(--gold);opacity:.6">La trasformazione quotidiana</p>
+        <h3 class="plan-name">Premium</h3>
+        <p class="plan-promise" style="font-size:12px">"Un coach umano €100/ora. Luminel €49/mese. Illimitato."</p>
+        <div class="plan-price-wrap">
+          <div class="plan-price" style="color:var(--gold);font-size:44px"><span style="color:var(--muted)">€</span>49</div>
+          <div class="plan-period">al mese · lancio Fondatori</div>
+          <div style="margin-top:6px;font-size:10px;color:var(--muted)">Da settembre: <span style="text-decoration:line-through">€67</span></div>
+        </div>
+        <ul class="plan-features" style="--pfc:var(--gold)">
+          <li>100 messaggi AI/giorno (Sonnet)</li>
+          <li>Tutti i corsi + audio</li>
+          <li>Coach + Shadow + Strategia</li>
+          <li>Memoria AI profonda + pattern</li>
+          <li>Calm Space + Binaural completo</li>
+          <li>Voice Coach 3 sess/mese</li>
+        </ul>
+        <a href="/welcome" class="plan-btn" style="background:var(--gold);color:#06060F;font-size:12px">Diventa Premium →</a>
+      </div>
+
+      <!-- VIP -->
+      <div class="plan reveal d3" style="background:linear-gradient(135deg,rgba(155,116,224,0.08),rgba(201,168,76,0.04))">
+        <span class="plan-identity" style="background:rgba(155,116,224,0.15);color:var(--alch);border:0.5px solid rgba(155,116,224,0.3)">Il Sovrano</span>
+        <p class="plan-archetype" style="color:var(--alch);opacity:.6">Senza limiti. Senza compromessi.</p>
+        <h3 class="plan-name" style="color:var(--alch)">VIP Sovereign</h3>
+        <p class="plan-promise" style="font-size:12px">"Non voglio limiti. N&eacute; di messaggi, n&eacute; di profondit&agrave;."</p>
+        <div class="plan-price-wrap" style="border-color:rgba(155,116,224,0.15)">
+          <div class="plan-price" style="color:var(--alch);font-size:44px"><span style="color:var(--muted)">€</span>149</div>
+          <div class="plan-period">al mese · lancio Fondatori</div>
+          <div style="margin-top:6px;font-size:10px;color:var(--muted)">Da settembre: <span style="text-decoration:line-through">€199</span></div>
+        </div>
+        <ul class="plan-features" style="--pfc:var(--alch)">
+          <li>Messaggi illimitati (Claude Opus)</li>
+          <li>Il Consiglio dei 4 Archetipi</li>
+          <li>Voice Coach HD · voce Michael Jara</li>
+          <li>Corsi VIP esclusivi con video</li>
+          <li>1 sessione live/mese con Michael</li>
+          <li>Report settimanale AI</li>
+        </ul>
+        <a href="/welcome" class="plan-btn" style="background:var(--alch);color:#fff;font-size:12px">Diventa Sovereign →</a>
+      </div>
+    </div>
+
+    <!-- Link confronto -->
+    <div class="reveal" style="text-align:center;margin:20px 0 2px">
+      <a href="/plans" style="font-size:12px;color:var(--muted);text-decoration:none;display:inline-flex;align-items:center;gap:6px;padding:8px 20px;border:0.5px solid var(--glassB);border-radius:100px;transition:all .2s"
+        onmouseover="this.style.color='var(--gold)';this.style.borderColor='var(--goldB)'"
+        onmouseout="this.style.color='var(--muted)';this.style.borderColor='var(--glassB)'">
+        Vedi confronto completo di tutte le funzionalit&agrave; →
+      </a>
+    </div>
+
+    <!-- ELITE Coming Soon -->
+    <div class="elite-band reveal" style="position:relative;overflow:hidden">
+      <!-- Coming soon overlay -->
+      <div style="position:absolute;inset:0;background:rgba(6,6,15,0.6);backdrop-filter:blur(4px);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:3;gap:10px">
+        <span style="font-family:'Cinzel',serif;font-size:11px;letter-spacing:.32em;text-transform:uppercase;color:var(--gold)">Coming Soon</span>
+        <p style="font-size:12px;color:var(--muted)">Solo 20 posti · Lista d'attesa aperta</p>
+        <a href="mailto:michael@luminelcoach.com" style="margin-top:4px;padding:8px 22px;border-radius:100px;background:none;border:0.5px solid var(--goldB);color:var(--gold);font-size:11px;letter-spacing:.12em;text-decoration:none">
+          Iscriviti alla lista →
+        </a>
+      </div>
+      <div class="elite-left" style="z-index:1">
+        <span class="elite-tag">Elite Sovereign Mentoring · Solo 20 posti</span>
+        <h3 class="elite-title">Lavoro diretto con Michael Jara</h3>
+        <p class="elite-desc">Programma annuale personalizzato · Trasformazione garantita</p>
+      </div>
+      <div class="elite-right" style="z-index:1">
+        <div class="elite-price">€5.000<span>/anno</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PROOF -->
+  <section class="proof">
+    <div class="proof-inner">
+      <div class="proof-header">
+        <span class="proof-label reveal">Non crederci sulla parola</span>
+        <h2 class="proof-title reveal d1">Le loro <em>trasformazioni</em></h2>
+      </div>
+      <div class="proof-grid">
+        <div class="proof-card reveal">
+          <div class="proof-stars"><div class="star"></div><div class="star"></div><div class="star"></div><div class="star"></div><div class="star"></div></div>
+          <p class="proof-text">"Luminel non mi ha detto cosa fare. Mi ha mostrato cosa stavo evitando. In 3 settimane ho preso una decisione che rimandavo da 2 anni."</p>
+          <span class="proof-result">Decisione presa in 3 settimane</span>
+          <div class="proof-author">
+            <div class="proof-avatar" style="background:var(--goldDim);color:var(--gold)">E</div>
+            <div><div class="proof-name">Elena R.</div><div class="proof-role">Imprenditrice · Piano Premium</div></div>
+          </div>
+        </div>
+        <div class="proof-card reveal d1">
+          <div class="proof-stars"><div class="star"></div><div class="star"></div><div class="star"></div><div class="star"></div><div class="star"></div></div>
+          <p class="proof-text">"Il Consiglio mi ha fatto litigare con me stesso in un modo che non avevo mai sperimentato. La tensione tra i 4 archetipi &egrave; brutalmente utile."</p>
+          <span class="proof-result">Progetto lanciato dopo 6 mesi di blocco</span>
+          <div class="proof-author">
+            <div class="proof-avatar" style="background:rgba(155,116,224,0.12);color:var(--alch)">M</div>
+            <div><div class="proof-name">Marco B.</div><div class="proof-role">CEO · VIP Sovereign</div></div>
+          </div>
+        </div>
+        <div class="proof-card reveal d2">
+          <div class="proof-stars"><div class="star"></div><div class="star"></div><div class="star"></div><div class="star"></div><div class="star"></div></div>
+          <p class="proof-text">"Alla quarta sessione mi ha chiesto perch&eacute; ogni volta che parlo del mio progetto sposto il focus sulla famiglia. Non me ne ero mai accorta."</p>
+          <span class="proof-result">Pattern identificato alla 4ª sessione</span>
+          <div class="proof-author">
+            <div class="proof-avatar" style="background:rgba(74,158,212,0.12);color:var(--stra)">S</div>
+            <div><div class="proof-name">Sofia L.</div><div class="proof-role">Designer · Premium</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FINAL CTA -->
+  <section class="final">
+    <span class="final-label reveal">Il momento &egrave; adesso</span>
+    <h2 class="final-title reveal d1">La versione di te<br>che aspetti — <em>&egrave; gi&agrave; pronta.</em></h2>
+    <p class="final-sub reveal d2">Gratis per iniziare. Nessuna carta. Nessun impegno. Solo tu — e le domande che hai smesso di farti.</p>
+    <div class="reveal d3" style="display:flex;gap:14px;justify-content:center;flex-wrap:wrap">
+      <a href="/welcome" class="btn-primary" style="font-size:15px;padding:19px 56px">Inizia il tuo viaggio →</a>
+      <a href="/login" class="btn-ghost" style="font-size:15px;padding:19px 56px">Accedi</a>
+    </div>
+    <p class="final-legal reveal">Sviluppo personale ai sensi della Legge 4/2013 · Non &egrave; un servizio medico</p>
+  </section>
+
+  <footer>
+    <div style="display:flex;flex-direction:column;gap:3px">
+      <div class="footer-logo">LUMINEL</div>
+      <span style="font-size:9px;letter-spacing:.2em;color:var(--muted);text-transform:uppercase">Coach Trasformational</span>
+    </div>
+    <div class="footer-info">
+      <p>Insolito Experiences · Michael Jara · P.IVA 14379200968</p>
+      <p>Legge 4/2013 · Non &egrave; un servizio medico · Server EU Frankfurt · GDPR</p>
+    </div>
+    <div class="footer-links">
+      <a href="#" onclick="openLegal('privacy');return false">Privacy</a><a href="#" onclick="openLegal('cookie');return false">Cookie</a><a href="#" onclick="openLegal('termini');return false">Termini</a><a href="#" onclick="openLegal('contatti');return false">Contatti</a>
+    </div>
+  </footer>
+</div>
+
+<script>
+// CURSOR
+const cur=document.getElementById('cursor'),ring=document.getElementById('cursorRing');
+let mx=0,my=0,rx=0,ry=0;
+document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;cur.style.left=mx+'px';cur.style.top=my+'px'});
+(function a(){rx+=(mx-rx)*.12;ry+=(my-ry)*.12;ring.style.left=rx+'px';ring.style.top=ry+'px';requestAnimationFrame(a)})();
+document.querySelectorAll('a,button,input').forEach(el=>{
+  el.addEventListener('mouseenter',()=>{ring.style.transform='translate(-50%,-50%) scale(1.6)';ring.style.borderColor='rgba(201,168,76,.8)'});
+  el.addEventListener('mouseleave',()=>{ring.style.transform='translate(-50%,-50%) scale(1)';ring.style.borderColor='rgba(201,168,76,.5)'});
+});
+
+// AUDIO
+let bgAudio = null, audioOn = false, fadeInt = null;
+const AUDIO_URL = 'https://cdn1.suno.ai/c74718fb-66c5-43f6-bab5-e38c8b3459ba.mp3';
+
+function initAudio(){
+  if(bgAudio)return;
+  bgAudio = new Audio(AUDIO_URL);
+  bgAudio.loop = true;
+  bgAudio.volume = 0;
+  bgAudio.play().catch(e => console.error("Audio err:", e));
+  audioOn = true;
+  fadeAudio(0.5);
+}
+function fadeAudio(targetVol) {
+  if (fadeInt) clearInterval(fadeInt);
+  fadeInt = setInterval(() => {
+    if (Math.abs(bgAudio.volume - targetVol) < 0.05) {
+      bgAudio.volume = targetVol;
+      clearInterval(fadeInt);
+      if (targetVol === 0) bgAudio.pause();
+    } else {
+      bgAudio.volume += (targetVol > bgAudio.volume ? 0.05 : -0.05);
+    }
+  }, 100);
+}
+function toggleAudio(){
+  if(!bgAudio){initAudio();document.getElementById('audio-label').textContent='Audio on';return;}
+  audioOn = !audioOn;
+  if(audioOn) { bgAudio.play().catch(()=>{}); fadeAudio(0.5); }
+  else { fadeAudio(0); }
+  document.getElementById('audio-label').textContent=audioOn?'Audio on':'Audio off';
+}
+document.getElementById('audio-toggle').addEventListener('click',toggleAudio);
+
+
+// INTRO COSMOS
+const iCC=document.getElementById('intro-cosmos');
+const iCX=iCC.getContext('2d');
+let iW,iH,iSt=[],iPt=[];
+function resIC(){iW=iCC.width=innerWidth;iH=iCC.height=innerHeight;}resIC();
+window.addEventListener('resize',resIC);
+for(let i=0;i<200;i++)iSt.push({x:Math.random(),y:Math.random(),r:Math.random()*1.4+.2,s:Math.random()*.5+.15,o:Math.random()*.8+.15});
+for(let i=0;i<24;i++)iPt.push({x:Math.random(),y:Math.random(),vx:(Math.random()-.5)*.0003,vy:Math.random()*.0005+.0002,r:Math.random()*3.5+2,o:Math.random()*.6+.25,rot:Math.random()*360,rs:(Math.random()-.5)*.9});
+let iT=0;
+(function animIC(){
+  iT+=.003;iCX.clearRect(0,0,iW,iH);
+  iSt.forEach(s=>{
+    const x=(s.x+iT*s.s*.015)%1*iW,y=(s.y*iH)%iH;
+    const fl=.6+.4*Math.sin(iT*s.s*2.5+s.o*8);
+    iCX.beginPath();iCX.arc(x,y,s.r,0,Math.PI*2);
+    iCX.fillStyle=`rgba(240,235,224,${s.o*fl*.5})`;iCX.fill();
+  });
+  iPt.forEach(p=>{
+    p.x=(p.x+p.vx+.5/iW)%1;p.y=(p.y+p.vy)%1;p.rot+=p.rs;
+    iCX.save();iCX.translate(p.x*iW,p.y*iH);iCX.rotate(p.rot*Math.PI/180);
+    iCX.beginPath();iCX.ellipse(0,0,p.r,p.r*1.9,0,0,Math.PI*2);
+    iCX.fillStyle=`rgba(201,168,76,${p.o*.4})`;iCX.fill();iCX.restore();
+  });
+  if(!orbExploded)requestAnimationFrame(animIC);
+})();
+
+// THREE.JS ORB
+const oC=document.getElementById('orb-canvas');
+const oS=Math.min(window.innerWidth,560);
+oC.width=oS;oC.height=oS;
+oC.style.cssText=`position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:${oS}px;height:${oS}px`;
+const sc=new THREE.Scene(),cam=new THREE.PerspectiveCamera(60,1,.1,100);
+cam.position.z=4;
+const ren=new THREE.WebGLRenderer({canvas:oC,alpha:true,antialias:true});
+ren.setSize(oS,oS);ren.setPixelRatio(Math.min(devicePixelRatio,2));
+const wMesh=new THREE.Mesh(new THREE.IcosahedronGeometry(1.6,3),new THREE.MeshBasicMaterial({color:0xC9A84C,wireframe:true,transparent:true,opacity:.15}));
+sc.add(wMesh);
+const iMesh=new THREE.Mesh(new THREE.SphereGeometry(1.1,64,64),new THREE.MeshPhongMaterial({color:0x1A1200,emissive:0xC9A84C,emissiveIntensity:.4,transparent:true,opacity:.85,shininess:80}));
+sc.add(iMesh);
+const rMesh=new THREE.Mesh(new THREE.TorusGeometry(1.5,.015,8,80),new THREE.MeshBasicMaterial({color:0xEDD980,transparent:true,opacity:.3}));
+rMesh.rotation.x=Math.PI/2;sc.add(rMesh);
+const ptL=new THREE.PointLight(0xEDD980,3,10);ptL.position.set(2,2,3);sc.add(ptL);
+sc.add(new THREE.AmbientLight(0xC9A84C,.2));
+var orbExploded=false;
+let oT=0;
+function animOrb(){
+  oT+=.008;
+  wMesh.rotation.y=oT*.4;wMesh.rotation.x=oT*.2;
+  iMesh.rotation.y=oT*.3;
+  const p=1+Math.sin(oT*1.5)*.06;
+  wMesh.scale.setScalar(p);iMesh.scale.setScalar(p*.95);
+  rMesh.rotation.z=oT*.5;
+  ptL.intensity=2.5+Math.sin(oT*2)*.8;
+  ren.render(sc,cam);
+  if(!orbExploded)requestAnimationFrame(animOrb);
+}
+animOrb();
+
+// TYPEWRITER
+const SEQS=[
+  {t:'',p:300},{t:'Prima di continuare...',p:1400},
+  {t:'',p:500},{t:'Chi saresti...',p:900},
+  {t:'se smettessi di recitare?',p:2000},
+  {t:'',p:600},{t:'Luminel è pronto.',p:1200},
+  {action:'REVEAL'},
+];
+const twT=document.getElementById('tw-text');
+let si=0,ci=0,cur2='',tTimer=null;
+function typeNext(){
+  if(si>=SEQS.length)return;
+  const s=SEQS[si];
+  if(s.action==='REVEAL'){revealLanding();return;}
+  if(s.t===''){
+    twT.style.opacity='0';
+    setTimeout(()=>{twT.textContent='';twT.style.opacity='1';si++;ci=0;cur2='';typeNext();},300);
+    return;
+  }
+  if(ci<s.t.length){
+    cur2+=s.t[ci];twT.textContent=cur2;ci++;
+    tTimer=setTimeout(typeNext,42+Math.random()*28);
+  } else {si++;ci=0;cur2='';setTimeout(typeNext,s.p);}
+}
+setTimeout(()=>{typeNext();setTimeout(()=>{document.getElementById('tw-sub').style.opacity='.5';},800);},600);
+
+// PARTICLES
+const pC=document.getElementById('particle-canvas'),pX=pC.getContext('2d');
+var parts=[];
+function resP(){pC.width=innerWidth;pC.height=innerHeight;}resP();
+window.addEventListener('resize',resP);
+function explodeOrb(){
+  orbExploded=true;pC.style.opacity='1';
+  const cx=innerWidth/2,cy=innerHeight/2;
+  for(let i=0;i<220;i++){
+    const a=Math.random()*Math.PI*2,sp=2+Math.random()*9;
+    parts.push({x:cx,y:cy,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp,
+      size:1+Math.random()*3,life:1,decay:.01+Math.random()*.025,
+      color:`hsl(${40+Math.random()*20},${60+Math.random()*40}%,${50+Math.random()*30}%)`});
+  }
+  animP();
+}
+function animP(){
+  pX.clearRect(0,0,pC.width,pC.height);
+  let alive=false;
+  parts.forEach(p=>{
+    p.x+=p.vx;p.y+=p.vy;p.vy+=.08;p.vx*=.98;p.life-=p.decay;
+    if(p.life<=0)return;alive=true;
+    pX.save();pX.globalAlpha=p.life;pX.fillStyle=p.color;
+    pX.beginPath();pX.arc(p.x,p.y,p.size*p.life,0,Math.PI*2);pX.fill();pX.restore();
+  });
+  if(alive)requestAnimationFrame(animP);
+  else{pC.style.opacity='0';parts=[];}
+}
+
+// REVEAL
+function revealLanding(){
+  clearTimeout(tTimer);explodeOrb();
+  const intro=document.getElementById('intro'),main=document.getElementById('main-landing'),nav=document.getElementById('nav');
+  setTimeout(()=>{
+    intro.style.transition='opacity 1.2s';intro.style.opacity='0';
+    setTimeout(()=>{intro.style.display='none';initAudio();},1200);
+    main.style.transition='opacity 1.4s .5s';main.style.opacity='1';
+    nav.style.transition='opacity 1s .8s';nav.style.opacity='1';
+  },200);
+}
+document.getElementById('skip-btn').addEventListener('click',revealLanding);
+
+// COSMOS
+const cc=document.getElementById('cosmos-bg'),cx2=cc.getContext('2d');
+let cW,cH,cSt=[],cPt=[];
+function resC(){cW=cc.width=innerWidth;cH=cc.height=innerHeight;}resC();
+window.addEventListener('resize',resC);
+for(let i=0;i<180;i++)cSt.push({x:Math.random(),y:Math.random(),r:Math.random()*1.3+.2,s:Math.random()*.5+.15,o:Math.random()*.7+.15});
+for(let i=0;i<20;i++)cPt.push({x:Math.random(),y:Math.random(),vx:(Math.random()-.5)*.0003,vy:Math.random()*.0005+.0002,r:Math.random()*3+2,o:Math.random()*.5+.2,rot:Math.random()*360,rs:(Math.random()-.5)*.8});
+let cT=0;
+(function animC(){
+  cT+=.003;cx2.clearRect(0,0,cW,cH);
+  const sy=scrollY*.025;
+  cSt.forEach(s=>{
+    const x=(s.x+cT*s.s*.015)%1*cW,y=(s.y*cH+sy)%cH;
+    cx2.beginPath();cx2.arc(x,y,s.r,0,Math.PI*2);
+    cx2.fillStyle=`rgba(240,235,224,${s.o*(.6+.4*Math.sin(cT*s.s*2.5+s.o*8))*.45})`;cx2.fill();
+  });
+  cPt.forEach(p=>{
+    p.x=(p.x+p.vx)%1;p.y=(p.y+p.vy)%1;p.rot+=p.rs;
+    cx2.save();cx2.translate(p.x*cW,p.y*cH);cx2.rotate(p.rot*Math.PI/180);
+    cx2.beginPath();cx2.ellipse(0,0,p.r,p.r*1.9,0,0,Math.PI*2);
+    cx2.fillStyle=`rgba(201,168,76,${p.o*.3})`;cx2.fill();cx2.restore();
+  });
+  requestAnimationFrame(animC);
+})();
+
+// NAV
+window.addEventListener('scroll',()=>{document.getElementById('nav').classList.toggle('scrolled',scrollY>60)},{passive:true});
+
+// SCROLL REVEAL
+const obs=new IntersectionObserver(e=>{e.forEach(x=>{if(x.isIntersecting)x.target.classList.add('visible')});},{threshold:.12});
+document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
+
+// ATTO 3 — Q typewriter on scroll
+const REPLIES=[
+  "Quella risposta rivela gi&agrave; il confine tra chi sei e chi potresti essere.",
+  "Il comfort della bugia &egrave; proporzionale al costo di non vederla.",
+  "Stai gi&agrave; scegliendo — anche il non scegliere &egrave; una scelta.",
+  "Tra 5 anni ricorderai questo momento. Come vuoi ricordarlo?",
+  "La risposta &egrave; sempre stata l&igrave;. Luminel aiuta a togliere il rumore.",
+];
+function typeReply(el,text){
+  let i=0,t='';el.classList.add('open');
+  const timer=setInterval(()=>{
+    if(i>=text.length){clearInterval(timer);return;}
+    t+=text[i++];el.textContent='— '+t;
+  },24);
+}
+function typeQ(el,text,cb){
+  let i=0,t='';
+  const timer=setInterval(()=>{
+    if(i>=text.length){clearInterval(timer);if(cb)cb();return;}
+    t+=text[i++];el.textContent=t;
+  },28);
+}
+const qObs=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{
+    if(!e.isIntersecting||e.target.classList.contains('visible'))return;
+    e.target.classList.add('visible');
+    const qEl=e.target.querySelector('.q-text');
+    if(qEl&&qEl.dataset.full)setTimeout(()=>typeQ(qEl,qEl.dataset.full),200);
+  });
+},{threshold:.3});
+document.querySelectorAll('.q-block').forEach(el=>qObs.observe(el));
+function sendQ(idx){
+  const inp=document.querySelector(`.q-inp[data-i="${idx}"]`);
+  const rep=document.getElementById('qr-'+idx);
+  if(!inp||!inp.value.trim()||!rep)return;
+  typeReply(rep,REPLIES[idx]||REPLIES[0]);
+  inp.disabled=true;
+  inp.closest('.q-input-row').querySelector('.q-btn').style.opacity='0';
+}
+document.querySelectorAll('.q-inp').forEach(inp=>{
+  inp.addEventListener('keydown',e=>{if(e.key==='Enter'){sendQ(+inp.dataset.i);}});
+});
+</script>
+
+<!-- ══ LEGAL MODALS ══ -->
+<div class="legal-overlay" id="modal-privacy" onclick="if(event.target===this)closeLegal()">
+  <div class="legal-modal">
+    <div class="legal-header">
+      <div class="legal-title">Privacy Policy</div>
+      <button class="legal-close" onclick="closeLegal()">×</button>
+    </div>
+    <div class="legal-body">
+      <span class="legal-badge">Aggiornata · Maggio 2026</span>
+      <h3>Chi siamo</h3>
+      <p><strong>Titolare del trattamento:</strong> Insolito Experiences di Michael Jara<br>
+      P.IVA 14379200968 · ATECO 969999 · Legge 4/2013<br>
+      Cernusco sul Naviglio (MI) · Italia<br>
+      Email: <a href="mailto:privacy@luminelcoach.com">privacy@luminelcoach.com</a></p>
+
+      <h3>Dati che raccogliamo</h3>
+      <ul>
+        <li><strong>Dati di registrazione:</strong> nome, email, password (hash)</li>
+        <li><strong>Dati di utilizzo:</strong> messaggi chat, sessioni, Reality Quest, progressi corsi</li>
+        <li><strong>Dati di pagamento:</strong> gestiti esclusivamente da Stripe — non accediamo ai dati della carta</li>
+        <li><strong>Dati tecnici:</strong> indirizzo IP, browser, dispositivo, cookie di sessione</li>
+        <li><strong>Dati del profilo Ikigai:</strong> obiettivi, valori e preferenze inseriti durante l'onboarding</li>
+      </ul>
+
+      <h3>Come usiamo i tuoi dati</h3>
+      <ul>
+        <li>Erogare il servizio di coaching AI personalizzato</li>
+        <li>Costruire la memoria AI tra le sessioni (user_context)</li>
+        <li>Elaborare i pagamenti tramite Stripe</li>
+        <li>Inviare comunicazioni di servizio (non marketing senza consenso)</li>
+        <li>Migliorare la piattaforma in forma aggregata e anonimizzata</li>
+      </ul>
+
+      <h3>Base giuridica</h3>
+      <p>Il trattamento si basa su: <strong>contratto</strong> (erogazione del servizio), <strong>legittimo interesse</strong> (sicurezza e antifrode), <strong>consenso</strong> (comunicazioni marketing).</p>
+
+      <h3>Server e trasferimenti</h3>
+      <p>I dati sono archiviati su <strong>Supabase EU-West (Frankfurt)</strong> — server GDPR compliant all'interno dell'Unione Europea. Nessun trasferimento extra-UE senza adeguate garanzie.</p>
+
+      <h3>I tuoi diritti (GDPR Art. 15-22)</h3>
+      <ul>
+        <li>Accesso, rettifica, cancellazione dei tuoi dati</li>
+        <li>Portabilit&agrave; dei dati in formato leggibile</li>
+        <li>Opposizione al trattamento</li>
+        <li>Revoca del consenso in qualsiasi momento</li>
+      </ul>
+      <p>Per esercitare i tuoi diritti: <a href="mailto:privacy@luminelcoach.com">privacy@luminelcoach.com</a></p>
+
+      <h3>Conservazione</h3>
+      <p>I dati sono conservati per tutta la durata del rapporto contrattuale + 10 anni per obblighi fiscali. I dati di sessione AI possono essere eliminati su richiesta.</p>
+
+      <h3>EU AI Act</h3>
+      <p>Luminel &egrave; un sistema AI automatizzato dichiarato come tale ai sensi del Regolamento UE 2024/1689 (EU AI Act). Non &egrave; un sistema ad alto rischio. L'utente &egrave; sempre informato di interagire con un sistema automatizzato.</p>
+
+      <h3>Contatti DPO</h3>
+      <p>Per questioni sulla privacy: <a href="mailto:privacy@luminelcoach.com">privacy@luminelcoach.com</a></p>
+    </div>
+  </div>
+</div>
+
+<div class="legal-overlay" id="modal-cookie" onclick="if(event.target===this)closeLegal()">
+  <div class="legal-modal">
+    <div class="legal-header">
+      <div class="legal-title">Cookie Policy</div>
+      <button class="legal-close" onclick="closeLegal()">×</button>
+    </div>
+    <div class="legal-body">
+      <span class="legal-badge">Aggiornata · Maggio 2026</span>
+      <h3>Cosa sono i cookie</h3>
+      <p>I cookie sono piccoli file di testo salvati sul tuo dispositivo quando visiti Luminel. Li usiamo per far funzionare il sito e migliorare la tua esperienza.</p>
+
+      <h3>Cookie tecnici (necessari)</h3>
+      <p>Questi cookie sono essenziali e non richiedono consenso:</p>
+      <ul>
+        <li><strong>sb-auth-token:</strong> sessione di autenticazione Supabase · scade alla chiusura del browser</li>
+        <li><strong>luminel_chat_intro_seen:</strong> ricorda se hai gi&agrave; visto l'introduzione alla chat · localStorage</li>
+        <li><strong>luminel_onboarding_data:</strong> dati onboarding temporanei · localStorage · eliminato dopo il signup</li>
+        <li><strong>XSRF-TOKEN:</strong> protezione CSRF · sessione</li>
+      </ul>
+
+      <h3>Cookie analitici (con consenso)</h3>
+      <p>Solo se accetti, utilizziamo strumenti di analisi per capire come viene usato Luminel — in forma completamente anonimizzata. Non vendiamo dati a terzi.</p>
+
+      <h3>Cookie di terze parti</h3>
+      <ul>
+        <li><strong>Stripe:</strong> gestione pagamenti sicuri — Cookie policy Stripe</li>
+        <li><strong>Supabase:</strong> database e autenticazione — server EU</li>
+        <li><strong>ElevenLabs:</strong> sintesi vocale per VIP — solo su richiesta esplicita</li>
+      </ul>
+
+      <h3>Come gestire i cookie</h3>
+      <p>Puoi eliminare i cookie dal tuo browser in qualsiasi momento. Nota: eliminare i cookie tecnici ti disconnetter&agrave; dalla piattaforma.</p>
+      <p>Per rimuovere i dati localStorage: Settings → Il mio account → Elimina dati locali</p>
+
+      <h3>Contatti</h3>
+      <p>Per domande sui cookie: <a href="mailto:privacy@luminelcoach.com">privacy@luminelcoach.com</a></p>
+    </div>
+  </div>
+</div>
+
+<div class="legal-overlay" id="modal-termini" onclick="if(event.target===this)closeLegal()">
+  <div class="legal-modal">
+    <div class="legal-header">
+      <div class="legal-title">Termini di Servizio</div>
+      <button class="legal-close" onclick="closeLegal()">×</button>
+    </div>
+    <div class="legal-body">
+      <span class="legal-badge">Versione 1.0 · Maggio 2026</span>
+      <h3>Il servizio</h3>
+      <p>Luminel &egrave; una piattaforma di <strong>sviluppo personale basata su AI</strong>, erogata da Insolito Experiences di Michael Jara (P.IVA 14379200968) ai sensi della <strong>Legge 4/2013</strong> sul coaching non regolamentato.</p>
+      <p><strong>Luminel non &egrave; un servizio medico, psicologico o terapeutico.</strong> Non sostituisce il supporto clinico professionale. Per problemi di salute mentale, rivolgiti a un professionista sanitario abilitato.</p>
+
+      <h3>Piani e prezzi</h3>
+      <ul>
+        <li><strong>Explorer (€0):</strong> accesso gratuito permanente con funzionalit&agrave; limitate</li>
+        <li><strong>Starter (€9,99/mese):</strong> prezzo lancio Fondatori — €14,99 da settembre 2026</li>
+        <li><strong>Premium (€49/mese):</strong> prezzo lancio Fondatori — €67 da settembre 2026</li>
+        <li><strong>VIP Sovereign (€149/mese):</strong> prezzo lancio Fondatori — €199 da settembre 2026</li>
+        <li><strong>Elite Sovereign (€5.000/anno):</strong> coming soon · max 20 posti</li>
+      </ul>
+      <p>I prezzi Fondatori sono garantiti per sempre agli utenti che si iscrivono prima del 31 agosto 2026.</p>
+
+      <h3>Pagamenti e rinnovi</h3>
+      <p>I pagamenti sono gestiti da <strong>Stripe</strong> in modalit&agrave; sicura. Gli abbonamenti si rinnovano automaticamente salvo cancellazione. Riceverai un'email di promemoria 7 giorni prima del rinnovo.</p>
+
+      <h3>Cancellazione e rimborsi</h3>
+      <p>Puoi cancellare in qualsiasi momento da Settings → Abbonamento. L'accesso rimane attivo fino alla fine del periodo pagato. Non &egrave; previsto rimborso proporzionale per il periodo non utilizzato, salvo obblighi di legge (diritto di recesso 14 giorni per nuovi abbonamenti).</p>
+
+      <h3>Limitazioni di responsabilit&agrave;</h3>
+      <p>Luminel fornisce strumenti di sviluppo personale. Non garantisce risultati specifici. L'efficacia del percorso dipende dall'impegno attivo dell'utente. Non siamo responsabili per decisioni prese sulla base delle sessioni AI.</p>
+
+      <h3>Propriet&agrave; intellettuale</h3>
+      <p>Il Metodo Jara, il brand Luminel, i contenuti dei corsi e il sistema AI sono propriet&agrave; esclusiva di Insolito Experiences. &Egrave; vietata la riproduzione o distribuzione senza autorizzazione scritta.</p>
+
+      <h3>Moderazione</h3>
+      <p>Ci riserviamo il diritto di sospendere account che violano questi termini, tentano di manipolare il sistema AI, o usano la piattaforma per scopi illeciti.</p>
+
+      <h3>Legge applicabile</h3>
+      <p>Questi termini sono regolati dalla legge italiana. Foro competente: Milano (MI).</p>
+
+      <h3>Contatti</h3>
+      <p><a href="mailto:info@luminelcoach.com">info@luminelcoach.com</a></p>
+    </div>
+  </div>
+</div>
+
+<div class="legal-overlay" id="modal-contatti" onclick="if(event.target===this)closeLegal()">
+  <div class="legal-modal">
+    <div class="legal-header">
+      <div class="legal-title">Contatti</div>
+      <button class="legal-close" onclick="closeLegal()">×</button>
+    </div>
+    <div class="legal-body">
+      <span class="legal-badge">Insolito Experiences · Michael Jara</span>
+
+      <h3>Informazioni legali</h3>
+      <p>
+        <strong>Ragione sociale:</strong> Insolito Experiences<br>
+        <strong>Titolare:</strong> Michael Jara<br>
+        <strong>P.IVA:</strong> 14379200968<br>
+        <strong>ATECO:</strong> 969999<br>
+        <strong>Regime:</strong> Legge 4/2013 — Operatore del benessere<br>
+        <strong>Sede:</strong> Cernusco sul Naviglio (MI), Italia
+      </p>
+
+      <h3>Email</h3>
+      <ul>
+        <li><strong>Supporto:</strong> <a href="mailto:support@luminelcoach.com">support@luminelcoach.com</a></li>
+        <li><strong>Privacy & GDPR:</strong> <a href="mailto:privacy@luminelcoach.com">privacy@luminelcoach.com</a></li>
+        <li><strong>Collaborazioni:</strong> <a href="mailto:info@luminelcoach.com">info@luminelcoach.com</a></li>
+        <li><strong>Elite Sovereign:</strong> <a href="mailto:michael@luminelcoach.com">michael@luminelcoach.com</a></li>
+      </ul>
+
+      <h3>Tempi di risposta</h3>
+      <ul>
+        <li>Supporto tecnico: entro 24 ore (lun–ven)</li>
+        <li>Richieste privacy: entro 72 ore</li>
+        <li>Elite Sovereign: risposta personale di Michael entro 48 ore</li>
+      </ul>
+
+      <h3>Social & Community</h3>
+      <p>La community ufficiale &egrave; all'interno della piattaforma Luminel.<br>
+      Per aggiornamenti e contenuti gratuiti segui Michael Jara sui suoi canali ufficiali.</p>
+
+      <h3>Segnalazioni</h3>
+      <p>Per segnalare comportamenti inappropriati nella community o problemi tecnici urgenti: <a href="mailto:support@luminelcoach.com">support@luminelcoach.com</a></p>
+
+      <h3>Sede server</h3>
+      <p>Supabase EU-West · Frankfurt, Germania · GDPR compliant<br>
+      Deploy: Vercel Edge Network · CDN globale</p>
+    </div>
+  </div>
+</div>
+
+<script>
+function openLegal(id){
+  document.querySelectorAll('.legal-overlay').forEach(m=>m.classList.remove('open'));
+  document.getElementById('modal-'+id).classList.add('open');
+  document.body.style.overflow='hidden';
+}
+function closeLegal(){
+  document.querySelectorAll('.legal-overlay').forEach(m=>m.classList.remove('open'));
+  document.body.style.overflow='';
+}
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeLegal();});
+</script>
+
+</body>
+</html>

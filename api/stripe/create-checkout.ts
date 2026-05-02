@@ -43,7 +43,11 @@ export default async function handler(req: any, res: any) {
       client_reference_id: userId,
       metadata: {
         userId,
-        plan: priceId === process.env.VITE_STRIPE_PRICE_VIP ? 'vip' : 'premium'
+        plan: priceId === process.env.VITE_STRIPE_PRICE_VIP
+          ? 'vip'
+          : priceId === process.env.STRIPE_STARTER_PRICE_ID
+          ? 'starter'
+          : 'premium'
       }
     });
 

@@ -84,16 +84,18 @@ export async function getFinanceKPI(): Promise<FinanceKPI> {
     .select("plan, created_at, last_active_at");
 
   const all = profiles ?? [];
+  const starter = all.filter(p => p.plan === "starter");
   const premium = all.filter(p => p.plan === "premium");
   const vip     = all.filter(p => p.plan === "vip");
   const free    = all.filter(p => p.plan === "free");
 
+  const starterRevenue = starter.length * 9.99;
   const premiumRevenue = premium.length * 49;
   const vipRevenue     = vip.length * 199;
-  const mrr            = premiumRevenue + vipRevenue;
+  const mrr            = starterRevenue + premiumRevenue + vipRevenue;
 
   // Stima costo AI (approssimazione)
-  const aiCostMonth = (free.length * 0.06) + (premium.length * 0.35) + (vip.length * 1.80);
+  const aiCostMonth = (free.length * 0.06) + (starter.length * 0.15) + (premium.length * 0.35) + (vip.length * 1.80);
 
   // Nuovi utenti questa settimana
   const weekAgo = new Date(Date.now() - 7 * 86400000).toISOString();
@@ -105,6 +107,7 @@ export async function getFinanceKPI(): Promise<FinanceKPI> {
     totalPaying:    premium.length + vip.length,
     byPlan: {
       free:    { count: free.length,    revenue: 0 },
+      starter: { count: starter.length, revenue: starterRevenue },
       premium: { count: premium.length, revenue: premiumRevenue },
       vip:     { count: vip.length,     revenue: vipRevenue },
     },
@@ -178,7 +181,7 @@ export async function getAdminUsers(
 // ─── UPGRADE MANUALE PIANO ────────────────────────────────────────────────────
 export async function adminUpgradePlan(
   userId: string,
-  newPlan: "free" | "premium" | "vip"
+  newPlan: "free" | "starter" | "premium" | "vip"
 ): Promise<void> {
   await supabase
     .from("profiles")
@@ -265,7 +268,7 @@ export async function getFunnelData(): Promise<FunnelData> {
   const { count: premium } = await supabase
     .from("profiles")
     .select("id", { count: "exact", head: true })
-    .in("plan", ["premium", "vip"]);
+    .in("plan", ["starter", "premium", "vip"]);
 
   const { count: vip } = await supabase
     .from("profiles")

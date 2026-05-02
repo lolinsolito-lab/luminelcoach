@@ -1,331 +1,474 @@
 import React, { useState } from "react";
 import ReactDOM from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { CheckIcon, SparklesIcon, StarIcon } from "@heroicons/react/24/solid";
+import { CheckIcon, StarIcon } from "@heroicons/react/24/solid";
 import {
-  BoltIcon, ChatBubbleLeftRightIcon, PhoneIcon, UserGroupIcon,
-  FireIcon, ShieldCheckIcon, ArrowRightIcon,
+  ShieldCheckIcon, FireIcon, UserGroupIcon,
+  ArrowRightIcon, LockClosedIcon, SparklesIcon,
 } from "@heroicons/react/24/outline";
 import { useAuth } from "../contexts/AuthContext";
 import UpgradeModal from "./UpgradeModal";
 
-// ─── PLAN CONFIG ──────────────────────────────────────────────────────────────
-// Prezzi aggiornati al posizionamento premium Luminel Coach Transformational
-const MONTHLY = { free: 0, premium: 49, vip: 199 };
-const YEARLY = { free: 0, premium: 39, vip: 159 }; // ~-20% annuale
+// ─── DARK LUXURY TOKENS ───────────────────────────────────────────────────────
+const DL = {
+  gold: "#C9A84C", goldBr: "#EDD980", goldDim: "rgba(201,168,76,0.12)",
+  goldB: "rgba(201,168,76,0.25)", alch: "#9B74E0", stra: "#4A9ED4",
+  guer: "#D4603A", white: "#F0EBE0", muted: "#6A6560",
+  glass: "rgba(255,255,255,0.035)", glassB: "rgba(255,255,255,0.07)",
+  green: "#10B981", surface: "#0D0D20",
+};
 
-type BillingCycle = "monthly" | "yearly";
-type PlanId = "free" | "premium" | "vip";
+// ─── PRICING ─────────────────────────────────────────────────────────────────
+const LAUNCH_PRICES = { starter: 9.99, premium: 49, vip: 149 };
+const FULL_PRICES = { starter: 14.99, premium: 67, vip: 199 };
 
-interface PlanFeature { label: string; highlight?: boolean; }
-interface Plan {
-  id: PlanId;
-  name: string;
-  tagline: string;
-  description: string;
-  accentColor: string;
-  accentBg: string;
-  borderColor: string;
-  features: PlanFeature[];
-  notIncluded?: string[];
-  popular?: boolean;
-  badge?: string;
-}
-
-const PLANS: Plan[] = [
+// ─── PIANI ───────────────────────────────────────────────────────────────────
+const PIANI = [
   {
     id: "free",
+    identity: "L'Esploratore",
     name: "Explorer",
-    tagline: "Inizia il viaggio",
-    description: "Scopri il metodo Ikigai di Michael Jara. Perfetto per capire se Luminel fa per te.",
-    accentColor: "#6A6560",
-    accentBg: "rgba(255,255,255,0.025)",
-    borderColor: "rgba(255,255,255,0.08)",
+    tagline: "Assaggia prima di scegliere",
+    promise: "Scopri se Luminel fa per te — senza impegni.",
+    color: DL.muted,
+    bg: "rgba(255,255,255,0.02)",
+    border: DL.glassB,
+    launchPrice: 0,
+    fullPrice: 0,
     features: [
-      { label: "3 corsi gratuiti (7 giorni)" },
-      { label: "5 sessioni Chat AI/mese" },
-      { label: "Reality Quest — 1/settimana" },
-      { label: "1 Quest attiva alla volta" },
-      { label: "Community (solo lettura)" },
-      { label: "1 demo vocale/mese" },
+      { t: "5 messaggi AI al giorno", h: false },
+      { t: "Ikigai Assessment completo", h: false },
+      { t: "Preview prime 2 lezioni di ogni corso", h: false },
+      { t: "1 Reality Quest base/settimana", h: false },
+      { t: "Community (solo lettura)", h: false },
+      { t: "1 demo Voice Coach/mese", h: false },
     ],
-    notIncluded: [
-      "Il Consiglio degli Archetipi",
-      "Audio binaural",
-      "Sessioni illimitate",
+    locked: ["Memoria AI tra sessioni", "Corsi completi", "Calm Space avanzato", "Il Consiglio"],
+    cta: "Inizia gratis",
+    ctaStyle: "outline",
+  },
+  {
+    id: "starter",
+    identity: "Il Primo Passo",
+    name: "Starter",
+    tagline: "Per chi vuole provare sul serio",
+    promise: "Non stai comprando messaggi. Stai comprando 30 domande al giorno che nessuno ti ha mai fatto.",
+    color: DL.stra,
+    bg: "rgba(74,158,212,0.05)",
+    border: "rgba(74,158,212,0.25)",
+    launchPrice: LAUNCH_PRICES.starter,
+    fullPrice: FULL_PRICES.starter,
+    features: [
+      { t: "30 messaggi AI al giorno", h: true },
+      { t: "Modalità Coach + Shadow Work", h: true },
+      { t: "3 corsi base completi con audio", h: true },
+      { t: "Reality Quest giornaliera con tracking", h: true },
+      { t: "Memoria AI semplice tra sessioni", h: false },
+      { t: "Calm Space base + 1 binaural", h: false },
+      { t: "Community completa", h: false },
     ],
+    cta: "Diventa Starter",
+    ctaStyle: "color",
   },
   {
     id: "premium",
+    identity: "Il Cercatore",
     name: "Premium",
-    tagline: "Trasformazione quotidiana",
-    description: "Il percorso completo per chi è pronto a fare il salto. Tutti i corsi, sessioni illimitate e Reality Quest AI ogni giorno.",
-    accentColor: "#C9A84C",
-    accentBg: "rgba(201,168,76,0.05)",
-    borderColor: "rgba(201,168,76,0.3)",
+    tagline: "La trasformazione quotidiana",
+    promise: "Un coach umano: €100/ora. Luminel: €49/mese. Illimitato nel tempo.",
+    color: DL.gold,
+    bg: "rgba(201,168,76,0.06)",
+    border: "rgba(201,168,76,0.3)",
+    launchPrice: LAUNCH_PRICES.premium,
+    fullPrice: FULL_PRICES.premium,
     popular: true,
     badge: "Più scelto",
     features: [
-      { label: "Tutti i corsi Premium", highlight: true },
-      { label: "Chat AI illimitata — Metodo Jara", highlight: true },
-      { label: "Reality Quest AI — ogni giorno", highlight: true },
-      { label: "Audio binaural Theta/Gamma", highlight: true },
-      { label: "Quest illimitate in parallelo" },
-      { label: "Community completa + gruppi" },
-      { label: "Statistiche avanzate e journaling" },
-      { label: "Priorità supporto 24/7" },
+      { t: "100 messaggi AI/giorno con Claude Sonnet", h: true },
+      { t: "Tutti i corsi completi con audio", h: true },
+      { t: "Tutte le modalità (Coach+Shadow+Strategia)", h: true },
+      { t: "Memoria AI profonda con pattern behavior", h: true },
+      { t: "Calm Space + Binaural completo", h: true },
+      { t: "Reality Quest AI ogni giorno + analytics", h: false },
+      { t: "Voice Coach 3 sessioni/mese", h: false },
+      { t: "Community premium + gruppi esclusivi", h: false },
     ],
+    cta: "Diventa Premium",
+    ctaStyle: "gold",
   },
   {
     id: "vip",
+    identity: "Il Sovrano",
     name: "VIP Sovereign",
-    tagline: "Il Consiglio degli Archetipi",
-    description: "L'esperienza definitiva. Accesso esclusivo al Consiglio dei 4 Archetipi, Voice Coach illimitato e sessioni 1-to-1 con Michael Jara.",
-    accentColor: "#9B74E0",
-    accentBg: "rgba(155,116,224,0.05)",
-    borderColor: "rgba(155,116,224,0.3)",
+    tagline: "Senza limiti. Senza compromessi.",
+    promise: "Non stai entrando in un piano. Stai entrando nell'ecosistema di chi non accetta versioni ridotte di sé.",
+    color: DL.alch,
+    bg: "rgba(155,116,224,0.06)",
+    border: "rgba(155,116,224,0.3)",
+    launchPrice: LAUNCH_PRICES.vip,
+    fullPrice: FULL_PRICES.vip,
     badge: "Elite",
     features: [
-      { label: "Tutto incluso in Premium", highlight: true },
-      { label: "Il Consiglio degli Archetipi", highlight: true },
-      { label: "Voice Coach illimitato HD", highlight: true },
-      { label: "1 sessione mensile con Michael Jara", highlight: true },
-      { label: "Corsi VIP esclusivi (Deep Transformation)", highlight: true },
-      { label: "Reality Quest prioritaria + analisi AI" },
-      { label: "Badge Sovereign + rank community" },
-      { label: "Accesso anticipato ai nuovi contenuti" },
-      { label: "Analisi emotiva post-sessione" },
+      { t: "Messaggi illimitati con Claude Opus", h: true },
+      { t: "Il Consiglio dei 4 Archetipi", h: true },
+      { t: "Voice Coach illimitato HD — voce Michael Jara", h: true },
+      { t: "Corsi VIP esclusivi con video di Michael Jara", h: true },
+      { t: "1 sessione live con Michael Jara/mese", h: true },
+      { t: "Report settimanale AI del tuo percorso", h: false },
+      { t: "Badge Sovereign + rank community", h: false },
+      { t: "Accesso anticipato nuovi contenuti", h: false },
+      { t: "Analisi emotiva post-sessione", h: false },
     ],
+    cta: "Diventa Sovereign",
+    ctaStyle: "alch",
   },
 ];
 
-// ─── PRICE DISPLAY ────────────────────────────────────────────────────────────
-function PriceDisplay({ plan, cycle }: { plan: Plan; cycle: BillingCycle }) {
-  const prices = cycle === "monthly" ? MONTHLY : YEARLY;
-  const price = prices[plan.id];
-  const monthlyPrice = MONTHLY[plan.id];
-  const saving = monthlyPrice - price;
+// ─── CONFRONTO TIER ───────────────────────────────────────────────────────────
+const COMPARE = [
+  { f: "Messaggi AI/giorno", free: "5", starter: "30", premium: "100", vip: "Illimitati" },
+  { f: "Modello AI", free: "Haiku", starter: "Haiku", premium: "Sonnet", vip: "Opus (migliore)" },
+  { f: "Corsi disponibili", free: "Preview 2L", starter: "3 base", premium: "Tutti + audio", vip: "Tutti + VIP esclusivi" },
+  { f: "Video Michael Jara", free: false, starter: false, premium: false, vip: true },
+  { f: "Memoria AI tra sessioni", free: false, starter: "Base", premium: "Profonda", vip: "Profonda + pattern" },
+  { f: "Reality Quest", free: "1/sett", starter: "Ogni giorno", premium: "AI + analytics", vip: "Prioritaria + analisi" },
+  { f: "Calm Space & Binaural", free: "Base", starter: "Base", premium: "Completo", vip: "Completo" },
+  { f: "Voice Coach", free: "1 demo/mese", starter: false, premium: "3 sess/mese", vip: "Illimitato HD" },
+  { f: "Voce Michael Jara", free: false, starter: false, premium: false, vip: true },
+  { f: "Il Consiglio Archetipi", free: false, starter: false, premium: false, vip: true },
+  { f: "Sessione con Michael Jara", free: false, starter: false, premium: false, vip: "1/mese" },
+  { f: "Community", free: "Lettura", starter: "Completa", premium: "Premium+gruppi", vip: "Sovereign+badge" },
+];
 
-  return (
-    <div className="mb-6">
-      {price === 0 ? (
-        <div className="flex items-baseline gap-1">
-          <span className="text-[40px] font-semibold" style={{ color: "#F0EBE0", fontFamily: "'Cormorant Garamond', serif" }}>€0</span>
-          <span className="text-[13px]" style={{ color: "#6A6560" }}>per sempre</span>
-        </div>
-      ) : (
-        <div>
-          <div className="flex items-baseline gap-1.5">
-            <span className="text-[13px]" style={{ color: "#6A6560" }}>€</span>
-            <span className="text-[40px] font-semibold leading-none" style={{ color: "#F0EBE0", fontFamily: "'Cormorant Garamond', serif" }}>{price}</span>
-            <span className="text-[13px]" style={{ color: "#6A6560" }}>/mese</span>
+// ─── FAQ ─────────────────────────────────────────────────────────────────────
+const FAQS = [
+  {
+    q: "Perché Luminel e non ChatGPT o altri AI?",
+    a: "ChatGPT risponde. Luminel trasforma. La differenza è il Metodo Jara: memoria tra sessioni, Reality Quest reali, Il Consiglio dei 4 Archetipi, corsi strutturati. Non stai comprando un chatbot — stai comprando un percorso di crescita con una metodologia provata.",
+  },
+  {
+    q: "Cos'è il prezzo di lancio Fondatori?",
+    a: "Chi entra adesso mantiene il prezzo di lancio per sempre — non è uno sconto temporaneo, è un privilegio permanente. Da settembre 2026 i prezzi salgono ai prezzi standard. Il tuo account viene marcato con il badge esclusivo ♦ Fondatore.",
+  },
+  {
+    q: "Cos'è Il Consiglio degli Archetipi?",
+    a: "Esclusivo VIP. Quattro intelligenze AI con personalità distinte — L'Alchimista, Lo Stratega, Il Guerriero, Il Sovrano — analizzano la tua sfida da prospettive opposte. La tensione tra loro è il valore: non il consenso, ma il confronto che ti forza a scegliere.",
+  },
+  {
+    q: "Il Voice Coach VIP — come funziona esattamente?",
+    a: "Parli con Luminel a voce. Luminel ti risponde con la voce sintetica HD di Michael Jara (ElevenLabs). Non è un recording — è una sessione AI vocale in tempo reale con la metodologia Jara. Illimitato per i VIP.",
+  },
+  {
+    q: "Posso cancellare quando voglio?",
+    a: "Sempre. Nessun vincolo, nessuna penale. Cancelli da Settings → Abbonamento. L'accesso rimane attivo fino alla fine del periodo pagato.",
+  },
+  {
+    q: "I corsi sono diversi per ogni piano?",
+    a: "Sì. Explorer vede solo l'anteprima (prime 2 lezioni). Starter sblocca 3 corsi base con audio. Premium sblocca tutti i corsi con audio. VIP ha tutto Premium più i corsi esclusivi con i video personali di Michael Jara.",
+  },
+];
+
+// ─── COMPONENTS ───────────────────────────────────────────────────────────────
+
+const Check: React.FC<{ color: string; highlight: boolean; text: string }> = ({ color, highlight, text }) => (
+  <div style={{ display: "flex", alignItems: "flex-start", gap: 10 }}>
+    <div style={{ width: 18, height: 18, borderRadius: "50%", background: `${color}20`, color, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, marginTop: 1 }}>
+      <CheckIcon style={{ width: 10, height: 10 }} />
+    </div>
+    <span style={{ fontSize: 12, lineHeight: 1.55, color: highlight ? DL.white : DL.muted }}>{text}</span>
+  </div>
+);
+
+const Locked: React.FC<{ text: string }> = ({ text }) => (
+  <div style={{ display: "flex", alignItems: "flex-start", gap: 10, opacity: .35 }}>
+    <div style={{ width: 18, height: 18, borderRadius: "50%", background: "rgba(255,255,255,0.04)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, marginTop: 1 }}>
+      <LockClosedIcon style={{ width: 9, height: 9, color: DL.muted }} />
+    </div>
+    <span style={{ fontSize: 12, lineHeight: 1.55, color: DL.muted }}>{text}</span>
+  </div>
+);
+
+const PlanCard: React.FC<{ plan: typeof PIANI[0]; isCurrentPlan: boolean; onSelect: () => void; delay: number; founderPrice?: boolean }> =
+  ({ plan, isCurrentPlan, onSelect, delay, founderPrice }) => {
+
+    const isFree = plan.id === "free";
+    const saving = plan.fullPrice - plan.launchPrice;
+    const savingPct = plan.fullPrice > 0 ? Math.round((saving / plan.fullPrice) * 100) : 0;
+
+    const btnBg = isCurrentPlan ? "rgba(255,255,255,0.04)"
+      : plan.ctaStyle === "gold" ? DL.gold
+        : plan.ctaStyle === "alch" ? DL.alch
+          : plan.ctaStyle === "color" ? DL.stra
+            : "rgba(255,255,255,0.06)";
+    const btnColor = isCurrentPlan ? DL.muted
+      : plan.ctaStyle === "gold" ? "#06060F"
+        : plan.ctaStyle === "outline" ? DL.white
+          : "#fff";
+
+    return (
+      <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ delay, duration: .35, ease: "easeOut" }}
+        style={{
+          background: plan.bg, border: `0.5px solid ${plan.border}`, borderRadius: 20,
+          padding: "40px 32px", display: "flex", flexDirection: "column", position: "relative", overflow: "hidden"
+        }}
+        whileHover={!isCurrentPlan ? { y: -3 } : {}}>
+
+        {/* Top line */}
+        <div style={{
+          position: "absolute", top: 0, left: 0, right: 0, height: 2,
+          background: `linear-gradient(90deg,transparent,${plan.color}55,transparent)`
+        }} />
+
+        {/* Glow */}
+        {!isFree && <div style={{
+          position: "absolute", top: -60, right: -60, width: 160, height: 160,
+          borderRadius: "50%", background: `${plan.color}08`, filter: "blur(50px)", pointerEvents: "none"
+        }} />}
+
+        {/* Badge */}
+        {plan.badge && (
+          <div style={{ position: "absolute", top: 18, right: 18 }}>
+            <span style={{
+              fontSize: 9, letterSpacing: ".14em", textTransform: "uppercase",
+              padding: "4px 12px", borderRadius: 100, background: `${plan.color}18`,
+              color: plan.color, border: `0.5px solid ${plan.color}35`
+            }}>
+              {plan.badge}
+            </span>
           </div>
-          {cycle === "yearly" && saving > 0 && (
-            <div className="mt-1.5 text-[11px] flex items-center gap-2">
-              <span style={{ color: "#6A6560", textDecoration: "line-through" }}>€{monthlyPrice}/mese</span>
-              <span className="px-2 py-0.5 rounded-full text-[10px] font-medium"
-                style={{ background: "rgba(61,184,122,0.12)", color: "#3DB87A", border: "0.5px solid rgba(61,184,122,0.25)" }}>
-                risparmi €{saving * 12}/anno
-              </span>
+        )}
+
+        {/* Identity */}
+        <div style={{
+          fontSize: 9, letterSpacing: ".22em", textTransform: "uppercase",
+          color: plan.color, opacity: .7, marginBottom: 6
+        }}>{plan.identity}</div>
+        <h3 style={{
+          fontFamily: "'Cormorant Garamond',serif", fontSize: 28, fontWeight: 400,
+          color: DL.white, marginBottom: 4
+        }}>{plan.name}</h3>
+        <p style={{ fontSize: 11, letterSpacing: ".1em", color: plan.color, marginBottom: 12 }}>{plan.tagline}</p>
+        <p style={{
+          fontSize: 12, lineHeight: 1.75, color: DL.muted, fontStyle: "italic",
+          marginBottom: 24, minHeight: 52
+        }}>{plan.promise}</p>
+
+        {/* Price */}
+        <div style={{
+          padding: "20px 0", borderTop: `0.5px solid ${DL.glassB}`,
+          borderBottom: `0.5px solid ${DL.glassB}`, marginBottom: 24
+        }}>
+          {isFree ? (
+            <div>
+              <div style={{
+                fontFamily: "'Cormorant Garamond',serif", fontSize: 52,
+                fontWeight: 300, color: DL.white, lineHeight: 1
+              }}>€0</div>
+              <div style={{ fontSize: 11, color: DL.muted, marginTop: 4 }}>per sempre</div>
+            </div>
+          ) : (
+            <div>
+              {/* Launch price */}
+              <div style={{ display: "flex", alignItems: "baseline", gap: 4, marginBottom: 8 }}>
+                <span style={{
+                  fontFamily: "'Cormorant Garamond',serif", fontSize: 52,
+                  fontWeight: 300, color: DL.white, lineHeight: 1
+                }}>€{plan.launchPrice}</span>
+                <span style={{ fontSize: 14, color: DL.muted }}>/mese</span>
+              </div>
+              {/* Founder badge */}
+              <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+                <span style={{ fontSize: 10, color: DL.muted, textDecoration: "line-through" }}>
+                  €{plan.fullPrice}/mese da settembre
+                </span>
+                <span style={{
+                  fontSize: 9, letterSpacing: ".12em", textTransform: "uppercase",
+                  padding: "3px 10px", borderRadius: 100,
+                  background: "rgba(16,185,129,0.12)", color: DL.green,
+                  border: "0.5px solid rgba(16,185,129,0.25)"
+                }}>
+                  -{savingPct}% Fondatori
+                </span>
+              </div>
+              <p style={{ fontSize: 10, color: "rgba(201,168,76,0.6)", marginTop: 6, letterSpacing: ".06em" }}>
+                ♦ Prezzo bloccato per sempre se entri adesso
+              </p>
             </div>
           )}
         </div>
-      )}
-    </div>
-  );
-}
 
-// ─── PLAN CARD ────────────────────────────────────────────────────────────────
-function PlanCard({
-  plan, cycle, isCurrentPlan, onSelect, delay,
-}: {
-  plan: Plan; cycle: BillingCycle; isCurrentPlan: boolean; onSelect: () => void; delay: number;
-}) {
-  const isFree = plan.id === "free";
-  const btnStyle = isCurrentPlan
-    ? { background: "rgba(255,255,255,0.04)", color: "#6A6560", border: "0.5px solid rgba(255,255,255,0.08)", cursor: "default" }
-    : isFree
-      ? { background: "rgba(255,255,255,0.06)", color: "#F0EBE0", border: "0.5px solid rgba(255,255,255,0.12)" }
-      : { background: plan.accentColor, color: plan.id === "premium" ? "#06060F" : "#FFFFFF", border: "none" };
-
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 24 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay, duration: 0.35, ease: "easeOut" }}
-      className="relative flex flex-col rounded-2xl p-7 overflow-hidden"
-      style={{ background: plan.accentBg, border: `0.5px solid ${plan.borderColor}`, height: "100%" }}
-      whileHover={!isCurrentPlan ? { y: -3, borderColor: `${plan.accentColor}55` } : {}}
-    >
-      {/* Top accent line */}
-      <div className="absolute top-0 left-0 right-0 h-px"
-        style={{ background: `linear-gradient(90deg, transparent, ${plan.accentColor}55, transparent)` }} />
-
-      {/* Glow orb */}
-      {!isFree && (
-        <div className="absolute -top-16 -right-16 w-40 h-40 rounded-full pointer-events-none"
-          style={{ background: `${plan.accentColor}08`, filter: "blur(40px)" }} />
-      )}
-
-      {/* Badge */}
-      {plan.badge && (
-        <div className="absolute top-5 right-5">
-          <span className="text-[9px] tracking-[0.16em] uppercase px-2.5 py-1 rounded-full font-medium"
-            style={{ background: `${plan.accentColor}18`, color: plan.accentColor, border: `0.5px solid ${plan.accentColor}35` }}>
-            {plan.badge}
-          </span>
+        {/* Features */}
+        <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 10, marginBottom: 24 }}>
+          {plan.features.map((f, i) => (
+            <Check key={i} color={plan.color} highlight={f.h} text={f.t} />
+          ))}
+          {plan.locked?.map((f, i) => <Locked key={i} text={f} />)}
         </div>
-      )}
 
-      {/* Header */}
-      <div className="mb-5">
-        <div className="text-[9px] tracking-[0.22em] uppercase mb-1.5 opacity-70" style={{ color: plan.accentColor }}>
-          {plan.tagline}
-        </div>
-        <h3 className="text-[22px] font-normal mb-1" style={{ color: "#F0EBE0", fontFamily: "'Cormorant Garamond', serif" }}>
-          {plan.name}
-        </h3>
-        <p className="text-[12px] leading-relaxed" style={{ color: "#6A6560" }}>{plan.description}</p>
-      </div>
-
-      {/* Price */}
-      <PriceDisplay plan={plan} cycle={cycle} />
-
-      {/* Separator */}
-      <div className="h-px mb-5" style={{ background: `rgba(255,255,255,0.06)` }} />
-
-      {/* Features */}
-      <div className="flex-1 flex flex-col gap-2.5 mb-6">
-        {plan.features.map((f, i) => (
-          <div key={i} className="flex items-start gap-2.5">
-            <div className="w-4 h-4 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5"
-              style={{ background: `${plan.accentColor}22`, color: plan.accentColor }}>
-              <CheckIcon className="w-2.5 h-2.5" />
-            </div>
-            <span className="text-[12px] leading-snug" style={{ color: f.highlight ? "#F0EBE0" : "#6A6560" }}>
-              {f.label}
-            </span>
-          </div>
-        ))}
-        {plan.notIncluded?.map((f, i) => (
-          <div key={i} className="flex items-start gap-2.5 opacity-40">
-            <div className="w-4 h-4 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5"
-              style={{ background: "rgba(255,255,255,0.04)", border: "0.5px solid rgba(255,255,255,0.08)" }}>
-              <span className="text-[8px]" style={{ color: "#6A6560" }}>—</span>
-            </div>
-            <span className="text-[12px] leading-snug" style={{ color: "#6A6560" }}>{f}</span>
-          </div>
-        ))}
-      </div>
-
-      {/* CTA */}
-      <button
-        onClick={!isCurrentPlan ? onSelect : undefined}
-        disabled={isCurrentPlan}
-        className="w-full py-3.5 rounded-xl text-[13px] font-medium tracking-wide transition-all flex items-center justify-center gap-2"
-        style={btnStyle}
-      >
-        {isCurrentPlan ? "Piano attuale" : isFree ? "Inizia gratis" : `Scegli ${plan.name}`}
-        {!isCurrentPlan && !isFree && <ArrowRightIcon className="w-4 h-4" />}
-      </button>
-
-      {!isFree && !isCurrentPlan && (
-        <p className="text-center text-[10px] mt-2.5" style={{ color: "#6A6560" }}>
-          Cancella quando vuoi · Nessun vincolo
-        </p>
-      )}
-    </motion.div>
-  );
-}
-
-// ─── COMPARISON TABLE ─────────────────────────────────────────────────────────
-const COMPARE_ROWS = [
-  { feature: "Sessioni Chat AI", free: "5/mese", premium: "Illimitate", vip: "Illimitate" },
-  { feature: "Reality Quest AI", free: "1/settimana", premium: "Ogni giorno", vip: "Prioritaria + analisi" },
-  { feature: "Il Consiglio degli Archetipi", free: false, premium: false, vip: true },
-  { feature: "Corsi disponibili", free: "3 gratuiti", premium: "Tutti (Premium)", vip: "Tutti incl. VIP" },
-  { feature: "Audio binaural Theta/Gamma", free: false, premium: true, vip: true },
-  { feature: "Voice Coach", free: "1 demo/mese", premium: false, vip: "Illimitato HD" },
-  { feature: "Sessioni con Michael Jara", free: false, premium: false, vip: "1/mese" },
-  { feature: "Community", free: "Lettura", premium: "Completa + gruppi", vip: "Completa + badge Sovereign" },
-  { feature: "Supporto", free: "Email", premium: "Prioritario", vip: "Dedicato" },
-];
-
-function CompareTable() {
-  const col = (val: string | boolean, accent?: string) => {
-    if (val === false) return <span style={{ color: "#6A6560" }}>—</span>;
-    if (val === true) return (
-      <div className="w-5 h-5 rounded-full flex items-center justify-center mx-auto"
-        style={{ background: `${accent}22`, color: accent }}>
-        <CheckIcon className="w-3 h-3" />
-      </div>
+        {/* CTA */}
+        <button onClick={!isCurrentPlan ? onSelect : undefined} disabled={isCurrentPlan}
+          style={{
+            width: "100%", padding: "14px", borderRadius: 12, fontSize: 13, fontWeight: 500,
+            letterSpacing: ".04em", border: "none", cursor: isCurrentPlan ? "default" : "pointer",
+            background: btnBg, color: btnColor, display: "flex", alignItems: "center",
+            justifyContent: "center", gap: 8, transition: "all .25s", fontFamily: "'DM Sans',sans-serif"
+          }}>
+          {isCurrentPlan ? "Piano attuale" : plan.cta}
+          {!isCurrentPlan && !isFree && <ArrowRightIcon style={{ width: 16, height: 16 }} />}
+        </button>
+        {!isFree && !isCurrentPlan && (
+          <p style={{ textAlign: "center", fontSize: 10, color: DL.muted, marginTop: 10 }}>
+            Cancella quando vuoi · Nessun vincolo
+          </p>
+        )}
+      </motion.div>
     );
-    return <span className="text-[12px]" style={{ color: "#F0EBE0" }}>{val}</span>;
   };
 
-  return (
-    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }}
-      className="mt-16 max-w-4xl mx-auto">
-      <div className="text-center mb-8">
-        <div className="text-[9px] tracking-[0.22em] uppercase mb-2 opacity-70" style={{ color: "#C9A84C" }}>Confronto</div>
-        <h2 className="font-serif text-[26px] font-normal" style={{ color: "#F0EBE0" }}>
-          Cosa è incluso in ogni piano
-        </h2>
+// ─── ELITE BAND ───────────────────────────────────────────────────────────────
+const EliteBand: React.FC = () => (
+  <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: .45 }}
+    style={{
+      marginTop: 4, padding: "40px 44px", border: `0.5px solid ${DL.goldB}`,
+      background: DL.goldDim, display: "flex", alignItems: "center",
+      justifyContent: "space-between", flexWrap: "wrap", gap: 20, position: "relative", overflow: "hidden"
+    }}>
+    {/* Coming soon overlay */}
+    <div style={{
+      position: "absolute", inset: 0, background: "rgba(6,6,15,0.5)",
+      backdropFilter: "blur(2px)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 2
+    }}>
+      <div style={{ textAlign: "center" }}>
+        <span style={{
+          fontFamily: "'Cinzel',serif", fontSize: 11, letterSpacing: ".32em",
+          textTransform: "uppercase", color: DL.gold, display: "block", marginBottom: 8
+        }}>
+          Coming Soon
+        </span>
+        <p style={{ fontSize: 12, color: DL.muted }}>Lista d'attesa aperta — solo 20 posti</p>
+        <button style={{
+          marginTop: 16, padding: "9px 24px", borderRadius: 100,
+          background: "none", border: `0.5px solid ${DL.goldB}`, color: DL.gold,
+          fontSize: 11, letterSpacing: ".14em", cursor: "pointer", fontFamily: "'DM Sans',sans-serif"
+        }}>
+          Notificami →
+        </button>
       </div>
-      <div className="rounded-xl overflow-hidden" style={{ border: "0.5px solid rgba(255,255,255,0.08)" }}>
+    </div>
+    <div style={{ zIndex: 1 }}>
+      <span style={{
+        fontSize: 9, letterSpacing: ".22em", textTransform: "uppercase",
+        color: DL.gold, display: "block", marginBottom: 8
+      }}>Elite Sovereign Mentoring · Max 20 posti</span>
+      <h3 style={{
+        fontFamily: "'Cormorant Garamond',serif", fontSize: 28, fontWeight: 300,
+        color: DL.white, marginBottom: 6
+      }}>Lavoro diretto con Michael Jara</h3>
+      <p style={{ fontSize: 13, color: DL.muted }}>Programma annuale personalizzato · Trasformazione garantita</p>
+    </div>
+    <div style={{ textAlign: "right", zIndex: 1 }}>
+      <div style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: 44, color: DL.gold }}>
+        €5.000<span style={{ fontSize: 16, color: DL.muted }}>/anno</span>
+      </div>
+    </div>
+  </motion.div>
+);
+
+// ─── COMPARE TABLE ────────────────────────────────────────────────────────────
+const CompareTable: React.FC = () => {
+  const cell = (v: any, color: string) => {
+    if (v === false) return <span style={{ color: DL.muted }}>—</span>;
+    if (v === true) return (
+      <div style={{
+        width: 20, height: 20, borderRadius: "50%", background: `${color}20`,
+        color, display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto"
+      }}>
+        <CheckIcon style={{ width: 11, height: 11 }} />
+      </div>
+    );
+    return <span style={{ fontSize: 11, color: DL.white }}>{v}</span>;
+  };
+  return (
+    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: .5 }}
+      style={{ marginTop: 64, maxWidth: 1000, margin: "64px auto 0" }}>
+      <div style={{ textAlign: "center", marginBottom: 36 }}>
+        <span style={{
+          fontSize: 10, letterSpacing: ".24em", textTransform: "uppercase",
+          color: DL.gold, opacity: .7, display: "block", marginBottom: 10
+        }}>Confronto completo</span>
+        <h2 style={{
+          fontFamily: "'Cormorant Garamond',serif", fontSize: 32,
+          fontWeight: 300, color: DL.white
+        }}>Cosa ottieni in ogni piano</h2>
+      </div>
+      <div style={{ borderRadius: 12, overflow: "hidden", border: `0.5px solid ${DL.glassB}` }}>
         {/* Header */}
-        <div className="grid grid-cols-4 px-5 py-3" style={{ background: "rgba(255,255,255,0.03)", borderBottom: "0.5px solid rgba(255,255,255,0.08)" }}>
-          <div className="text-[11px]" style={{ color: "#6A6560" }}>Funzionalità</div>
-          {[["Explorer", "#6A6560"], ["Premium", "#C9A84C"], ["VIP Sovereign", "#9B74E0"]].map(([name, color]) => (
-            <div key={name} className="text-center text-[11px] font-medium" style={{ color }}>{name}</div>
+        <div style={{
+          display: "grid", gridTemplateColumns: "2fr 1fr 1fr 1fr 1fr",
+          padding: "12px 20px", background: "rgba(255,255,255,0.03)",
+          borderBottom: `0.5px solid ${DL.glassB}`
+        }}>
+          <div style={{ fontSize: 11, color: DL.muted }}>Funzionalità</div>
+          {[["Explorer", DL.muted], ["Starter", DL.stra], ["Premium", DL.gold], ["VIP Sovereign", DL.alch]].map(([n, c]) => (
+            <div key={n} style={{ textAlign: "center", fontSize: 11, fontWeight: 500, color: c }}>{n}</div>
           ))}
         </div>
         {/* Rows */}
-        {COMPARE_ROWS.map((row, i) => (
-          <div key={i} className="grid grid-cols-4 px-5 py-3.5 items-center"
-            style={{ borderBottom: i < COMPARE_ROWS.length - 1 ? "0.5px solid rgba(255,255,255,0.05)" : "none", background: i % 2 === 0 ? "transparent" : "rgba(255,255,255,0.01)" }}>
-            <div className="text-[12px]" style={{ color: "#6A6560" }}>{row.feature}</div>
-            <div className="text-center">{col(row.free, "#6A6560")}</div>
-            <div className="text-center">{col(row.premium, "#C9A84C")}</div>
-            <div className="text-center">{col(row.vip, "#9B74E0")}</div>
+        {COMPARE.map((row, i) => (
+          <div key={i} style={{
+            display: "grid", gridTemplateColumns: "2fr 1fr 1fr 1fr 1fr",
+            padding: "13px 20px", alignItems: "center",
+            borderBottom: i < COMPARE.length - 1 ? `0.5px solid rgba(255,255,255,0.04)` : "none",
+            background: i % 2 === 0 ? "transparent" : "rgba(255,255,255,0.01)"
+          }}>
+            <div style={{ fontSize: 12, color: DL.muted }}>{row.f}</div>
+            <div style={{ textAlign: "center" }}>{cell(row.free, DL.muted)}</div>
+            <div style={{ textAlign: "center" }}>{cell(row.starter, DL.stra)}</div>
+            <div style={{ textAlign: "center" }}>{cell(row.premium, DL.gold)}</div>
+            <div style={{ textAlign: "center" }}>{cell(row.vip, DL.alch)}</div>
           </div>
         ))}
       </div>
     </motion.div>
   );
-}
+};
 
-// ─── FAQ ──────────────────────────────────────────────────────────────────────
-const FAQS = [
-  { q: "Posso cancellare quando voglio?", a: "Sì. Non ci sono contratti o vincoli. Cancelli in qualsiasi momento dal pannello Settings → Abbonamento. L'accesso rimane attivo fino alla fine del periodo pagato." },
-  { q: "Cosa sono Il Consiglio degli Archetipi?", a: "È la killer feature VIP — 4 intelligenze AI distinte (L'Alchimista, Lo Stratega, Il Guerriero, Il Sovrano) che analizzano la tua sfida da 4 prospettive diverse e producono un Master Plan personalizzato." },
-  { q: "L'AI Coach sostituisce un vero coach?", a: "No. Luminel AI Coach eroga il metodo di Michael Jara 24/7 ed è uno strumento di sviluppo personale ai sensi della Legge 4/2013. Non è un servizio medico o psicologico. Per il supporto diretto di Michael, il piano VIP include 1 sessione mensile." },
-  { q: "Il piano annuale si rinnova automaticamente?", a: "Sì, come il mensile. Riceverai un'email 7 giorni prima del rinnovo. Puoi cancellare in qualsiasi momento prima della scadenza." },
-];
-
-function FAQ() {
+// ─── FAQ ─────────────────────────────────────────────────────────────────────
+const FAQSection: React.FC = () => {
   const [open, setOpen] = useState<number | null>(null);
   return (
-    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.7 }}
-      className="mt-16 max-w-2xl mx-auto">
-      <div className="text-center mb-8">
-        <h2 className="font-serif text-[24px] font-normal" style={{ color: "#F0EBE0" }}>Domande frequenti</h2>
+    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: .7 }}
+      style={{ marginTop: 64, maxWidth: 680, margin: "64px auto 0" }}>
+      <div style={{ textAlign: "center", marginBottom: 36 }}>
+        <h2 style={{
+          fontFamily: "'Cormorant Garamond',serif", fontSize: 32,
+          fontWeight: 300, color: DL.white
+        }}>Domande <em style={{ fontStyle: "italic", color: DL.gold }}>frequenti</em></h2>
       </div>
-      <div className="flex flex-col gap-2">
+      <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
         {FAQS.map((faq, i) => (
-          <div key={i} className="rounded-xl overflow-hidden"
-            style={{ border: `0.5px solid ${open === i ? "rgba(201,168,76,0.3)" : "rgba(255,255,255,0.07)"}`, background: open === i ? "rgba(201,168,76,0.04)" : "rgba(255,255,255,0.02)" }}>
+          <div key={i} style={{
+            borderRadius: 12, overflow: "hidden",
+            border: `0.5px solid ${open === i ? DL.goldB : DL.glassB}`,
+            background: open === i ? DL.goldDim : "rgba(255,255,255,0.02)"
+          }}>
             <button onClick={() => setOpen(open === i ? null : i)}
-              className="w-full px-5 py-4 flex items-center justify-between text-left transition-all">
-              <span className="text-[13px] font-medium" style={{ color: "#F0EBE0" }}>{faq.q}</span>
-              <span className="text-[18px] flex-shrink-0 ml-3 transition-transform"
-                style={{ color: "#C9A84C", transform: open === i ? "rotate(45deg)" : "none" }}>+</span>
+              style={{
+                width: "100%", padding: "16px 20px", display: "flex",
+                alignItems: "center", justifyContent: "space-between", textAlign: "left",
+                background: "none", border: "none", cursor: "pointer"
+              }}>
+              <span style={{ fontSize: 13, fontWeight: 500, color: DL.white }}>{faq.q}</span>
+              <span style={{
+                fontSize: 20, color: DL.gold, flexShrink: 0, marginLeft: 12,
+                transition: "transform .2s", transform: open === i ? "rotate(45deg)" : "none"
+              }}>+</span>
             </button>
             <AnimatePresence>
               {open === i && (
-                <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }}
-                  transition={{ duration: 0.2 }} className="overflow-hidden">
-                  <p className="px-5 pb-4 text-[12px] leading-relaxed" style={{ color: "#6A6560" }}>{faq.a}</p>
+                <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }} transition={{ duration: .2 }} style={{ overflow: "hidden" }}>
+                  <p style={{ padding: "0 20px 16px", fontSize: 12, lineHeight: 1.85, color: DL.muted }}>{faq.a}</p>
                 </motion.div>
               )}
             </AnimatePresence>
@@ -334,118 +477,149 @@ function FAQ() {
       </div>
     </motion.div>
   );
-}
+};
 
-// ─── TRUST BAR ────────────────────────────────────────────────────────────────
-const TRUST = [
-  { icon: <ShieldCheckIcon className="w-4 h-4" />, label: "Pagamento sicuro Stripe" },
-  { icon: <FireIcon className="w-4 h-4" />, label: "Server EU · GDPR compliant" },
-  { icon: <UserGroupIcon className="w-4 h-4" />, label: "2.000+ utenti attivi" },
-  { icon: <StarIcon className="w-4 h-4" />, label: "4.9/5 rating medio" },
-];
-
-// ─── MAIN PAGE ────────────────────────────────────────────────────────────────
+// ─── MAIN ─────────────────────────────────────────────────────────────────────
 const PlansPage: React.FC = () => {
   const { user } = useAuth();
-  const [billingCycle, setBillingCycle] = useState<BillingCycle>("monthly");
-  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
-  const [selectedPlanType, setSelectedPlanType] = useState<"premium" | "vip">("premium");
+  const [showUpgrade, setShowUpgrade] = useState(false);
+  const [selectedPlan, setSelectedPlan] = useState<"premium" | "vip" | "starter">("premium");
+  const currentPlan: string = (user as any)?.plan ?? "free";
+  const isFounder = (user as any)?.is_founder ?? false;
 
-  const handleSelectPlan = (planId: string) => {
+  const handleSelect = (planId: string) => {
     if (planId === "free") return;
-    setSelectedPlanType(planId as "premium" | "vip");
-    setShowUpgradeModal(true);
+    setSelectedPlan(planId as any);
+    setShowUpgrade(true);
   };
 
-  const currentPlan: string = (user as any)?.plan ?? "free";
+  const TRUST = [
+    { icon: <ShieldCheckIcon style={{ width: 16, height: 16 }} />, label: "Pagamento sicuro Stripe" },
+    { icon: <FireIcon style={{ width: 16, height: 16 }} />, label: "Server EU · GDPR compliant" },
+    { icon: <UserGroupIcon style={{ width: 16, height: 16 }} />, label: "2.000+ utenti attivi" },
+    { icon: <StarIcon style={{ width: 16, height: 16 }} />, label: "4.9/5 rating medio" },
+  ];
 
   return (
-    <div className="min-h-screen pb-24">
+    <div style={{ minHeight: "100vh", paddingBottom: 100 }}>
       {ReactDOM.createPortal(
-        <UpgradeModal isOpen={showUpgradeModal} onClose={() => setShowUpgradeModal(false)} planType={selectedPlanType} />,
+        <UpgradeModal isOpen={showUpgrade} onClose={() => setShowUpgrade(false)} planType={selectedPlan} />,
         document.body
       )}
 
       {/* Ambient */}
-      <div className="fixed inset-0 pointer-events-none -z-10 overflow-hidden">
-        <div className="absolute -top-32 left-1/2 -translate-x-1/2 w-[600px] h-[400px] rounded-full"
-          style={{ background: "rgba(201,168,76,0.04)", filter: "blur(120px)" }} />
-        <div className="absolute top-1/2 -right-20 w-[300px] h-[400px] rounded-full"
-          style={{ background: "rgba(155,116,224,0.04)", filter: "blur(100px)" }} />
+      <div style={{ position: "fixed", inset: 0, pointerEvents: "none", zIndex: 0, overflow: "hidden" }}>
+        <div style={{
+          position: "absolute", top: -100, left: "50%", transform: "translateX(-50%)",
+          width: 600, height: 400, borderRadius: "50%",
+          background: "rgba(201,168,76,0.04)", filter: "blur(120px)"
+        }} />
+        <div style={{
+          position: "absolute", top: "50%", right: -80, width: 300, height: 400,
+          borderRadius: "50%", background: "rgba(155,116,224,0.04)", filter: "blur(100px)"
+        }} />
       </div>
 
       {/* Header */}
-      <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} className="text-center mb-10">
-        <p className="text-[9px] tracking-[0.24em] uppercase mb-3 opacity-70" style={{ color: "#C9A84C" }}>
-          Insolito Experiences · Legge 4/2013
-        </p>
-        <h1 className="font-serif text-[40px] md:text-[50px] font-normal leading-tight mb-3" style={{ color: "#F0EBE0" }}>
-          Scegli il tuo <em className="italic" style={{ color: "#C9A84C" }}>percorso</em>
+      <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }}
+        style={{ textAlign: "center", marginBottom: 40, position: "relative", zIndex: 1 }}>
+
+        {/* Founder badge if applicable */}
+        {isFounder && (
+          <div style={{
+            display: "inline-flex", alignItems: "center", gap: 6, padding: "6px 18px",
+            borderRadius: 100, background: DL.goldDim, border: `0.5px solid ${DL.goldB}`,
+            fontSize: 10, color: DL.gold, letterSpacing: ".16em", textTransform: "uppercase",
+            marginBottom: 20
+          }}>
+            ♦ Account Fondatore · Prezzo bloccato per sempre
+          </div>
+        )}
+
+        <h1 style={{
+          fontFamily: "'Cormorant Garamond',serif", fontSize: "clamp(36px,5vw,56px)",
+          fontWeight: 300, color: DL.white, lineHeight: 1.1, marginBottom: 12
+        }}>
+          Non scegliere un piano.<br />
+          <em style={{ fontStyle: "italic", color: DL.gold }}>Scegli chi vuoi diventare.</em>
         </h1>
-        <p className="text-[14px] max-w-md mx-auto leading-relaxed mb-8" style={{ color: "#6A6560" }}>
-          Investi su te stesso con il metodo Ikigai di Michael Jara.<br />
-          Cancella quando vuoi. Nessun impegno.
+        <p style={{
+          fontSize: 14, color: DL.muted, maxWidth: 480, margin: "0 auto 32px",
+          lineHeight: 1.85
+        }}>
+          Prezzi di lancio riservati ai Fondatori.<br />
+          Chi entra adesso mantiene il prezzo per sempre.
         </p>
 
-        {/* Billing toggle */}
-        <div className="inline-flex items-center p-1 rounded-full"
-          style={{ background: "rgba(255,255,255,0.04)", border: "0.5px solid rgba(255,255,255,0.08)" }}>
-          {(["monthly", "yearly"] as BillingCycle[]).map(c => (
-            <button key={c} onClick={() => setBillingCycle(c)}
-              className="px-6 py-2 rounded-full text-[12px] font-medium tracking-wide transition-all flex items-center gap-2"
-              style={billingCycle === c
-                ? { background: "#C9A84C", color: "#06060F" }
-                : { background: "transparent", color: "#6A6560" }}>
-              {c === "monthly" ? "Mensile" : "Annuale"}
-              {c === "yearly" && (
-                <span className="text-[9px] px-1.5 py-0.5 rounded-full font-medium"
-                  style={{ background: billingCycle === "yearly" ? "rgba(0,0,0,0.15)" : "rgba(61,184,122,0.15)", color: billingCycle === "yearly" ? "#06060F" : "#3DB87A" }}>
-                  -20%
-                </span>
-              )}
-            </button>
-          ))}
+        {/* Launch countdown hint */}
+        <div style={{
+          display: "inline-flex", alignItems: "center", gap: 8, padding: "8px 20px",
+          borderRadius: 100, background: "rgba(212,96,58,0.1)", border: "0.5px solid rgba(212,96,58,0.25)",
+          fontSize: 11, color: "#D4603A", marginBottom: 32
+        }}>
+          <span style={{
+            width: 6, height: 6, borderRadius: "50%", background: "#D4603A",
+            animation: "pulse 2s infinite", display: "inline-block"
+          }} />
+          Da settembre 2026 i prezzi salgono · Entra adesso al prezzo Fondatori
         </div>
       </motion.div>
 
       {/* Trust bar */}
-      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.1 }}
-        className="flex items-center justify-center gap-8 flex-wrap mb-12">
+      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: .1 }}
+        style={{
+          display: "flex", alignItems: "center", justifyContent: "center",
+          gap: 32, flexWrap: "wrap", marginBottom: 48, position: "relative", zIndex: 1
+        }}>
         {TRUST.map((t, i) => (
-          <div key={i} className="flex items-center gap-2 text-[11px]" style={{ color: "#6A6560" }}>
-            <span style={{ color: "#C9A84C" }}>{t.icon}</span>{t.label}
+          <div key={i} style={{
+            display: "flex", alignItems: "center", gap: 8,
+            fontSize: 11, color: DL.muted
+          }}>
+            <span style={{ color: DL.gold }}>{t.icon}</span>{t.label}
           </div>
         ))}
       </motion.div>
 
-      {/* Plans grid */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-5 max-w-5xl mx-auto px-4 items-start">
-        {PLANS.map((plan, idx) => (
-          <PlanCard
-            key={plan.id}
-            plan={plan}
-            cycle={billingCycle}
+      {/* Plans grid — 4 colonne */}
+      <div style={{
+        display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 2,
+        background: DL.glassB, border: `0.5px solid ${DL.glassB}`,
+        position: "relative", zIndex: 1, marginBottom: 2
+      }}>
+        {PIANI.map((plan, idx) => (
+          <PlanCard key={plan.id} plan={plan} delay={idx * .08}
             isCurrentPlan={currentPlan === plan.id}
-            onSelect={() => handleSelectPlan(plan.id)}
-            delay={idx * 0.1}
-          />
+            onSelect={() => handleSelect(plan.id)}
+            founderPrice={true} />
         ))}
       </div>
 
-      {/* Comparison table */}
-      <CompareTable />
+      {/* Elite Coming Soon */}
+      <div style={{ position: "relative", zIndex: 1 }}>
+        <EliteBand />
+      </div>
+
+      {/* Compare table */}
+      <div style={{ position: "relative", zIndex: 1 }}>
+        <CompareTable />
+      </div>
 
       {/* FAQ */}
-      <FAQ />
+      <div style={{ position: "relative", zIndex: 1 }}>
+        <FAQSection />
+      </div>
 
-      {/* Bottom CTA */}
-      <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.9 }}
-        className="mt-16 text-center">
-        <p className="text-[12px] max-w-lg mx-auto leading-relaxed" style={{ color: "#6A6560" }}>
+      {/* Bottom legal */}
+      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: .9 }}
+        style={{ marginTop: 64, textAlign: "center", position: "relative", zIndex: 1 }}>
+        <p style={{ fontSize: 11, color: DL.muted, lineHeight: 2, maxWidth: 520, margin: "0 auto" }}>
           Luminel è una piattaforma di sviluppo personale ai sensi della Legge 4/2013.<br />
-          Non è un servizio medico o psicologico · Pagamenti gestiti da Stripe · Server EU
+          Non è un servizio medico o psicologico · Pagamenti sicuri Stripe · Server EU Frankfurt · GDPR
         </p>
       </motion.div>
+
+      <style>{`@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}`}</style>
     </div>
   );
 };

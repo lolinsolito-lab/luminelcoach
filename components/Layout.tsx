@@ -241,7 +241,20 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                 )}
                 <div className="plan-card">
                   <div className="plan-tier">Piano attuale</div>
-                  <div className="plan-name">{user?.plan === 'vip' ? 'VIP · Sovereign' : 'Free · Explorer'}</div>
+                  <div className="plan-name">
+                    {user?.plan === 'vip' ? 'VIP · Sovereign'
+                      : user?.plan === 'premium' ? 'Premium · Illuminated'
+                      : user?.plan === 'starter' ? 'Starter'
+                      : 'Free · Explorer'}
+                  </div>
+                  {(user as any)?.is_founder && (
+                    <div style={{
+                      fontSize: 9, letterSpacing: '.14em', textTransform: 'uppercase',
+                      color: '#C9A84C', marginTop: 4, display: 'flex', alignItems: 'center', gap: 4
+                    }}>
+                      ♦ Fondatore
+                    </div>
+                  )}
                   <button className="plan-btn" onClick={() => navTo('/plans')}>Gestisci →</button>
                 </div>
               </div>

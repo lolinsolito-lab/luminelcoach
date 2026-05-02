@@ -134,7 +134,7 @@ const ChatPage: React.FC = () => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
-  const getDailyLimit = () => user?.plan === "vip" ? 9999 : user?.plan === "premium" ? 50 : 10;
+  const getDailyLimit = () => user?.plan === "vip" ? 9999 : user?.plan === "premium" ? 100 : user?.plan === "starter" ? 30 : 5;
   const limit = getDailyLimit();
   const limitPct = Math.min((messageCount / limit) * 100, 100);
   const nearLimit = messageCount >= limit * 0.8;

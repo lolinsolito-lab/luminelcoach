@@ -8,7 +8,7 @@ import { useState } from 'react';
 interface UpgradeModalProps {
   isOpen: boolean;
   onClose: () => void;
-  planType: 'premium' | 'vip';
+  planType: 'starter' | 'premium' | 'vip';
 }
 
 const DL = {
@@ -25,6 +25,30 @@ const DL = {
 };
 
 const planData = {
+  starter: {
+    label: 'Starter',
+    sublabel: 'Il Primo Passo',
+    price: '€9,99',
+    period: '/mese',
+    annualNote: 'Da settembre: €14,99/mese · Prezzo bloccato per Fondatori',
+    color: '#4A9ED4',
+    colorDim: 'rgba(74,158,212,0.10)',
+    colorB: 'rgba(74,158,212,0.25)',
+    icon: <StarIcon className="w-7 h-7" style={{ color: '#4A9ED4' }} />,
+    gradient: 'linear-gradient(135deg,rgba(74,158,212,0.12),rgba(74,158,212,0.04))',
+    border: 'rgba(74,158,212,0.35)',
+    topLine: 'linear-gradient(90deg,transparent,rgba(74,158,212,0.6),transparent)',
+    features: [
+      '30 messaggi AI al giorno',
+      'Modalità Coach + Shadow Work',
+      '3 corsi base completi con audio',
+      'Reality Quest giornaliera con tracking',
+      'Memoria AI semplice tra sessioni',
+      'Community completa',
+    ],
+    cta: 'Diventa Starter →',
+    note: 'Prezzo Fondatori bloccato per sempre · Cancella quando vuoi',
+  },
   premium: {
     label: 'Premium',
     sublabel: 'Illuminated',
@@ -89,8 +113,10 @@ const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose, planType }
     
     setLoading(true);
     try {
-      const priceId = planType === 'vip' 
-        ? import.meta.env.VITE_STRIPE_PRICE_VIP 
+      const priceId = planType === 'vip'
+        ? import.meta.env.VITE_STRIPE_PRICE_VIP
+        : planType === 'starter'
+        ? import.meta.env.VITE_STRIPE_STARTER_PRICE_ID
         : import.meta.env.VITE_STRIPE_PRICE_PREMIUM;
         
       const res = await fetch('/api/stripe/create-checkout', {

@@ -4,6 +4,7 @@ import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-route
 import Layout from './components/Layout';
 import Dashboard from './components/Dashboard';
 import WelcomePage from './components/WelcomePage';
+import LandingPage from './components/LandingPage';
 import LoginPage from './components/LoginPage';
 import SignupPage from './components/SignupPage';
 import ForgotPasswordPage from './components/ForgotPasswordPage';
@@ -34,7 +35,7 @@ const RequireAuth: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   if (loading) return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
 
   if (!isAuthenticated) {
-    return <Navigate to="/welcome" state={{ from: location }} replace />;
+    return <Navigate to="/onboarding" state={{ from: location }} replace />;
   }
 
   return <>{children}</>;
@@ -43,12 +44,13 @@ const RequireAuth: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 const AppRoutes: React.FC = () => {
   return (
     <Routes>
-      <Route path="/welcome" element={<WelcomePage />} />
+      <Route path="/" element={<LandingPage />} />
+      <Route path="/onboarding" element={<WelcomePage />} />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/signup" element={<SignupPage />} />
       <Route path="/forgot-password" element={<ForgotPasswordPage />} />
       <Route
-        path="/"
+        path="/dashboard"
         element={
           <RequireAuth>
             <Layout>

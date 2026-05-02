@@ -7,7 +7,7 @@ export interface Course {
   description: string;
   duration: string;
   level: string;
-  plan: 'free' | 'premium' | 'vip';
+  plan: 'free' | 'starter' | 'premium' | 'vip';
   image: string;
   icon: string;
   color: string;
@@ -28,7 +28,7 @@ interface UseCoursesParams {
   searchQuery?: string;
 }
 
-const PLAN_ORDER: Record<string, number> = { free: 0, premium: 1, vip: 2 };
+const PLAN_ORDER: Record<string, number> = { free: 0, starter: 1, premium: 2, vip: 3 };
 
 export function useCourses({
   userPlan,
@@ -87,6 +87,7 @@ export function useCourses({
 
   // Split per tier
   const freeCourses = useMemo(() => filteredCourses.filter(c => c.plan === 'free'), [filteredCourses]);
+  const starterCourses = useMemo(() => filteredCourses.filter(c => c.plan === 'starter'), [filteredCourses]);
   const premiumCourses = useMemo(() => filteredCourses.filter(c => c.plan === 'premium'), [filteredCourses]);
   const vipCourses = useMemo(() => filteredCourses.filter(c => c.plan === 'vip'), [filteredCourses]);
 
@@ -110,6 +111,7 @@ export function useCourses({
     courses,
     filteredCourses,
     freeCourses,
+    starterCourses,
     premiumCourses,
     vipCourses,
     unlockedCourses,

@@ -83,7 +83,7 @@ const RiskBadge: React.FC<{ score: number }> = ({ score }) => {
 
 // ── PLAN BADGE ────────────────────────────────────────────────────────────────
 const PlanBadge: React.FC<{ plan: string }> = ({ plan }) => {
-  const colors: Record<string, string> = { free: DL.muted, premium: DL.gold, vip: DL.alch };
+  const colors: Record<string, string> = { free: DL.muted, starter: DL.stra, premium: DL.gold, vip: DL.alch };
   const c = colors[plan] ?? DL.muted;
   return (
     <span style={{ fontSize: 9, padding: "2px 8px", borderRadius: 4, background: `${c}15`, color: c, border: `0.5px solid ${c}30`, textTransform: "uppercase", letterSpacing: ".08em" }}>
@@ -112,7 +112,7 @@ const FinanceModule: React.FC<{ kpi: FinanceKPI | null }> = ({ kpi }) => {
         <div style={{ fontSize: 10, letterSpacing: ".16em", textTransform: "uppercase", color: DL.muted, marginBottom: 16 }}>Breakdown per piano</div>
         <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
           {Object.entries(kpi.byPlan).map(([plan, data]) => {
-            const colors: Record<string, string> = { free: DL.muted, premium: DL.gold, vip: DL.alch };
+            const colors: Record<string, string> = { free: DL.muted, starter: DL.stra, premium: DL.gold, vip: DL.alch };
             const c = colors[plan] ?? DL.muted;
             const maxUsers = Math.max(...Object.values(kpi.byPlan).map(d => d.count), 1);
             return (
@@ -176,7 +176,7 @@ const CRMModule: React.FC<{ users: AdminUser[]; onUpgrade: (id: string, plan: st
           <input value={search} onChange={e => setSearch(e.target.value)}
             placeholder="Cerca per nome..."
             style={{ flex: 1, minWidth: 180, padding: "8px 14px", background: "rgba(255,255,255,0.03)", border: "0.5px solid rgba(255,255,255,0.08)", borderRadius: 9, fontSize: 12, color: DL.white, outline: "none", fontFamily: "'DM Sans',sans-serif" }} />
-          {["all", "free", "premium", "vip"].map(p => (
+          {["all", "free", "starter", "premium", "vip"].map(p => (
             <button key={p} onClick={() => setPlanFilter(p)}
               style={{
                 padding: "7px 14px", borderRadius: 9, fontSize: 11, cursor: "pointer", fontFamily: "'DM Sans',sans-serif",
@@ -267,13 +267,13 @@ const CRMModule: React.FC<{ users: AdminUser[]; onUpgrade: (id: string, plan: st
             {/* Azioni */}
             <div style={{ fontSize: 10, letterSpacing: ".14em", textTransform: "uppercase", color: DL.muted, marginBottom: 10 }}>Azioni admin</div>
             <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-              {(["free", "premium", "vip"] as const).filter(p => p !== selected.plan).map(plan => (
+              {(["free", "starter", "premium", "vip"] as const).filter(p => p !== selected.plan).map(plan => (
                 <button key={plan} onClick={() => { onUpgrade(selected.id, plan); setSelected({ ...selected, plan }); }}
                   style={{
                     padding: "9px", borderRadius: 9, fontSize: 12, cursor: "pointer", fontFamily: "'DM Sans',sans-serif",
-                    background: plan === "vip" ? "rgba(155,116,224,0.1)" : plan === "premium" ? DL.goldDim : "rgba(255,255,255,0.03)",
-                    border: `0.5px solid ${plan === "vip" ? "rgba(155,116,224,0.3)" : plan === "premium" ? DL.goldB : "rgba(255,255,255,0.07)"}`,
-                    color: plan === "vip" ? DL.alch : plan === "premium" ? DL.gold : DL.muted
+                    background: plan === "vip" ? "rgba(155,116,224,0.1)" : plan === "premium" ? DL.goldDim : plan === "starter" ? "rgba(74,158,212,0.1)" : "rgba(255,255,255,0.03)",
+                    border: `0.5px solid ${plan === "vip" ? "rgba(155,116,224,0.3)" : plan === "premium" ? DL.goldB : plan === "starter" ? "rgba(74,158,212,0.3)" : "rgba(255,255,255,0.07)"}`,
+                    color: plan === "vip" ? DL.alch : plan === "premium" ? DL.gold : plan === "starter" ? DL.stra : DL.muted
                   }}>
                   Passa a {plan.toUpperCase()}
                 </button>

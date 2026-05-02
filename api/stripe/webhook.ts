@@ -59,10 +59,27 @@ export default async function handler(req: any, res: any) {
 
     if (userId) {
       console.log(`✅ Pagamento completato per utente ${userId}. Upgrade a ${plan}.`);
-      
+
+      // Recupera il prezzo pagato per tracciare il prezzo Fondatore
+      const lineItems = await stripe.checkout.sessions.listLineItems(session.id, { limit: 1 });
+      const pricePaid = lineItems.data[0]?.price?.unit_amount
+        ? lineItems.data[0].price.unit_amount / 100
+        : null;
+
+      const updateData: Record<string, any> = {
+        plan,
+        updated_at: new Date().toISOString(),
+      };
+
+      // Salva il prezzo bloccato Fondatore solo al primo acquisto
+      if (pricePaid && plan !== 'free') {
+        updateData.founder_plan_price = pricePaid;
+        updateData.is_founder = true;
+      }
+
       const { error } = await supabase
         .from('profiles')
-        .update({ plan, updated_at: new Date().toISOString() })
+        .update(updateData)
         .eq('id', userId);
 
       if (error) {

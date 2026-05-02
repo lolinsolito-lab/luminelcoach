@@ -23,8 +23,9 @@ export interface UserProfile {
   username?: string;
   avatarUrl?: string;
   bio?: string;
-  plan: 'free' | 'premium' | 'vip';
+  plan: 'free' | 'starter' | 'premium' | 'vip';
   planExpiresAt?: string;
+  is_founder?: boolean;
 
   // Progressi
   ikigaiStage?: string;
@@ -77,7 +78,7 @@ interface AuthContextType {
   signup: (name: string, email: string, password: string) => Promise<void>;
   loginWithGoogle: () => Promise<void>;
   resetPassword: (email: string) => Promise<void>;
-  upgradePlan: (plan: 'premium' | 'vip') => Promise<void>;
+  upgradePlan: (plan: 'starter' | 'premium' | 'vip') => Promise<void>;
   signOut: () => Promise<void>;
   refreshProfile: () => Promise<void>;
 }
@@ -93,8 +94,9 @@ function mapProfile(supabaseUser: User, dbProfile: any): UserProfile {
     username: dbProfile?.username,
     avatarUrl: dbProfile?.avatar_url ?? supabaseUser.user_metadata?.avatar_url,
     bio: dbProfile?.bio,
-    plan: (dbProfile?.plan ?? 'free') as 'free' | 'premium' | 'vip',
+    plan: (dbProfile?.plan ?? 'free') as 'free' | 'starter' | 'premium' | 'vip',
     planExpiresAt: dbProfile?.plan_expires_at,
+    is_founder: dbProfile?.is_founder ?? false,
     ikigaiStage: dbProfile?.ikigai_stage ?? 'scoperta',
     level: dbProfile?.level ?? 1,
     xpTotal: dbProfile?.xp_total ?? 0,
@@ -308,7 +310,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // ── UPGRADE PIANO ──
   // In produzione: reindirizza a Stripe Checkout
   // Qui aggiorna direttamente per testing (Stripe webhook lo farà in prod)
-  const upgradePlan = async (plan: 'premium' | 'vip') => {
+  const upgradePlan = async (plan: 'starter' | 'premium' | 'vip') => {
     if (!supabaseUser) throw new Error('Not authenticated');
 
     // TODO produzione: redirect to Stripe Checkout
