@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Luminel — Coach Trasformational</title>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=DM+Sans:wght@300;400;500&family=Cinzel:wght@400;600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --gold:#C9A84C;--goldBr:#EDD980;--goldDim:rgba(201,168,76,0.12);
+  --goldB:rgba(201,168,76,0.25);--void:#06060F;--white:#F0EBE0;--muted:#6A6560;
+  --alch:#9B74E0;--stra:#4A9ED4;--guer:#D4603A;
+}
+html,body{width:100%;height:100%;overflow:hidden;background:#000;cursor:none}
+
+.cursor{position:fixed;width:8px;height:8px;background:var(--gold);border-radius:50%;pointer-events:none;z-index:99999;transform:translate(-50%,-50%);mix-blend-mode:difference}
+.cursor-ring{position:fixed;width:36px;height:36px;border:1px solid rgba(201,168,76,0.5);border-radius:50%;pointer-events:none;z-index:99998;transform:translate(-50%,-50%);transition:all .18s ease}
+
+/* ══ INTRO CINEMATICO — THE PORTALE AWAKENING ══ */
+#intro{
+  position:fixed;inset:0;z-index:1000;
+  display:flex;align-items:center;justify-content:center;
+  overflow:hidden;background:#000;
+}
+
+/* cosmos con iris reveal */
+#intro-cosmos{
+  position:absolute;inset:0;width:100%;height:100%;
+  clip-path:circle(0% at 50% 50%);
+  transition:clip-path 2.6s cubic-bezier(0.16,1,0.3,1);
+}
+#intro-cosmos.iris-open{
+  clip-path:circle(150% at 50% 50%);
+}
+
+/* golden iris edge shimmer */
+#iris-edge{
+  position:absolute;inset:0;pointer-events:none;opacity:0;
+  transition:opacity .4s;
+}
+
+/* punto nucleo iniziale */
+#intro-nucleus{
+  position:absolute;
+  width:6px;height:6px;border-radius:50%;
+  background:#EDD980;
+  left:50%;top:50%;transform:translate(-50%,-50%);
+  opacity:0;z-index:5;
+  box-shadow:0 0 12px 4px rgba(237,217,128,0.6),0 0 40px 12px rgba(201,168,76,0.3);
+  transition:opacity .6s ease, box-shadow 1s;
+}
+#intro-nucleus.pulse{
+  animation:nucleusPulse 1.4s ease-in-out infinite;
+}
+@keyframes nucleusPulse{
+  0%,100%{transform:translate(-50%,-50%) scale(1);box-shadow:0 0 12px 4px rgba(237,217,128,0.6),0 0 40px 12px rgba(201,168,76,0.3)}
+  50%{transform:translate(-50%,-50%) scale(1.6);box-shadow:0 0 20px 8px rgba(237,217,128,0.8),0 0 60px 20px rgba(201,168,76,0.4)}
+}
+
+/* logo SVG assembla */
+#intro-logo-wrap{
+  position:absolute;left:50%;top:50%;
+  transform:translate(-50%,-195px);
+  opacity:0;transition:opacity .8s;
+}
+#intro-logo-svg .lp-path{
+  stroke-dasharray:1000;
+  stroke-dashoffset:1000;
+}
+#intro-logo-svg .lp-dot{
+  opacity:0;transform-origin:center;
+  transition:opacity .4s, transform .4s;
+}
+
+/* testo cinematico */
+#intro-text{
+  position:absolute;left:50%;top:50%;
+  transform:translate(-50%, 62px);
+  text-align:center;width:100%;max-width:560px;padding:0 32px;
+}
+.it-line{
+  display:block;opacity:0;transform:translateY(16px);
+  transition:opacity .7s ease, transform .7s ease;
+  font-family:'Cormorant Garamond',serif;
+  font-size:clamp(22px,4vw,38px);
+  font-weight:300;color:rgba(240,235,224,0.88);
+  line-height:1.5;letter-spacing:.02em;
+}
+.it-line.gold{color:#EDD980;font-style:italic;font-size:clamp(26px,5vw,46px)}
+.it-line.it-slogan{font-family:'DM Sans',sans-serif;font-size:clamp(11px,1.4vw,14px);
+  letter-spacing:.28em;text-transform:uppercase;color:rgba(201,168,76,0.45);
+  margin-top:20px;font-weight:300}
+.it-line.show{opacity:1;transform:translateY(0)}
+
+/* wordmark sotto logo */
+#intro-wordmark{
+  position:absolute;left:50%;top:50%;
+  transform:translate(-50%, -18px);
+  text-align:center;opacity:0;
+  transition:opacity .8s;
+}
+#intro-wordmark .iw-name{
+  font-family:'Cinzel',serif;font-size:clamp(22px,3.5vw,36px);
+  letter-spacing:.2em;color:#C9A84C;display:block;margin-bottom:7px;
+  text-shadow:0 0 30px rgba(201,168,76,0.3);
+}
+#intro-wordmark .iw-sub{
+  font-family:'DM Sans',sans-serif;font-size:10px;
+  letter-spacing:.32em;color:rgba(201,168,76,0.45);
+  text-transform:uppercase;display:block;
+}
+
+/* CTA invito */
+#intro-cta{
+  position:absolute;bottom:52px;left:50%;transform:translateX(-50%);
+  display:flex;flex-direction:column;align-items:center;gap:16px;
+  opacity:0;transition:opacity .8s;white-space:nowrap;
+}
+#intro-cta .cta-btn{
+  padding:15px 52px;border-radius:100px;
+  background:none;border:0.5px solid rgba(201,168,76,0.55);
+  color:#C9A84C;font-family:'Cinzel',serif;
+  font-size:11px;letter-spacing:.26em;cursor:pointer;
+  transition:all .3s;
+  animation:ctaPulse 2.5s ease-in-out infinite;
+}
+#intro-cta .cta-btn:hover{
+  background:rgba(201,168,76,0.08);
+  border-color:rgba(201,168,76,0.9);
+  box-shadow:0 0 30px rgba(201,168,76,0.15);
+  animation:none;
+}
+@keyframes ctaPulse{
+  0%,100%{box-shadow:0 0 0 0 rgba(201,168,76,0)}
+  50%{box-shadow:0 0 20px 4px rgba(201,168,76,0.12)}
+}
+#intro-cta .cta-skip{
+  background:none;border:none;cursor:pointer;
+  font-family:'DM Sans',sans-serif;font-size:11px;
+  color:rgba(201,168,76,0.3);letter-spacing:.1em;
+  transition:color .2s;
+}
+#intro-cta .cta-skip:hover{color:rgba(201,168,76,0.6)}
+
+/* iris shimmer canvas */
+#iris-canvas{
+  position:absolute;inset:0;pointer-events:none;z-index:2;
+}
+
+/* mobile */
+@media(max-width:600px){
+  #intro-logo-wrap{transform:translate(-50%,-130px)}
+  #intro-wordmark{transform:translate(-50%,0px)}
+  #intro-text{transform:translate(-50%,72px)}
+  #intro-cta{bottom:40px}
+}
+@media(max-width:480px){
+  #intro-logo-wrap{transform:translate(-50%,-80px)}
+  #intro-wordmark{transform:translate(-50%,25px)}
+  #intro-text{transform:translate(-50%,88px)}
+}
+
+
+</style>
+</head>
+<body>
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+<div id="intro">
+  <!-- cosmos con iris reveal -->
+  <canvas id="intro-cosmos"></canvas>
+  <!-- iris shimmer overlay -->
+  <canvas id="iris-canvas"></canvas>
+  <!-- nucleo iniziale -->
+  <div id="intro-nucleus"></div>
+
+  <!-- logo che si assembla -->
+  <div id="intro-logo-wrap">
+    <svg id="intro-logo-svg" xmlns="http://www.w3.org/2000/svg"
+      viewBox="-85 -85 170 170" width="170" height="170">
+      <defs>
+        <radialGradient id="ig" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.9"/>
+          <stop offset="60%" stop-color="#EDD980"/>
+          <stop offset="100%" stop-color="#C9A84C"/>
+        </radialGradient>
+      </defs>
+      <!-- glow ambientale -->
+      <circle cx="0" cy="0" r="80" fill="rgba(201,168,76,0.05)" class="lp-glow"/>
+
+      <!-- anello esterno -->
+      <path id="lp-ring" class="lp-path"
+        d="M 0 -68 A 68 68 0 1 1 -0.001 -68"
+        fill="none" stroke="#C9A84C" stroke-width="1.4"
+        stroke-linecap="round" stroke-dasharray="1000" stroke-dashoffset="1000"/>
+      <!-- rombo esterno -->
+      <polygon id="lp-diamond" class="lp-path" style="fill:none;stroke:#C9A84C;stroke-width:1.1;opacity:.8;stroke-dasharray:1000;stroke-dashoffset:1000"
+        points="0,-60 52,0 0,60 -52,0"/>
+      <!-- rombo interno -->
+      <polygon id="lp-diamond2" class="lp-path" style="fill:none;stroke:rgba(201,168,76,0.22);stroke-width:.7;stroke-dasharray:1000;stroke-dashoffset:1000"
+        points="0,-36 36,0 0,36 -36,0"/>
+      <!-- assi -->
+      <line id="lp-ax1" class="lp-path" x1="0" y1="0" x2="0" y2="-60" stroke="rgba(237,217,128,0.32)" stroke-width=".9" style="stroke-dasharray:1000;stroke-dashoffset:1000"/>
+      <line id="lp-ax2" class="lp-path" x1="0" y1="0" x2="52" y2="0" stroke="rgba(237,217,128,0.32)" stroke-width=".9" style="stroke-dasharray:1000;stroke-dashoffset:1000"/>
+      <line id="lp-ax3" class="lp-path" x1="0" y1="0" x2="0" y2="60" stroke="rgba(237,217,128,0.32)" stroke-width=".9" style="stroke-dasharray:1000;stroke-dashoffset:1000"/>
+      <line id="lp-ax4" class="lp-path" x1="0" y1="0" x2="-52" y2="0" stroke="rgba(237,217,128,0.32)" stroke-width=".9" style="stroke-dasharray:1000;stroke-dashoffset:1000"/>
+      <!-- linea verso gap -->
+      <line class="lp-path" x1="0" y1="-60" x2="0" y2="-68" stroke="#EDD980" stroke-width="1.4" opacity=".6" style="stroke-dasharray:1000;stroke-dashoffset:1000"/>
+
+      <!-- LUCE ENERGETICA — canvas overlay animato -->
+      <circle id="energy-ball" cx="0" cy="0" r="4" fill="url(#ig)" opacity="0">
+        <filter id="ef"><feGaussianBlur stdDeviation="2"/></filter>
+      </circle>
+      <circle id="energy-glow" cx="0" cy="0" r="10" fill="rgba(237,217,128,0)" opacity="0"/>
+
+      <!-- 4 punti archetipi -->
+      <circle id="dot-alch" class="lp-dot" cx="0" cy="-60" r="4" fill="#9B74E0"/>
+      <circle id="dot-stra" class="lp-dot" cx="52" cy="0" r="4" fill="#4A9ED4"/>
+      <circle id="dot-guer" class="lp-dot" cx="0" cy="60" r="4" fill="#D4603A"/>
+      <circle id="dot-sovr" class="lp-dot" cx="-52" cy="0" r="4" fill="#C9A84C"/>
+      <!-- anelli archetipi pulsanti -->
+      <circle class="lp-dot" cx="0" cy="-60" r="8" fill="none" stroke="rgba(155,116,224,0.3)" stroke-width=".6"/>
+      <circle class="lp-dot" cx="52" cy="0" r="8" fill="none" stroke="rgba(74,158,212,0.3)" stroke-width=".6"/>
+      <circle class="lp-dot" cx="0" cy="60" r="8" fill="none" stroke="rgba(212,96,58,0.3)" stroke-width=".6"/>
+      <circle class="lp-dot" cx="-52" cy="0" r="8" fill="none" stroke="rgba(201,168,76,0.3)" stroke-width=".6"/>
+      <!-- nucleo centrale -->
+      <circle class="lp-dot" cx="0" cy="0" r="9" fill="rgba(237,217,128,0.1)"/>
+      <circle class="lp-dot" cx="0" cy="0" r="4" fill="rgba(237,217,128,0.15)"/>
+      <circle id="dot-core" class="lp-dot" cx="0" cy="0" r="2.5" fill="url(#ig)"/>
+    </svg>
+  </div>
+
+  <!-- wordmark -->
+  <div id="intro-wordmark">
+    <span class="iw-name">LUMINEL</span>
+    <span class="iw-sub">Coach Trasformational</span>
+  </div>
+
+  <!-- testo cinematico -->
+  <div id="intro-text">
+    <span class="it-line" id="itl-1">La trasformazione non &egrave; un evento.</span>
+    <span class="it-line gold" id="itl-2">&Egrave; l&apos;architettura</span>
+    <span class="it-line" id="itl-3">di chi sei davvero.</span>
+  </div>
+
+  <!-- CTA -->
+  <div id="intro-cta">
+    <button class="cta-btn" onclick="revealLanding('/')">INIZIA IL TUO VIAGGIO</button>
+    <button class="cta-skip" onclick="revealLanding('/')">salta</button>
+  </div>
+</div>
+<canvas id="particle-canvas"></canvas>
+<script>
+
+// ══ THE PORTALE AWAKENING ══════════════════════════════════════════════════
+
+let bgAudio = null, audioOn = false, fadeInt = null;
+const AUDIO_URL = 'https://cdn1.suno.ai/BvHG1OB8M7CDViZu.mp3';
+
+function initAudio(){
+  if(bgAudio)return;
+  bgAudio = new Audio(AUDIO_URL);
+  bgAudio.loop = true;
+  bgAudio.volume = 0;
+  bgAudio.play().catch(e => console.error("Audio err:", e));
+  audioOn = true;
+  fadeAudio(0.5);
+}
+
+function fadeAudio(targetVol) {
+  if (fadeInt) clearInterval(fadeInt);
+  fadeInt = setInterval(() => {
+    if (!bgAudio) return clearInterval(fadeInt);
+    if (Math.abs(bgAudio.volume - targetVol) < 0.05) {
+      bgAudio.volume = targetVol;
+      clearInterval(fadeInt);
+      if (targetVol === 0) bgAudio.pause();
+    } else {
+      bgAudio.volume += (targetVol > bgAudio.volume ? 0.05 : -0.05);
+    }
+  }, 100);
+}
+
+// Intro cosmos canvas
+var iCC=document.getElementById('intro-cosmos');
+var iCX=iCC?iCC.getContext('2d'):null;
+var iW=0,iH=0,iSt=[],iPt=[];
+function resIC(){if(!iCC)return;iW=iCC.width=innerWidth;iH=iCC.height=innerHeight;}
+resIC();window.addEventListener('resize',resIC);
+for(var i=0;i<200;i++)iSt.push({x:Math.random(),y:Math.random(),r:Math.random()*1.4+.2,s:Math.random()*.5+.15,o:Math.random()*.8+.15});
+for(var i=0;i<22;i++)iPt.push({x:Math.random(),y:Math.random(),vx:(Math.random()-.5)*.0003,vy:Math.random()*.0005+.0002,r:Math.random()*3.5+2,o:Math.random()*.55+.2,rot:Math.random()*360,rs:(Math.random()-.5)*.9});
+var iT=0,iRunning=true;
+(function animIC(){
+  if(!iRunning||!iCX)return;
+  iT+=.003;iCX.clearRect(0,0,iW,iH);
+  iSt.forEach(function(s){
+    var x=(s.x+iT*s.s*.015)%1*iW,y=s.y*iH;
+    iCX.beginPath();iCX.arc(x,y,s.r,0,Math.PI*2);
+    iCX.fillStyle='rgba(240,235,224,'+(s.o*(.6+.4*Math.sin(iT*s.s*2.5+s.o*8))*.45)+')';
+    iCX.fill();
+  });
+  iPt.forEach(function(p){
+    p.x=(p.x+p.vx)%1;p.y=(p.y+p.vy)%1;p.rot+=p.rs;
+    iCX.save();iCX.translate(p.x*iW,p.y*iH);iCX.rotate(p.rot*Math.PI/180);
+    iCX.beginPath();iCX.ellipse(0,0,p.r,p.r*1.9,0,0,Math.PI*2);
+    iCX.fillStyle='rgba(201,168,76,'+(p.o*.32)+')';iCX.fill();iCX.restore();
+  });
+  requestAnimationFrame(animIC);
+})();
+
+// Iris shimmer
+var irC=document.getElementById('iris-canvas');
+var irX=irC?irC.getContext('2d'):null;
+var irR=0,irActive=false,irDone=false;
+function resIR(){if(irC){irC.width=innerWidth;irC.height=innerHeight;}}
+resIR();window.addEventListener('resize',resIR);
+function animIris(){
+  if(!irActive||!irX||irDone)return;
+  var W=irC.width,H=irC.height,cx=W/2,cy=H/2;
+  irX.clearRect(0,0,W,H);
+  var edgeW=Math.max(18,irR*.08);
+  var grd=irX.createRadialGradient(cx,cy,Math.max(0,irR-edgeW),cx,cy,irR+2);
+  grd.addColorStop(0,'rgba(201,168,76,0)');
+  grd.addColorStop(.5,'rgba(237,217,128,0.18)');
+  grd.addColorStop(1,'rgba(201,168,76,0)');
+  irX.beginPath();irX.arc(cx,cy,irR,0,Math.PI*2);
+  irX.strokeStyle=grd;irX.lineWidth=edgeW*2;irX.stroke();
+  var maxR=Math.sqrt(W*W+H*H)/2;
+  if(irR<maxR+100){irR+=14;requestAnimationFrame(animIris);}
+  else{irDone=true;irX.clearRect(0,0,W,H);}
+}
+
+function initLogoPaths(){
+  var paths=document.querySelectorAll('#intro-logo-svg .lp-path');
+  paths.forEach(function(p){
+    var len=400;
+    try{len=p.getTotalLength();}catch(e){}
+    p.style.strokeDasharray=len;
+    p.style.strokeDashoffset=len;
+  });
+}
+function animatePath(el,duration,delay){
+  if(!el)return;
+  setTimeout(function(){
+    var len=400;try{len=el.getTotalLength();}catch(e){}
+    el.style.transition='stroke-dashoffset '+duration+'ms cubic-bezier(0.4,0,0.2,1)';
+    el.style.strokeDashoffset='0';
+  },delay);
+}
+function showAllDots(baseDelay){
+  var dots=document.querySelectorAll('#intro-logo-svg .lp-dot');
+  dots.forEach(function(d,i){
+    setTimeout(function(){
+      d.style.transition='opacity .4s cubic-bezier(0.34,1.4,0.64,1), transform .4s cubic-bezier(0.34,1.4,0.64,1)';
+      d.style.opacity='1';d.style.transform='scale(1)';
+    },baseDelay+i*70);
+  });
+}
+
+function runAwakening(){
+  initLogoPaths();
+  // init dot hidden state
+  document.querySelectorAll('#intro-logo-svg .lp-dot').forEach(function(d){
+    d.style.opacity='0';d.style.transform='scale(0)';
+  });
+
+  var nucleus=document.getElementById('intro-nucleus');
+  var logoWrap=document.getElementById('intro-logo-wrap');
+  var wordmark=document.getElementById('intro-wordmark');
+  var cta=document.getElementById('intro-cta');
+  var cosmos=document.getElementById('intro-cosmos');
+
+  // F1: nucleo appare
+  setTimeout(function(){
+    if(nucleus){nucleus.style.opacity='1';nucleus.classList.add('pulse');}
+  },700);
+
+  // F2: iris apertura
+  setTimeout(function(){
+    initAudio();
+    if(cosmos)cosmos.classList.add('iris-open');
+    irActive=true;irR=0;irDone=false;animIris();
+    setTimeout(function(){if(nucleus)nucleus.style.opacity='0';},300);
+  },2100);
+
+  // F3: logo assembla
+  setTimeout(function(){
+    if(logoWrap)logoWrap.style.opacity='1';
+    animatePath(document.getElementById('lp-ring'),900,0);
+    animatePath(document.getElementById('lp-diamond'),680,480);
+    animatePath(document.getElementById('lp-diamond2'),480,760);
+    animatePath(document.getElementById('lp-ax1'),280,980);
+    animatePath(document.getElementById('lp-ax2'),280,1060);
+    animatePath(document.getElementById('lp-ax3'),280,1100);
+    animatePath(document.getElementById('lp-ax4'),280,1140);
+    var allP=document.querySelectorAll('#intro-logo-svg .lp-path');
+    if(allP.length)animatePath(allP[allP.length-1],180,1260);
+    showAllDots(1360);
+
+function startEnergyBall(){
+  var svgEl=document.getElementById('intro-logo-svg');
+  var ball=document.getElementById('energy-ball');
+  var glow=document.getElementById('energy-glow');
+  if(!ball||!glow||!svgEl)return;
+  var NS='http://www.w3.org/2000/svg';
+
+  // Trail cometa 20 cerchi
+  var TRAIL=20,trailEls=[],trailPos=[];
+  for(var i=0;i<TRAIL;i++){
+    var tc=document.createElementNS(NS,'circle');
+    tc.setAttribute('cx','0');tc.setAttribute('cy','0');
+    tc.setAttribute('r','0');tc.setAttribute('opacity','0');
+    tc.setAttribute('fill','#EDD980');
+    svgEl.insertBefore(tc,ball);
+    trailEls.push(tc);
+  }
+
+  // Arc glow sul cerchio
+  var arcGlow=document.createElementNS(NS,'circle');
+  arcGlow.setAttribute('cx','0');arcGlow.setAttribute('cy','0');
+  arcGlow.setAttribute('r','68');arcGlow.setAttribute('fill','none');
+  arcGlow.setAttribute('stroke','rgba(237,217,128,0)');
+  arcGlow.setAttribute('stroke-width','8');
+  svgEl.insertBefore(arcGlow,ball);
+
+  var ARCH=[
+    {tx:0,  ty:-60,dur:2200,c:'rgba(155,116,224,0.95)'},
+    {tx:52, ty:0,  dur:2200,c:'rgba(74,158,212,0.95)'},
+    {tx:0,  ty:60, dur:2200,c:'rgba(212,96,58,0.95)'},
+    {tx:-52,ty:0,  dur:2200,c:'rgba(201,168,76,0.95)'},
+  ];
+
+  function lerp(a,b,t){return a+(b-a)*t;}
+  function easeIO(t){return t<0.5?4*t*t*t:(t-1)*(2*t-2)*(2*t-2)+1;}
+
+  function updateBall(x,y,color){
+    ball.setAttribute('cx',x);ball.setAttribute('cy',y);
+    ball.setAttribute('r','3.8');ball.setAttribute('opacity','1');
+    glow.setAttribute('cx',x);glow.setAttribute('cy',y);
+    glow.setAttribute('r','14');glow.setAttribute('opacity','0.5');
+    glow.setAttribute('fill',color);
+    var dist=Math.abs(Math.sqrt(x*x+y*y)-68);
+    var alpha=Math.max(0,1-dist/16)*0.55;
+    arcGlow.setAttribute('stroke','rgba(237,217,128,'+alpha.toFixed(3)+')');
+    // trail
+    trailPos.unshift({x:x,y:y,c:color});
+    if(trailPos.length>TRAIL)trailPos.pop();
+    trailEls.forEach(function(el,i){
+      if(i<trailPos.length){
+        var tp=trailPos[i];
+        var fade=Math.pow(1-i/TRAIL,1.6);
+        el.setAttribute('cx',tp.x);el.setAttribute('cy',tp.y);
+        el.setAttribute('r',(3.8*Math.pow(1-i/TRAIL,0.55)).toString());
+        el.setAttribute('opacity',(fade*0.55).toString());
+        el.setAttribute('fill',tp.c||'#EDD980');
+      } else {el.setAttribute('opacity','0');}
+    });
+  }
+
+  // Sequenza arch: centro→punto→centro per ogni archetipo
+  var archSeq=[];
+  ARCH.forEach(function(a){
+    archSeq.push({tx:a.tx,ty:a.ty,dur:a.dur,c:a.c});
+    archSeq.push({tx:0,ty:0,dur:1300,c:'rgba(237,217,128,0.95)'});
+  });
+
+  var cx=0,cy=0;
+  var archStep=0,archSX=0,archSY=0,stepT0=null;
+  var inOrbit=false,orbitT0=null;
+  var ORBIT_DUR=9000; // ms per giro completo — lento e fluido
+
+  function loop(now){
+    if(!inOrbit){
+      // FASE ARCH
+      if(archStep>=archSeq.length){
+        inOrbit=true;orbitT0=now;
+        cx=Math.cos(-Math.PI/2)*68;cy=Math.sin(-Math.PI/2)*68;
+        requestAnimationFrame(loop);return;
+      }
+      if(!stepT0)stepT0=now;
+      var step=archSeq[archStep];
+      var t=Math.min((now-stepT0)/step.dur,1);
+      var e=easeIO(t);
+      cx=lerp(archSX,step.tx,e);
+      cy=lerp(archSY,step.ty,e);
+      updateBall(cx,cy,step.c);
+      if(t>=1){
+        archSX=step.tx;archSY=step.ty;
+        archStep++;stepT0=null;
+      }
+    } else {
+      // FASE ORBITA — angolo continuo, nessun waypoint
+      var elapsed=now-orbitT0;
+      var angle=-Math.PI/2+(elapsed/ORBIT_DUR)*Math.PI*2;
+      cx=Math.cos(angle)*68;
+      cy=Math.sin(angle)*68;
+      updateBall(cx,cy,'rgba(237,217,128,0.88)');
+      if(elapsed>=ORBIT_DUR){
+        // ricomincia
+        inOrbit=false;
+        archStep=0;archSX=0;archSY=0;stepT0=null;cx=0;cy=0;
+      }
+    }
+    requestAnimationFrame(loop);
+  }
+
+  ball.setAttribute('opacity','1');
+  glow.setAttribute('opacity','0.5');
+  requestAnimationFrame(loop);
+}
+
+    setTimeout(startEnergyBall, 2000);
+  },4200);
+
+  // F4: wordmark
+  setTimeout(function(){if(wordmark)wordmark.style.opacity='1';},6000);
+
+  // F5: testo
+  ['itl-1','itl-2','itl-3'].forEach(function(id,i){
+    setTimeout(function(){
+      var el=document.getElementById(id);
+      if(el)el.classList.add('show');
+    },6700+i*460);
+  });
+
+  // F6: cta
+  setTimeout(function(){if(cta)cta.style.opacity='1';},8500);
+}
+
+// Particles + reveal
+var pC=document.getElementById('particle-canvas');
+var pX=pC?pC.getContext('2d'):null;
+var parts=[],orbExploded=false;
+function resP(){if(pC){pC.width=innerWidth;pC.height=innerHeight;}}
+resP();window.addEventListener('resize',resP);
+function explodePortal(){
+  orbExploded=true;
+  if(pC)pC.style.opacity='1';
+  var cx=innerWidth/2,cy=innerHeight/2;
+  for(var i=0;i<260;i++){
+    var a=Math.random()*Math.PI*2,sp=1.5+Math.random()*10;
+    parts.push({x:cx,y:cy,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp,
+      size:1+Math.random()*3.5,life:1,decay:.009+Math.random()*.022,
+      color:'hsl('+(38+Math.random()*18)+','+(55+Math.random()*40)+'%,'+(45+Math.random()*35)+'%)'});
+  }
+  animParts();
+}
+function animParts(){
+  if(!pX)return;
+  pX.clearRect(0,0,pC.width,pC.height);
+  var alive=false;
+  parts.forEach(function(p){
+    p.x+=p.vx;p.y+=p.vy;p.vy+=.07;p.vx*=.985;p.life-=p.decay;
+    if(p.life<=0)return;alive=true;
+    pX.save();pX.globalAlpha=p.life;pX.fillStyle=p.color;
+    pX.beginPath();pX.arc(p.x,p.y,p.size*p.life,0,Math.PI*2);pX.fill();pX.restore();
+  });
+  if(alive)requestAnimationFrame(animParts);
+  else{if(pC)pC.style.opacity='0';parts=[];}
+}
+
+function revealLanding(targetRoute){
+  fadeAudio(0);
+  var intro=document.getElementById('intro');
+  iRunning=false;
+  explodePortal();
+  setTimeout(function(){
+    if(intro){intro.style.transition='opacity 1.1s';intro.style.opacity='0';}
+    setTimeout(function(){
+      if(window.parent){
+        window.parent.postMessage({ type: 'NAVIGATE', path: targetRoute }, '*');
+      }
+    },1100);
+  },180);
+}
+
+// CURSOR
+var cur=document.getElementById('cursor'),ring=document.getElementById('cursorRing');
+if(cur&&ring){
+  var mx=0,my=0,rx=0,ry=0;
+  document.addEventListener('mousemove',function(e){mx=e.clientX;my=e.clientY;cur.style.left=mx+'px';cur.style.top=my+'px';});
+  (function a(){rx+=(mx-rx)*.12;ry+=(my-ry)*.12;ring.style.left=rx+'px';ring.style.top=ry+'px';requestAnimationFrame(a);})();
+  document.querySelectorAll('a,button,input').forEach(function(el){
+    el.addEventListener('mouseenter',function(){ring.style.transform='translate(-50%,-50%) scale(1.6)';ring.style.borderColor='rgba(201,168,76,.8)';});
+    el.addEventListener('mouseleave',function(){ring.style.transform='translate(-50%,-50%) scale(1)';ring.style.borderColor='rgba(201,168,76,.5)';});
+  });
+}
+
+setTimeout(runAwakening,300);
+
+</script>
+</body>
+</html>

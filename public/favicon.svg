@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-22 -22 44 44" width="32" height="32">
+  <rect x="-22" y="-22" width="44" height="44" rx="9" fill="#06060F"/>
+  <path d="M 0 -17 A 17 17 0 1 1 -0.001 -17" fill="none" stroke="#C9A84C" stroke-width="0.9" stroke-linecap="round" stroke-dasharray="104 4.5" stroke-dashoffset="-2.2"/>
+  <polygon points="0,-15 13,0 0,15 -13,0" fill="none" stroke="#C9A84C" stroke-width="0.8" opacity="0.85"/>
+  <line x1="0" y1="0" x2="0"   y2="-15" stroke="rgba(237,217,128,0.4)" stroke-width="0.5"/>
+  <line x1="0" y1="0" x2="13"  y2="0"   stroke="rgba(237,217,128,0.4)" stroke-width="0.5"/>
+  <line x1="0" y1="0" x2="0"   y2="15"  stroke="rgba(237,217,128,0.4)" stroke-width="0.5"/>
+  <line x1="0" y1="0" x2="-13" y2="0"   stroke="rgba(237,217,128,0.4)" stroke-width="0.5"/>
+  <circle cx="0"   cy="-15" r="1.8" fill="#9B74E0"/>
+  <circle cx="13"  cy="0"   r="1.8" fill="#4A9ED4"/>
+  <circle cx="0"   cy="15"  r="1.8" fill="#D4603A"/>
+  <circle cx="-13" cy="0"   r="1.8" fill="#C9A84C"/>
+  <circle cx="0" cy="0" r="2.5" fill="#EDD980"/>
+</svg>

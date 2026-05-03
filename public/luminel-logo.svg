@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-85 -85 170 170" width="200" height="200">
+  <defs>
+    <radialGradient id="lg" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.9"/>
+      <stop offset="60%" stop-color="#EDD980"/>
+      <stop offset="100%" stop-color="#C9A84C"/>
+    </radialGradient>
+    <radialGradient id="glow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#EDD980" stop-opacity="0.2"/>
+      <stop offset="100%" stop-color="#C9A84C" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <circle cx="0" cy="0" r="80" fill="url(#glow)"/>
+  <path d="M 0 -68 A 68 68 0 1 1 -0.001 -68" fill="none" stroke="#C9A84C" stroke-width="1.4" stroke-linecap="round" stroke-dasharray="415 18" stroke-dashoffset="-9"/>
+  <circle cx="0" cy="0" r="52" fill="none" stroke="rgba(201,168,76,0.18)" stroke-width="0.8"/>
+  <polygon points="0,-60 52,0 0,60 -52,0" fill="none" stroke="#C9A84C" stroke-width="1.1" opacity="0.8"/>
+  <polygon points="0,-36 36,0 0,36 -36,0" fill="none" stroke="rgba(201,168,76,0.22)" stroke-width="0.6"/>
+  <line x1="0" y1="0" x2="0" y2="-60" stroke="rgba(237,217,128,0.32)" stroke-width="0.8"/>
+  <line x1="0" y1="0" x2="52" y2="0" stroke="rgba(237,217,128,0.32)" stroke-width="0.8"/>
+  <line x1="0" y1="0" x2="0" y2="60" stroke="rgba(237,217,128,0.32)" stroke-width="0.8"/>
+  <line x1="0" y1="0" x2="-52" y2="0" stroke="rgba(237,217,128,0.32)" stroke-width="0.8"/>
+  <line x1="0" y1="-60" x2="0" y2="-68" stroke="#EDD980" stroke-width="1.4" opacity="0.6"/>
+  <circle cx="0"   cy="-60" r="4" fill="#9B74E0"/>
+  <circle cx="0"   cy="-60" r="8" fill="none" stroke="rgba(155,116,224,0.35)" stroke-width="0.6"/>
+  <circle cx="52"  cy="0"   r="4" fill="#4A9ED4"/>
+  <circle cx="52"  cy="0"   r="8" fill="none" stroke="rgba(74,158,212,0.35)" stroke-width="0.6"/>
+  <circle cx="0"   cy="60"  r="4" fill="#D4603A"/>
+  <circle cx="0"   cy="60"  r="8" fill="none" stroke="rgba(212,96,58,0.35)" stroke-width="0.6"/>
+  <circle cx="-52" cy="0"   r="4" fill="#C9A84C"/>
+  <circle cx="-52" cy="0"   r="8" fill="none" stroke="rgba(201,168,76,0.35)" stroke-width="0.6"/>
+  <circle cx="0" cy="0" r="9"   fill="rgba(237,217,128,0.1)"/>
+  <circle cx="0" cy="0" r="4"   fill="rgba(237,217,128,0.15)"/>
+  <circle cx="0" cy="0" r="2.5" fill="url(#lg)"/>
+</svg>

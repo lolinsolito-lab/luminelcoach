@@ -4,9 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Luminel — Coach Trasformational</title>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&family=Cinzel:wght@400;600&display=swap" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 :root{
@@ -21,28 +20,11 @@ body{background:var(--void);color:var(--white);font-family:'DM Sans',sans-serif;
 .cursor{position:fixed;width:8px;height:8px;background:var(--gold);border-radius:50%;pointer-events:none;z-index:99999;transform:translate(-50%,-50%);mix-blend-mode:difference}
 .cursor-ring{position:fixed;width:36px;height:36px;border:1px solid rgba(201,168,76,0.5);border-radius:50%;pointer-events:none;z-index:99998;transform:translate(-50%,-50%);transition:all .18s ease}
 
-/* ── INTRO ── */
-#intro{position:fixed;inset:0;z-index:1000;background:var(--void);display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden}
-.intro-glow{position:absolute;width:500px;height:500px;border-radius:50%;background:radial-gradient(circle,rgba(201,168,76,0.15),transparent 70%);pointer-events:none;animation:glowPulse 3s ease-in-out infinite}
-@keyframes glowPulse{0%,100%{transform:scale(1);opacity:.6}50%{transform:scale(1.2);opacity:1}}
-#intro-cosmos{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
-#orb-canvas{position:absolute;pointer-events:none}
-#typewriter{position:relative;z-index:10;text-align:center;pointer-events:none}
-#tw-line{font-family:'Cormorant Garamond',serif;font-size:clamp(22px,4vw,52px);font-weight:300;color:var(--white);letter-spacing:.02em;min-height:70px;display:flex;align-items:center;justify-content:center;text-shadow:0 2px 40px rgba(6,6,15,0.95),0 0 80px rgba(6,6,15,0.8)}
-#tw-cursor{display:inline-block;width:2px;height:1.1em;background:var(--gold);margin-left:4px;animation:blink .7s infinite;vertical-align:middle}
-@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
-#tw-sub{font-size:11px;letter-spacing:.28em;text-transform:uppercase;color:rgba(240,235,224,0.35);margin-top:16px;opacity:0;transition:opacity 1s;text-shadow:0 0 20px rgba(6,6,15,0.8)}
-#skip-btn{position:absolute;bottom:40px;right:40px;background:none;border:0.5px solid rgba(201,168,76,0.3);color:rgba(201,168,76,0.5);padding:8px 20px;border-radius:100px;font-size:11px;letter-spacing:.16em;text-transform:uppercase;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .3s;z-index:20}
-#skip-btn:hover{border-color:var(--goldB);color:var(--gold)}
-#audio-toggle{position:absolute;bottom:40px;left:40px;background:none;border:0.5px solid rgba(201,168,76,0.3);color:rgba(201,168,76,0.5);padding:8px 16px;border-radius:100px;font-size:11px;letter-spacing:.12em;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .3s;z-index:20;display:flex;align-items:center;gap:6px}
-#audio-toggle:hover{border-color:var(--goldB);color:var(--gold)}
-#particle-canvas{position:fixed;inset:0;z-index:1001;pointer-events:none;opacity:0}
-
 /* ── MAIN ── */
-#main-landing{opacity:0;position:relative;z-index:1}
+#main-landing{opacity:1;position:relative;z-index:1}
 #cosmos-bg{position:fixed;inset:0;z-index:0;pointer-events:none}
 
-nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:24px 48px;display:flex;align-items:center;justify-content:space-between;transition:all .4s;opacity:0}
+nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:24px 48px;display:flex;align-items:center;justify-content:space-between;transition:all .4s;opacity:1}
 nav.scrolled{background:rgba(6,6,15,0.92);border-bottom:0.5px solid var(--glassB);backdrop-filter:blur(20px)}
 .nav-logo{font-family:'Cinzel',serif;font-size:18px;letter-spacing:.12em;color:var(--gold);text-decoration:none}
 .nav-links{display:flex;align-items:center;gap:32px}
@@ -50,6 +32,10 @@ nav.scrolled{background:rgba(6,6,15,0.92);border-bottom:0.5px solid var(--glassB
 .nav-links a:hover{color:var(--white)}
 .nav-cta{background:var(--goldDim);border:0.5px solid var(--goldB);color:var(--gold);padding:10px 24px;border-radius:10px;font-size:13px;text-decoration:none;transition:all .2s}
 .nav-cta:hover{background:rgba(201,168,76,0.2)}
+
+/* Audio Toggle */
+#audio-toggle{position:fixed;bottom:40px;left:40px;background:none;border:0.5px solid rgba(201,168,76,0.3);color:rgba(201,168,76,0.5);padding:8px 16px;border-radius:100px;font-size:11px;letter-spacing:.12em;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .3s;z-index:100;display:flex;align-items:center;gap:6px}
+#audio-toggle:hover{border-color:var(--goldB);color:var(--gold)}
 
 /* ── ACT 1: RICONOSCIMENTO ── */
 .act1{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:140px 24px 100px;position:relative;z-index:1}
@@ -60,9 +46,9 @@ nav.scrolled{background:rgba(6,6,15,0.92);border-bottom:0.5px solid var(--glassB
 .act1-hook{font-family:'Cormorant Garamond',serif;font-size:clamp(18px,2.5vw,28px);font-weight:300;font-style:italic;color:rgba(240,235,224,0.6);max-width:620px;line-height:1.65}
 .act1-sub{font-size:14px;color:var(--muted);max-width:440px;margin:24px auto 52px;line-height:1.8}
 .hero-actions{display:flex;flex-wrap:wrap;gap:12px;justify-content:center}
-.btn-primary{background:var(--gold);color:#06060F;padding:17px 44px;border-radius:12px;font-size:14px;font-weight:500;text-decoration:none;letter-spacing:.04em;transition:all .3s}
+.btn-primary{background:var(--gold);color:#06060F;padding:17px 44px;border-radius:12px;font-size:14px;font-weight:500;text-decoration:none;letter-spacing:.04em;transition:all .3s;cursor:pointer;border:none}
 .btn-primary:hover{transform:translateY(-3px);box-shadow:0 24px 60px rgba(201,168,76,0.3)}
-.btn-ghost{border:0.5px solid var(--goldB);color:var(--gold);padding:17px 44px;border-radius:12px;font-size:14px;text-decoration:none;letter-spacing:.04em;transition:all .3s;background:transparent}
+.btn-ghost{border:0.5px solid var(--goldB);color:var(--gold);padding:17px 44px;border-radius:12px;font-size:14px;text-decoration:none;letter-spacing:.04em;transition:all .3s;background:transparent;cursor:pointer}
 .btn-ghost:hover{background:var(--goldDim)}
 .scroll-hint{position:absolute;bottom:40px;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:8px;color:var(--muted);font-size:9px;letter-spacing:.22em;text-transform:uppercase}
 .scroll-line{width:1px;height:40px;background:linear-gradient(to bottom,var(--goldB),transparent);animation:scrollLine 2s ease-in-out infinite}
@@ -154,7 +140,7 @@ nav.scrolled{background:rgba(6,6,15,0.92);border-bottom:0.5px solid var(--glassB
 .plan-features{list-style:none;display:flex;flex-direction:column;gap:11px;flex:1;margin-bottom:32px}
 .plan-features li{font-size:13px;color:rgba(240,235,224,0.65);padding-left:18px;position:relative;line-height:1.5}
 .plan-features li::before{content:'';position:absolute;left:0;top:7px;width:5px;height:5px;border-radius:50%;background:var(--pfc,var(--muted))}
-.plan-btn{display:block;text-align:center;padding:15px;border-radius:10px;font-size:13px;font-weight:500;text-decoration:none;transition:all .25s;letter-spacing:.04em;margin-top:auto}
+.plan-btn{display:block;text-align:center;padding:15px;border-radius:10px;font-size:13px;font-weight:500;text-decoration:none;transition:all .25s;letter-spacing:.04em;margin-top:auto;cursor:pointer;border:none}
 
 .elite-band{padding:44px 40px;border:0.5px solid var(--goldB);background:var(--goldDim);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:20px}
 .elite-left{}
@@ -233,10 +219,7 @@ footer{padding:60px 48px;border-top:0.5px solid var(--glassB);display:flex;align
   .act1-hook{font-size:clamp(16px,4vw,22px)}
   .act1-divider{margin:28px auto}
   .hero-actions{flex-direction:column;align-items:center}
-  .hero-actions a{width:100%;max-width:320px;text-align:center;justify-content:center}
-
-  /* Manifesto */
-  .manifesto{padding:80px 20px}
+  .hero-actions a, .hero-actions button{width:100%;max-width:320px;text-align:center;justify-content:center}
 
   /* Act2 */
   .act2{padding:80px 20px}
@@ -245,8 +228,6 @@ footer{padding:60px 48px;border-top:0.5px solid var(--glassB);display:flex;align
   /* Act3 */
   .act3{padding:80px 20px}
   .act3-inner{grid-template-columns:1fr !important;gap:40px}
-
-  /* Act3 mirror cards */
   .act3-right{gap:14px}
 
   /* Luminel parla */
@@ -273,10 +254,6 @@ footer{padding:60px 48px;border-top:0.5px solid var(--glassB);display:flex;align
   .final > div[style*="display:flex"]{flex-direction:column;align-items:center}
   .btn-primary,.btn-ghost{width:100%;max-width:320px;text-align:center;justify-content:center}
 
-  /* Archetipi */
-  .archetipi{padding:80px 20px}
-  .archetipi-grid{grid-template-columns:1fr !important}
-
   /* Act5 */
   .act5{padding:80px 20px}
 
@@ -286,49 +263,30 @@ footer{padding:60px 48px;border-top:0.5px solid var(--glassB);display:flex;align
 
   /* Scroll hint */
   .scroll-hint{display:none}
-
-  /* Compare link */
-  #scelta > div[style*="text-align:center;margin:20px"]{display:block}
 }
 
 /* MOBILE — max 480px */
 @media(max-width:480px){
   nav{padding:14px 16px}
-  .nav-logo span:first-child{font-size:18px !important}
-  .nav-logo span:last-child{font-size:8px !important; letter-spacing:.25em !important}
+  .nav-logo span:first-child{font-size:14px}
 
   .act1{padding:90px 16px 70px}
-  .manifesto{padding:60px 16px}
   .act2{padding:60px 16px}
   .act3{padding:60px 16px}
   #luminel-parla{padding:60px 16px}
   .act5{padding:60px 16px}
   .proof{padding:60px 16px}
   .final{padding:80px 16px}
-  .archetipi{padding:60px 16px}
 
-  /* Skip btn & audio smaller */
-  #skip-btn{bottom:20px;right:16px;font-size:10px;padding:6px 14px}
   #audio-toggle{bottom:20px;left:16px;font-size:10px;padding:6px 12px}
 
-  /* Typewriter */
-  #tw-line{font-size:clamp(18px,6vw,32px)}
-  #typewriter{padding:24px 20px}
-
-  /* Act2 verdict */
   .act2-verdict{padding:24px 18px}
   .act2-verdict-text{font-size:clamp(18px,5vw,26px)}
 
-  /* Plan cards */
   .plan{padding:28px 20px}
   .plan-price{font-size:36px !important}
-
-  /* Lp cta box */
   .lp-cta-box{padding:40px 24px}
 }
-
-@media(max-width:1024px){.plans-4grid{grid-template-columns:repeat(2,1fr) !important}}
-@media(max-width:768px){.plans-4grid{grid-template-columns:1fr !important}}
 
 /* ══ LEGAL MODALS ══ */
 .legal-overlay{position:fixed;inset:0;z-index:9000;background:rgba(6,6,15,0.92);backdrop-filter:blur(16px);display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;pointer-events:none;transition:opacity .3s}
@@ -349,6 +307,10 @@ footer{padding:60px 48px;border-top:0.5px solid var(--glassB);display:flex;align
 .legal-body strong{color:#F0EBE0;font-weight:500}
 .legal-badge{display:inline-block;font-size:9px;letter-spacing:.16em;text-transform:uppercase;padding:3px 10px;border-radius:100px;background:rgba(201,168,76,0.1);color:#C9A84C;border:0.5px solid rgba(201,168,76,0.25);margin-bottom:16px}
 @media(max-width:480px){.legal-modal{border-radius:16px}.legal-header,.legal-body{padding:20px}}
+
+.lm-dot{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,0.12);transition:all .4s}
+.lm-dot.active{background:var(--gold);width:20px;border-radius:3px}
+.lm-dot.done{background:rgba(201,168,76,0.4)}
 </style>
 </head>
 <body>
@@ -356,33 +318,55 @@ footer{padding:60px 48px;border-top:0.5px solid var(--glassB);display:flex;align
 <div class="cursor" id="cursor"></div>
 <div class="cursor-ring" id="cursorRing"></div>
 
-<!-- INTRO -->
-<div id="intro">
-  <div class="intro-glow"></div>
-  <canvas id="intro-cosmos"></canvas>
-  <canvas id="orb-canvas"></canvas>
-  <div id="typewriter" style="padding:32px 48px;background:rgba(6,6,15,0.45);border-radius:4px;backdrop-filter:blur(8px)">
-    <div id="tw-line"><span id="tw-text"></span><span id="tw-cursor"></span></div>
-    <div id="tw-sub">Luminel Coach Trasformational</div>
-  </div>
-  <button id="audio-toggle"><span>♪</span><span id="audio-label">Audio on</span></button>
-  <button id="skip-btn">Salta intro</button>
-</div>
-<canvas id="particle-canvas"></canvas>
+<button id="audio-toggle"><span>♪</span><span id="audio-label">Audio off</span></button>
 
 <!-- MAIN -->
 <div id="main-landing">
   <canvas id="cosmos-bg"></canvas>
   <nav id="nav">
-    <a href="#" class="nav-logo" style="display:flex;flex-direction:column;line-height:1;gap:5px;text-decoration:none">
-    <span style="font-family:'Cinzel',serif;font-size:28px;letter-spacing:.2em;color:var(--goldBr);font-weight:600;text-shadow:0 0 15px rgba(201,168,76,0.8), 0 0 35px rgba(201,168,76,0.6)">LUMINEL</span>
-    <span style="font-family:'DM Sans',sans-serif;font-size:11px;letter-spacing:.36em;color:rgba(237,217,128,0.7);font-weight:400;text-transform:uppercase;text-shadow:0 0 10px rgba(201,168,76,0.4)">Coach Trasformational</span>
+    <a href="#" onclick="doNav('/');return false" class="nav-logo" style="display:flex;align-items:center;gap:16px;text-decoration:none;padding:8px 0">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="-85 -85 170 170" width="56" height="56" style="flex-shrink:0;overflow:visible;filter:drop-shadow(0 0 8px rgba(237,217,128,0.4))">
+      <defs>
+        <radialGradient id="nav-g1" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stop-color="#EDD980" stop-opacity="0.25"/>
+          <stop offset="100%" stop-color="#C9A84C" stop-opacity="0"/>
+        </radialGradient>
+        <radialGradient id="nav-g2" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stop-color="#FFF" stop-opacity="1"/>
+          <stop offset="60%" stop-color="#EDD980"/>
+          <stop offset="100%" stop-color="#C9A84C"/>
+        </radialGradient>
+      </defs>
+      <circle cx="0" cy="0" r="78" fill="url(#nav-g1)"/>
+      <path d="M 0 -68 A 68 68 0 1 1 -0.001 -68"
+        fill="none" stroke="#EDD980" stroke-width="2.2"
+        stroke-linecap="round"
+        stroke-dasharray="415 18" stroke-dashoffset="-9"/>
+      <circle cx="0" cy="0" r="52" fill="none" stroke="rgba(237,217,128,0.25)" stroke-width="1.2"/>
+      <polygon points="0,-60 52,0 0,60 -52,0" fill="none" stroke="#EDD980" stroke-width="1.6" opacity="0.9"/>
+      <polygon points="0,-36 36,0 0,36 -36,0" fill="none" stroke="rgba(237,217,128,0.35)" stroke-width="1"/>
+      <line x1="0" y1="0" x2="0"   y2="-60" stroke="rgba(255,255,255,0.4)" stroke-width="1"/>
+      <line x1="0" y1="0" x2="52"  y2="0"   stroke="rgba(255,255,255,0.4)" stroke-width="1"/>
+      <line x1="0" y1="0" x2="0"   y2="60"  stroke="rgba(255,255,255,0.4)" stroke-width="1"/>
+      <line x1="0" y1="0" x2="-52" y2="0"   stroke="rgba(255,255,255,0.4)" stroke-width="1"/>
+      <line x1="0" y1="-60" x2="0" y2="-68" stroke="#FFFFFF" stroke-width="1.8" opacity="0.8"/>
+      <circle cx="0"   cy="-60" r="4" fill="#9B74E0"/>
+      <circle cx="52"  cy="0"   r="4" fill="#4A9ED4"/>
+      <circle cx="0"   cy="60"  r="4" fill="#D4603A"/>
+      <circle cx="-52" cy="0"   r="4" fill="#EDD980"/>
+      <circle cx="0"   cy="0"   r="10"  fill="rgba(255,255,255,0.15)"/>
+      <circle cx="0"   cy="0"   r="3.5" fill="url(#nav-g2)"/>
+    </svg>
+    <div style="display:flex;flex-direction:column;gap:4px;line-height:1">
+      <span style="font-family:'Cinzel',serif;font-size:26px;letter-spacing:.18em;color:#EDD980;font-weight:600;text-shadow:0 0 12px rgba(237,217,128,0.6), 0 0 24px rgba(201,168,76,0.4)">LUMINEL</span>
+      <span style="font-family:'DM Sans',sans-serif;font-size:11px;letter-spacing:.28em;color:#EDD980;font-weight:400;text-transform:uppercase;text-shadow:0 0 8px rgba(237,217,128,0.4)">Coach Trasformational</span>
+    </div>
   </a>
     <div class="nav-links">
-      <a href="#specchio">Il Metodo</a>
+      <a href="#metodo">Il Metodo</a>
       <a href="#prova">Provalo</a>
       <a href="#scelta">Piani</a>
-      <a href="/login" class="nav-cta">Accedi</a>
+      <button onclick="doNav('/login')" class="nav-cta" style="cursor:pointer">Accedi</button>
     </div>
   </nav>
 
@@ -397,7 +381,7 @@ footer{padding:60px 48px;border-top:0.5px solid var(--glassB);display:flex;align
     <p class="act1-hook">"Non manca il tempo.<br>Non manca il talento.<br>Manca il coraggio di guardare<br>quello che gi&agrave; sai."</p>
     <p class="act1-sub">Luminel non motiva. Non insegna. Non consola.<br>Fa qualcosa di pi&ugrave; difficile — ti mostra chi sei davvero.</p>
     <div class="hero-actions">
-      <a href="/welcome" class="btn-primary">Inizia il tuo viaggio →</a>
+      <button onclick="doNav('/onboarding')" class="btn-primary">Inizia il tuo viaggio →</button>
       <a href="#specchio" class="btn-ghost">Scopri come funziona</a>
     </div>
     <div class="scroll-hint">
@@ -407,7 +391,7 @@ footer{padding:60px 48px;border-top:0.5px solid var(--glassB);display:flex;align
   </section>
 
   <!-- ── ACT 2: LA ROTTURA ── -->
-  <section class="act2">
+  <section class="act2" id="metodo">
     <div class="act2-inner">
       <span class="act2-label reveal">Il sistema non funziona</span>
       <h2 class="act2-title reveal d1">Il problema<br>non &egrave; che non sai<br><em>cosa fare.</em></h2>
@@ -529,8 +513,8 @@ Avviene quando non puoi pi&ugrave; ignorare chi sei."</blockquote>
         <h3 class="lp-cta-title">Sei pronto a smettere<br><em>di aspettare te stesso?</em></h3>
         <p class="lp-cta-sub">Luminel costruisce un profilo di te nel tempo. Ricorda i tuoi pattern, le tue resistenze, le tue Reality Quest. Non &egrave; una chat. &Egrave; un percorso.</p>
         <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
-          <a href="/welcome" class="btn-primary">Inizia gratis →</a>
-          <a href="/login" class="btn-ghost">Ho gi&agrave; un account</a>
+          <button onclick="doNav('/onboarding')" class="btn-primary">Inizia gratis →</button>
+          <button onclick="doNav('/login')" class="btn-ghost">Ho gi&agrave; un account</button>
         </div>
       </div>
     </div>
@@ -569,7 +553,7 @@ Avviene quando non puoi pi&ugrave; ignorare chi sei."</blockquote>
           <li>1 Reality Quest/settimana</li>
           <li>Community lettura</li>
         </ul>
-        <a href="/welcome" class="plan-btn" style="border:0.5px solid var(--glassB);color:var(--muted);font-size:12px">Inizia gratis</a>
+        <button onclick="doNav('/onboarding')" class="plan-btn" style="background:transparent;border:0.5px solid var(--glassB);color:var(--muted);font-size:12px">Inizia gratis</button>
       </div>
 
       <!-- STARTER -->
@@ -590,7 +574,7 @@ Avviene quando non puoi pi&ugrave; ignorare chi sei."</blockquote>
           <li>Reality Quest giornaliera</li>
           <li>Memoria AI base</li>
         </ul>
-        <a href="/welcome" class="plan-btn" style="background:var(--stra);color:#fff;font-size:12px">Diventa Starter →</a>
+        <button onclick="doNav('/onboarding')" class="plan-btn" style="background:var(--stra);color:#fff;font-size:12px">Diventa Starter →</button>
       </div>
 
       <!-- PREMIUM -->
@@ -613,7 +597,7 @@ Avviene quando non puoi pi&ugrave; ignorare chi sei."</blockquote>
           <li>Calm Space + Binaural completo</li>
           <li>Voice Coach 3 sess/mese</li>
         </ul>
-        <a href="/welcome" class="plan-btn" style="background:var(--gold);color:#06060F;font-size:12px">Diventa Premium →</a>
+        <button onclick="doNav('/onboarding')" class="plan-btn" style="background:var(--gold);color:#06060F;font-size:12px">Diventa Premium →</button>
       </div>
 
       <!-- VIP -->
@@ -635,17 +619,17 @@ Avviene quando non puoi pi&ugrave; ignorare chi sei."</blockquote>
           <li>1 sessione live/mese con Michael</li>
           <li>Report settimanale AI</li>
         </ul>
-        <a href="/welcome" class="plan-btn" style="background:var(--alch);color:#fff;font-size:12px">Diventa Sovereign →</a>
+        <button onclick="doNav('/onboarding')" class="plan-btn" style="background:var(--alch);color:#fff;font-size:12px">Diventa Sovereign →</button>
       </div>
     </div>
 
     <!-- Link confronto -->
     <div class="reveal" style="text-align:center;margin:20px 0 2px">
-      <a href="/plans" style="font-size:12px;color:var(--muted);text-decoration:none;display:inline-flex;align-items:center;gap:6px;padding:8px 20px;border:0.5px solid var(--glassB);border-radius:100px;transition:all .2s"
+      <button onclick="doNav('/plans')" style="background:transparent;cursor:pointer;font-size:12px;color:var(--muted);text-decoration:none;display:inline-flex;align-items:center;gap:6px;padding:8px 20px;border:0.5px solid var(--glassB);border-radius:100px;transition:all .2s"
         onmouseover="this.style.color='var(--gold)';this.style.borderColor='var(--goldB)'"
         onmouseout="this.style.color='var(--muted)';this.style.borderColor='var(--glassB)'">
         Vedi confronto completo di tutte le funzionalit&agrave; →
-      </a>
+      </button>
     </div>
 
     <!-- ELITE Coming Soon -->
@@ -714,16 +698,31 @@ Avviene quando non puoi pi&ugrave; ignorare chi sei."</blockquote>
     <h2 class="final-title reveal d1">La versione di te<br>che aspetti — <em>&egrave; gi&agrave; pronta.</em></h2>
     <p class="final-sub reveal d2">Gratis per iniziare. Nessuna carta. Nessun impegno. Solo tu — e le domande che hai smesso di farti.</p>
     <div class="reveal d3" style="display:flex;gap:14px;justify-content:center;flex-wrap:wrap">
-      <a href="/welcome" class="btn-primary" style="font-size:15px;padding:19px 56px">Inizia il tuo viaggio →</a>
-      <a href="/login" class="btn-ghost" style="font-size:15px;padding:19px 56px">Accedi</a>
+      <button onclick="doNav('/onboarding')" class="btn-primary" style="font-size:15px;padding:19px 56px">Inizia il tuo viaggio →</button>
+      <button onclick="doNav('/login')" class="btn-ghost" style="font-size:15px;padding:19px 56px">Accedi</button>
     </div>
     <p class="final-legal reveal">Sviluppo personale ai sensi della Legge 4/2013 · Non &egrave; un servizio medico</p>
   </section>
 
   <footer>
     <div style="display:flex;flex-direction:column;gap:3px">
-      <div class="footer-logo">LUMINEL</div>
-      <span style="font-size:9px;letter-spacing:.2em;color:var(--muted);text-transform:uppercase">Coach Trasformational</span>
+      <div style="display:flex;align-items:center;gap:10px">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40" width="32" height="32">
+        <defs>
+          <linearGradient id="lg" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" style="stop-color:#EDD980"/>
+            <stop offset="100%" style="stop-color:#C9A84C"/>
+          </linearGradient>
+        </defs>
+        <rect x="4" y="4" width="32" height="32" rx="9" fill="rgba(201,168,76,0.12)" stroke="url(#lg)" stroke-width="0.8"/>
+        <path d="M20 8 L32 20 L20 32 L8 20 Z" fill="none" stroke="url(#lg)" stroke-width="0.6" opacity="0.4"/>
+        <text x="20" y="26" text-anchor="middle" font-family="Cinzel,serif" font-size="14" font-weight="400" fill="url(#lg)">L</text>
+      </svg>
+      <div>
+        <div class="footer-logo">LUMINEL</div>
+        <div style="font-size:8px;letter-spacing:.22em;color:var(--muted);text-transform:uppercase">Coach Trasformational</div>
+      </div>
+    </div>
     </div>
     <div class="footer-info">
       <p>Insolito Experiences · Michael Jara · P.IVA 14379200968</p>
@@ -734,254 +733,6 @@ Avviene quando non puoi pi&ugrave; ignorare chi sei."</blockquote>
     </div>
   </footer>
 </div>
-
-<script>
-// CURSOR
-const cur=document.getElementById('cursor'),ring=document.getElementById('cursorRing');
-let mx=0,my=0,rx=0,ry=0;
-document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;cur.style.left=mx+'px';cur.style.top=my+'px'});
-(function a(){rx+=(mx-rx)*.12;ry+=(my-ry)*.12;ring.style.left=rx+'px';ring.style.top=ry+'px';requestAnimationFrame(a)})();
-document.querySelectorAll('a,button,input').forEach(el=>{
-  el.addEventListener('mouseenter',()=>{ring.style.transform='translate(-50%,-50%) scale(1.6)';ring.style.borderColor='rgba(201,168,76,.8)'});
-  el.addEventListener('mouseleave',()=>{ring.style.transform='translate(-50%,-50%) scale(1)';ring.style.borderColor='rgba(201,168,76,.5)'});
-});
-
-// AUDIO
-let bgAudio = null, audioOn = false, fadeInt = null;
-const AUDIO_URL = 'https://cdn1.suno.ai/c74718fb-66c5-43f6-bab5-e38c8b3459ba.mp3';
-
-function initAudio(){
-  if(bgAudio)return;
-  bgAudio = new Audio(AUDIO_URL);
-  bgAudio.loop = true;
-  bgAudio.volume = 0;
-  bgAudio.play().catch(e => console.error("Audio err:", e));
-  audioOn = true;
-  fadeAudio(0.5);
-}
-function fadeAudio(targetVol) {
-  if (fadeInt) clearInterval(fadeInt);
-  fadeInt = setInterval(() => {
-    if (Math.abs(bgAudio.volume - targetVol) < 0.05) {
-      bgAudio.volume = targetVol;
-      clearInterval(fadeInt);
-      if (targetVol === 0) bgAudio.pause();
-    } else {
-      bgAudio.volume += (targetVol > bgAudio.volume ? 0.05 : -0.05);
-    }
-  }, 100);
-}
-function toggleAudio(){
-  if(!bgAudio){initAudio();document.getElementById('audio-label').textContent='Audio on';return;}
-  audioOn = !audioOn;
-  if(audioOn) { bgAudio.play().catch(()=>{}); fadeAudio(0.5); }
-  else { fadeAudio(0); }
-  document.getElementById('audio-label').textContent=audioOn?'Audio on':'Audio off';
-}
-document.getElementById('audio-toggle').addEventListener('click',toggleAudio);
-
-
-// INTRO COSMOS
-const iCC=document.getElementById('intro-cosmos');
-const iCX=iCC.getContext('2d');
-let iW,iH,iSt=[],iPt=[];
-function resIC(){iW=iCC.width=innerWidth;iH=iCC.height=innerHeight;}resIC();
-window.addEventListener('resize',resIC);
-for(let i=0;i<200;i++)iSt.push({x:Math.random(),y:Math.random(),r:Math.random()*1.4+.2,s:Math.random()*.5+.15,o:Math.random()*.8+.15});
-for(let i=0;i<24;i++)iPt.push({x:Math.random(),y:Math.random(),vx:(Math.random()-.5)*.0003,vy:Math.random()*.0005+.0002,r:Math.random()*3.5+2,o:Math.random()*.6+.25,rot:Math.random()*360,rs:(Math.random()-.5)*.9});
-let iT=0;
-(function animIC(){
-  iT+=.003;iCX.clearRect(0,0,iW,iH);
-  iSt.forEach(s=>{
-    const x=(s.x+iT*s.s*.015)%1*iW,y=(s.y*iH)%iH;
-    const fl=.6+.4*Math.sin(iT*s.s*2.5+s.o*8);
-    iCX.beginPath();iCX.arc(x,y,s.r,0,Math.PI*2);
-    iCX.fillStyle=`rgba(240,235,224,${s.o*fl*.5})`;iCX.fill();
-  });
-  iPt.forEach(p=>{
-    p.x=(p.x+p.vx+.5/iW)%1;p.y=(p.y+p.vy)%1;p.rot+=p.rs;
-    iCX.save();iCX.translate(p.x*iW,p.y*iH);iCX.rotate(p.rot*Math.PI/180);
-    iCX.beginPath();iCX.ellipse(0,0,p.r,p.r*1.9,0,0,Math.PI*2);
-    iCX.fillStyle=`rgba(201,168,76,${p.o*.4})`;iCX.fill();iCX.restore();
-  });
-  if(!orbExploded)requestAnimationFrame(animIC);
-})();
-
-// THREE.JS ORB
-const oC=document.getElementById('orb-canvas');
-const oS=Math.min(window.innerWidth,560);
-oC.width=oS;oC.height=oS;
-oC.style.cssText=`position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:${oS}px;height:${oS}px`;
-const sc=new THREE.Scene(),cam=new THREE.PerspectiveCamera(60,1,.1,100);
-cam.position.z=4;
-const ren=new THREE.WebGLRenderer({canvas:oC,alpha:true,antialias:true});
-ren.setSize(oS,oS);ren.setPixelRatio(Math.min(devicePixelRatio,2));
-const wMesh=new THREE.Mesh(new THREE.IcosahedronGeometry(1.6,3),new THREE.MeshBasicMaterial({color:0xC9A84C,wireframe:true,transparent:true,opacity:.15}));
-sc.add(wMesh);
-const iMesh=new THREE.Mesh(new THREE.SphereGeometry(1.1,64,64),new THREE.MeshPhongMaterial({color:0x1A1200,emissive:0xC9A84C,emissiveIntensity:.4,transparent:true,opacity:.85,shininess:80}));
-sc.add(iMesh);
-const rMesh=new THREE.Mesh(new THREE.TorusGeometry(1.5,.015,8,80),new THREE.MeshBasicMaterial({color:0xEDD980,transparent:true,opacity:.3}));
-rMesh.rotation.x=Math.PI/2;sc.add(rMesh);
-const ptL=new THREE.PointLight(0xEDD980,3,10);ptL.position.set(2,2,3);sc.add(ptL);
-sc.add(new THREE.AmbientLight(0xC9A84C,.2));
-var orbExploded=false;
-let oT=0;
-function animOrb(){
-  oT+=.008;
-  wMesh.rotation.y=oT*.4;wMesh.rotation.x=oT*.2;
-  iMesh.rotation.y=oT*.3;
-  const p=1+Math.sin(oT*1.5)*.06;
-  wMesh.scale.setScalar(p);iMesh.scale.setScalar(p*.95);
-  rMesh.rotation.z=oT*.5;
-  ptL.intensity=2.5+Math.sin(oT*2)*.8;
-  ren.render(sc,cam);
-  if(!orbExploded)requestAnimationFrame(animOrb);
-}
-animOrb();
-
-// TYPEWRITER
-const SEQS=[
-  {t:'',p:300},{t:'Prima di continuare...',p:1400},
-  {t:'',p:500},{t:'Chi saresti...',p:900},
-  {t:'se smettessi di recitare?',p:2000},
-  {t:'',p:600},{t:'Luminel è pronto.',p:1200},
-  {action:'REVEAL'},
-];
-const twT=document.getElementById('tw-text');
-let si=0,ci=0,cur2='',tTimer=null;
-function typeNext(){
-  if(si>=SEQS.length)return;
-  const s=SEQS[si];
-  if(s.action==='REVEAL'){revealLanding();return;}
-  if(s.t===''){
-    twT.style.opacity='0';
-    setTimeout(()=>{twT.textContent='';twT.style.opacity='1';si++;ci=0;cur2='';typeNext();},300);
-    return;
-  }
-  if(ci<s.t.length){
-    cur2+=s.t[ci];twT.textContent=cur2;ci++;
-    tTimer=setTimeout(typeNext,42+Math.random()*28);
-  } else {si++;ci=0;cur2='';setTimeout(typeNext,s.p);}
-}
-setTimeout(()=>{typeNext();setTimeout(()=>{document.getElementById('tw-sub').style.opacity='.5';},800);},600);
-
-// PARTICLES
-const pC=document.getElementById('particle-canvas'),pX=pC.getContext('2d');
-var parts=[];
-function resP(){pC.width=innerWidth;pC.height=innerHeight;}resP();
-window.addEventListener('resize',resP);
-function explodeOrb(){
-  orbExploded=true;pC.style.opacity='1';
-  const cx=innerWidth/2,cy=innerHeight/2;
-  for(let i=0;i<220;i++){
-    const a=Math.random()*Math.PI*2,sp=2+Math.random()*9;
-    parts.push({x:cx,y:cy,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp,
-      size:1+Math.random()*3,life:1,decay:.01+Math.random()*.025,
-      color:`hsl(${40+Math.random()*20},${60+Math.random()*40}%,${50+Math.random()*30}%)`});
-  }
-  animP();
-}
-function animP(){
-  pX.clearRect(0,0,pC.width,pC.height);
-  let alive=false;
-  parts.forEach(p=>{
-    p.x+=p.vx;p.y+=p.vy;p.vy+=.08;p.vx*=.98;p.life-=p.decay;
-    if(p.life<=0)return;alive=true;
-    pX.save();pX.globalAlpha=p.life;pX.fillStyle=p.color;
-    pX.beginPath();pX.arc(p.x,p.y,p.size*p.life,0,Math.PI*2);pX.fill();pX.restore();
-  });
-  if(alive)requestAnimationFrame(animP);
-  else{pC.style.opacity='0';parts=[];}
-}
-
-// REVEAL
-function revealLanding(){
-  clearTimeout(tTimer);explodeOrb();
-  const intro=document.getElementById('intro'),main=document.getElementById('main-landing'),nav=document.getElementById('nav');
-  setTimeout(()=>{
-    intro.style.transition='opacity 1.2s';intro.style.opacity='0';
-    setTimeout(()=>{intro.style.display='none';initAudio();},1200);
-    main.style.transition='opacity 1.4s .5s';main.style.opacity='1';
-    nav.style.transition='opacity 1s .8s';nav.style.opacity='1';
-  },200);
-}
-document.getElementById('skip-btn').addEventListener('click',revealLanding);
-
-// COSMOS
-const cc=document.getElementById('cosmos-bg'),cx2=cc.getContext('2d');
-let cW,cH,cSt=[],cPt=[];
-function resC(){cW=cc.width=innerWidth;cH=cc.height=innerHeight;}resC();
-window.addEventListener('resize',resC);
-for(let i=0;i<180;i++)cSt.push({x:Math.random(),y:Math.random(),r:Math.random()*1.3+.2,s:Math.random()*.5+.15,o:Math.random()*.7+.15});
-for(let i=0;i<20;i++)cPt.push({x:Math.random(),y:Math.random(),vx:(Math.random()-.5)*.0003,vy:Math.random()*.0005+.0002,r:Math.random()*3+2,o:Math.random()*.5+.2,rot:Math.random()*360,rs:(Math.random()-.5)*.8});
-let cT=0;
-(function animC(){
-  cT+=.003;cx2.clearRect(0,0,cW,cH);
-  const sy=scrollY*.025;
-  cSt.forEach(s=>{
-    const x=(s.x+cT*s.s*.015)%1*cW,y=(s.y*cH+sy)%cH;
-    cx2.beginPath();cx2.arc(x,y,s.r,0,Math.PI*2);
-    cx2.fillStyle=`rgba(240,235,224,${s.o*(.6+.4*Math.sin(cT*s.s*2.5+s.o*8))*.45})`;cx2.fill();
-  });
-  cPt.forEach(p=>{
-    p.x=(p.x+p.vx)%1;p.y=(p.y+p.vy)%1;p.rot+=p.rs;
-    cx2.save();cx2.translate(p.x*cW,p.y*cH);cx2.rotate(p.rot*Math.PI/180);
-    cx2.beginPath();cx2.ellipse(0,0,p.r,p.r*1.9,0,0,Math.PI*2);
-    cx2.fillStyle=`rgba(201,168,76,${p.o*.3})`;cx2.fill();cx2.restore();
-  });
-  requestAnimationFrame(animC);
-})();
-
-// NAV
-window.addEventListener('scroll',()=>{document.getElementById('nav').classList.toggle('scrolled',scrollY>60)},{passive:true});
-
-// SCROLL REVEAL
-const obs=new IntersectionObserver(e=>{e.forEach(x=>{if(x.isIntersecting)x.target.classList.add('visible')});},{threshold:.12});
-document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
-
-// ATTO 3 — Q typewriter on scroll
-const REPLIES=[
-  "Quella risposta rivela gi&agrave; il confine tra chi sei e chi potresti essere.",
-  "Il comfort della bugia &egrave; proporzionale al costo di non vederla.",
-  "Stai gi&agrave; scegliendo — anche il non scegliere &egrave; una scelta.",
-  "Tra 5 anni ricorderai questo momento. Come vuoi ricordarlo?",
-  "La risposta &egrave; sempre stata l&igrave;. Luminel aiuta a togliere il rumore.",
-];
-function typeReply(el,text){
-  let i=0,t='';el.classList.add('open');
-  const timer=setInterval(()=>{
-    if(i>=text.length){clearInterval(timer);return;}
-    t+=text[i++];el.textContent='— '+t;
-  },24);
-}
-function typeQ(el,text,cb){
-  let i=0,t='';
-  const timer=setInterval(()=>{
-    if(i>=text.length){clearInterval(timer);if(cb)cb();return;}
-    t+=text[i++];el.textContent=t;
-  },28);
-}
-const qObs=new IntersectionObserver(entries=>{
-  entries.forEach(e=>{
-    if(!e.isIntersecting||e.target.classList.contains('visible'))return;
-    e.target.classList.add('visible');
-    const qEl=e.target.querySelector('.q-text');
-    if(qEl&&qEl.dataset.full)setTimeout(()=>typeQ(qEl,qEl.dataset.full),200);
-  });
-},{threshold:.3});
-document.querySelectorAll('.q-block').forEach(el=>qObs.observe(el));
-function sendQ(idx){
-  const inp=document.querySelector(`.q-inp[data-i="${idx}"]`);
-  const rep=document.getElementById('qr-'+idx);
-  if(!inp||!inp.value.trim()||!rep)return;
-  typeReply(rep,REPLIES[idx]||REPLIES[0]);
-  inp.disabled=true;
-  inp.closest('.q-input-row').querySelector('.q-btn').style.opacity='0';
-}
-document.querySelectorAll('.q-inp').forEach(inp=>{
-  inp.addEventListener('keydown',e=>{if(e.key==='Enter'){sendQ(+inp.dataset.i);}});
-});
-</script>
 
 <!-- ══ LEGAL MODALS ══ -->
 <div class="legal-overlay" id="modal-privacy" onclick="if(event.target===this)closeLegal()">
@@ -1190,5 +941,167 @@ function closeLegal(){
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeLegal();});
 </script>
 
+<script>
+// CURSOR
+var cur=document.getElementById('cursor'),ring=document.getElementById('cursorRing');
+if(cur&&ring){
+  var mx=0,my=0,rx=0,ry=0;
+  document.addEventListener('mousemove',function(e){mx=e.clientX;my=e.clientY;cur.style.left=mx+'px';cur.style.top=my+'px';});
+  (function a(){rx+=(mx-rx)*.12;ry+=(my-ry)*.12;ring.style.left=rx+'px';ring.style.top=ry+'px';requestAnimationFrame(a);})();
+  document.querySelectorAll('a,button,input').forEach(function(el){
+    el.addEventListener('mouseenter',function(){if(ring){ring.style.transform='translate(-50%,-50%) scale(1.6)';ring.style.borderColor='rgba(201,168,76,.8)';}});
+    el.addEventListener('mouseleave',function(){if(ring){ring.style.transform='translate(-50%,-50%) scale(1)';ring.style.borderColor='rgba(201,168,76,.5)';}});
+  });
+}
+
+// ══ AUDIO SUNO ══
+let bgAudio = null, audioOn = false, fadeInt = null;
+const AUDIO_URL = 'https://cdn1.suno.ai/BvHG1OB8M7CDViZu.mp3';
+
+function initAudio(){
+  if(bgAudio)return;
+  bgAudio = new Audio(AUDIO_URL);
+  bgAudio.loop = true;
+  bgAudio.volume = 0;
+  bgAudio.play().catch(e => console.error("Audio err:", e));
+  audioOn = true;
+  fadeAudio(0.5);
+}
+
+function fadeAudio(targetVol) {
+  if (fadeInt) clearInterval(fadeInt);
+  fadeInt = setInterval(() => {
+    if (!bgAudio) return clearInterval(fadeInt);
+    if (Math.abs(bgAudio.volume - targetVol) < 0.05) {
+      bgAudio.volume = targetVol;
+      clearInterval(fadeInt);
+      if (targetVol === 0) bgAudio.pause();
+    } else {
+      bgAudio.volume += (targetVol > bgAudio.volume ? 0.05 : -0.05);
+    }
+  }, 100);
+}
+
+function toggleAudio(){
+  if(!bgAudio){initAudio();document.getElementById('audio-label').textContent='Audio on';return;}
+  audioOn = !audioOn;
+  if(audioOn) { bgAudio.play().catch(()=>{}); fadeAudio(0.5); }
+  else { fadeAudio(0); }
+  document.getElementById('audio-label').textContent=audioOn?'Audio on':'Audio off';
+}
+
+var audioBtn = document.getElementById('audio-toggle');
+if(audioBtn) audioBtn.addEventListener('click', toggleAudio);
+
+
+// POSTMESSAGE NAVIGATION
+function doNav(path) {
+  if (window.parent) {
+    window.parent.postMessage({ type: 'NAVIGATE', path: path }, '*');
+  }
+}
+
+// COSMOS BACKGROUND
+var cc=document.getElementById('cosmos-bg'),cx2=cc?cc.getContext('2d'):null;
+var cW=0,cH=0,cSt=[],cPt=[];
+function resC(){if(cc){cW=cc.width=innerWidth;cH=cc.height=innerHeight;}}
+resC();window.addEventListener('resize',resC);
+for(var i=0;i<180;i++)cSt.push({x:Math.random(),y:Math.random(),r:Math.random()*1.3+.2,s:Math.random()*.5+.15,o:Math.random()*.7+.15});
+for(var i=0;i<20;i++)cPt.push({x:Math.random(),y:Math.random(),vx:(Math.random()-.5)*.0003,vy:Math.random()*.0005+.0002,r:Math.random()*3+2,o:Math.random()*.5+.2,rot:Math.random()*360,rs:(Math.random()-.5)*.8});
+var cT=0;
+(function animC(){
+  if(!cx2)return;cT+=.003;cx2.clearRect(0,0,cW,cH);
+  var sy=scrollY*.025;
+  cSt.forEach(function(s){
+    var x=(s.x+cT*s.s*.015)%1*cW,y=(s.y*cH+sy)%cH;
+    cx2.beginPath();cx2.arc(x,y,s.r,0,Math.PI*2);
+    cx2.fillStyle='rgba(240,235,224,'+(s.o*(.6+.4*Math.sin(cT*s.s*2.5+s.o*8))*.45)+')';cx2.fill();
+  });
+  cPt.forEach(function(p){
+    p.x=(p.x+p.vx)%1;p.y=(p.y+p.vy)%1;p.rot+=p.rs;
+    cx2.save();cx2.translate(p.x*cW,p.y*cH);cx2.rotate(p.rot*Math.PI/180);
+    cx2.beginPath();cx2.ellipse(0,0,p.r,p.r*1.9,0,0,Math.PI*2);
+    cx2.fillStyle='rgba(201,168,76,'+(p.o*.3)+')';cx2.fill();cx2.restore();
+  });
+  requestAnimationFrame(animC);
+})();
+
+// NAV SCROLL
+window.addEventListener('scroll',function(){
+  var n=document.getElementById('nav');
+  if(n)n.classList.toggle('scrolled',scrollY>60);
+},{passive:true});
+
+// SCROLL REVEAL
+var obs2=new IntersectionObserver(function(e){
+  e.forEach(function(x){if(x.isIntersecting)x.target.classList.add('visible');});
+},{threshold:.12});
+document.querySelectorAll('.reveal').forEach(function(el){obs2.observe(el);});
+
+// LUMINEL MINI CHAT
+var LM_QUESTIONS=[
+  'Cosa faresti se sapessi che non puoi fallire — e perch&eacute; non lo stai gi&agrave; facendo?',
+  'Qual &egrave; la bugia pi&ugrave; confortante che ti racconti su questa situazione?',
+  'Di tutte le persone nella tua vita — chi non vuoi deludere? E chi stai deludendo proprio ora, evitando questa scelta?',
+  'Tra 5 anni — cosa ti coster&agrave; non aver agito oggi?',
+  'Hai gi&agrave; la risposta. Cosa ti impedisce di agirla?'
+];
+var LM_REPLIES=[
+  'Quella risposta rivela il confine tra chi sei e chi sai di poter essere.',
+  'Il comfort della bugia &egrave; proporzionale al costo di non vederla.',
+  'Stai vivendo la vita di qualcun altro per paura di iniziare la tua.',
+  'Tra 5 anni ricorderai questo momento. Come vuoi ricordarlo?',
+  'La risposta &egrave; sempre stata l&igrave;. Luminel aiuta a togliere il rumore.'
+];
+
+function sendQ(index) {
+  var inp = document.querySelector('.q-block[data-q="'+index+'"] .q-inp');
+  var btn = document.querySelector('.q-block[data-q="'+index+'"] .q-btn');
+  var reply = document.getElementById('qr-'+index);
+  if(!inp || !inp.value.trim()) return;
+  inp.disabled = true;
+  btn.style.opacity = '0';
+  reply.classList.add('open');
+  reply.innerHTML = '';
+  var i=0,text='— '+LM_REPLIES[index];
+  var t=setInterval(function(){
+    if(i>=text.length){
+      clearInterval(t);
+      if(index<4){
+        var nextQ = document.querySelector('.q-block[data-q="'+(index+1)+'"]');
+        if(nextQ) nextQ.classList.add('visible');
+      } else {
+        var ctaBox = document.querySelector('.lp-cta-box');
+        if(ctaBox) ctaBox.classList.add('visible');
+      }
+      return;
+    }
+    reply.innerHTML+=text[i++];
+  },22);
+}
+
+// Show first question immediately when in view
+var qObs=new IntersectionObserver(function(entries){
+  entries.forEach(function(e){if(e.isIntersecting){
+    var firstQ = document.querySelector('.q-block[data-q="0"]');
+    if(firstQ) firstQ.classList.add('visible');
+    qObs.disconnect();
+  }});
+},{threshold:.2});
+setTimeout(function(){var s=document.getElementById('prova');if(s)qObs.observe(s);},500);
+document.addEventListener('keydown',function(e){
+  if(e.key==='Enter'&&document.activeElement&&document.activeElement.classList.contains('q-inp')){
+    sendQ(parseInt(document.activeElement.getAttribute('data-i')));
+  }
+});
+
+// MESSAGGI POSTMESSAGE IN INGRESSO (es. mute da parent)
+window.addEventListener('message', function(event) {
+  if (event.data && event.data.type === 'TOGGLE_AUDIO') {
+    toggleAudio();
+  }
+});
+
+</script>
 </body>
 </html>
