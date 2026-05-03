@@ -364,7 +364,7 @@ footer{padding:60px 48px;border-top:0.5px solid var(--glassB);display:flex;align
   </a>
     <div class="nav-links">
       <a href="#metodo">Il Metodo</a>
-      <a href="#prova">Provalo</a>
+      <a href="#demo">Demo</a>
       <a href="#scelta">Piani</a>
       <button onclick="doNav('/login')" class="nav-cta" style="cursor:pointer">Accedi</button>
     </div>
@@ -447,66 +447,50 @@ Avviene quando non puoi pi&ugrave; ignorare chi sei."</blockquote>
   </section>
 
   <!-- ── ACT 4: PROVA IN AZIONE ── -->
-  <section id="prova">
+  <section id="demo">
     <div class="lp-inner">
       <div class="lp-header">
-        <span class="lp-label reveal">Prova adesso · Gratis</span>
-        <h2 class="lp-title reveal d1">Luminel<br><em>ti parla adesso.</em></h2>
-        <p class="lp-sub reveal d2">Cinque domande del Metodo Jara. Rispondi se vuoi — qualcosa si muove comunque.</p>
+        <span class="lp-label reveal">Esplora l'Interfaccia · Demo</span>
+        <h2 class="lp-title reveal d1">Luminel<br><em>in due dimensioni.</em></h2>
+        <p class="lp-sub reveal d2">Scopri l'interazione profonda via Chat e le sessioni Elite via Audio/Video Call.</p>
       </div>
 
-      <div class="q-block" data-q="0">
-        <span class="q-num">Domanda 01 di 05</span>
-        <div class="q-text" data-full="Cosa faresti se sapessi che non puoi fallire — e perch&eacute; non lo stai gi&agrave; facendo?"></div>
-        <div class="q-input-row">
-          <input class="q-inp" type="text" placeholder="La tua risposta..." data-i="0">
-          <button class="q-btn" onclick="sendQ(0)">→</button>
+      <div class="demo-container reveal d3" style="display:flex;gap:24px;flex-wrap:wrap;justify-content:center;margin-bottom:60px">
+        <!-- Chat Demo -->
+        <div class="mirror-card" style="flex:1;min-width:300px;display:flex;flex-direction:column;gap:16px">
+           <h3 style="font-family:'Cinzel',serif;font-size:16px;color:#C9A84C;text-align:center">Interfaccia Chat</h3>
+           <div style="background:rgba(6,6,15,0.6);border:1px solid rgba(201,168,76,0.15);border-radius:12px;padding:20px;height:300px;display:flex;flex-direction:column;gap:16px">
+             <div style="align-self:flex-end;background:rgba(201,168,76,0.1);padding:12px 16px;border-radius:12px 12px 0 12px;font-size:13px;color:#F0EBE0;border:1px solid rgba(201,168,76,0.2)">
+               Come posso sbloccare il mio potenziale?
+             </div>
+             <div style="align-self:flex-start;background:rgba(255,255,255,0.03);padding:12px 16px;border-radius:12px 12px 12px 0;font-size:13px;color:rgba(240,235,224,0.7);border:1px solid rgba(255,255,255,0.05);max-width:90%">
+               <strong style="color:#C9A84C;display:block;margin-bottom:6px;font-size:10px;text-transform:uppercase;letter-spacing:1px">Luminel Coach</strong>
+               La vera domanda &egrave;: cosa stai proteggendo rimanendo fermo? Il Metodo ti guida ad osservare...
+             </div>
+             <div style="align-self:flex-end;background:rgba(201,168,76,0.1);padding:12px 16px;border-radius:12px 12px 0 12px;font-size:13px;color:#F0EBE0;border:1px solid rgba(201,168,76,0.2)">
+               Ho paura di fallire.
+             </div>
+           </div>
         </div>
-        <div class="q-reply" id="qr-0"></div>
-      </div>
-      <div class="q-sep"></div>
 
-      <div class="q-block" data-q="1">
-        <span class="q-num">Domanda 02 di 05</span>
-        <div class="q-text" data-full="Qual &egrave; la bugia pi&ugrave; confortante che ti racconti su questa situazione?"></div>
-        <div class="q-input-row">
-          <input class="q-inp" type="text" placeholder="La tua risposta..." data-i="1">
-          <button class="q-btn" onclick="sendQ(1)">→</button>
-        </div>
-        <div class="q-reply" id="qr-1"></div>
-      </div>
-      <div class="q-sep"></div>
+        <!-- Call Demo -->
+        <div class="mirror-card" style="flex:1;min-width:300px;display:flex;flex-direction:column;gap:16px">
+           <h3 style="font-family:'Cinzel',serif;font-size:16px;color:#C9A84C;text-align:center">Interfaccia Call</h3>
+           <div style="background:rgba(6,6,15,0.6);border:1px solid rgba(201,168,76,0.15);border-radius:12px;position:relative;height:300px;overflow:hidden;display:flex;align-items:center;justify-content:center">
+             <div style="position:absolute;inset:0;background:radial-gradient(circle at center, rgba(201,168,76,0.15) 0%, transparent 70%)"></div>
+             
+             <!-- Animated Glow Rings -->
+             <div style="position:absolute;width:120px;height:120px;border-radius:50%;border:1px solid rgba(201,168,76,0.2);animation:pulse 2s infinite"></div>
+             <div style="position:absolute;width:160px;height:160px;border-radius:50%;border:1px solid rgba(201,168,76,0.1);animation:pulse 2s infinite 0.5s"></div>
 
-      <div class="q-block" data-q="2">
-        <span class="q-num">Domanda 03 di 05</span>
-        <div class="q-text" data-full="Di tutte le persone nella tua vita — chi non vuoi deludere? E chi stai deludendo proprio ora, evitando questa scelta?"></div>
-        <div class="q-input-row">
-          <input class="q-inp" type="text" placeholder="La tua risposta..." data-i="2">
-          <button class="q-btn" onclick="sendQ(2)">→</button>
+             <div style="width:70px;height:70px;border-radius:50%;background:rgba(201,168,76,0.15);display:flex;align-items:center;justify-content:center;border:1px solid rgba(201,168,76,0.4);box-shadow:0 0 30px rgba(201,168,76,0.3);z-index:2;backdrop-filter:blur(4px)">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#EDD980" stroke-width="1.5"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><line x1="12" y1="19" x2="12" y2="23"></line><line x1="8" y1="23" x2="16" y2="23"></line></svg>
+             </div>
+             <div style="position:absolute;bottom:30px;left:0;right:0;text-align:center;font-size:11px;color:rgba(201,168,76,0.8);letter-spacing:1.5px;text-transform:uppercase">
+               Luminel &egrave; in ascolto...
+             </div>
+           </div>
         </div>
-        <div class="q-reply" id="qr-2"></div>
-      </div>
-      <div class="q-sep"></div>
-
-      <div class="q-block" data-q="3">
-        <span class="q-num">Domanda 04 di 05</span>
-        <div class="q-text" data-full="Tra 5 anni — cosa ti coster&agrave; non aver agito oggi?"></div>
-        <div class="q-input-row">
-          <input class="q-inp" type="text" placeholder="La tua risposta..." data-i="3">
-          <button class="q-btn" onclick="sendQ(3)">→</button>
-        </div>
-        <div class="q-reply" id="qr-3"></div>
-      </div>
-      <div class="q-sep"></div>
-
-      <div class="q-block" data-q="4">
-        <span class="q-num">Domanda 05 di 05</span>
-        <div class="q-text" data-full="Hai gi&agrave; la risposta. Cosa ti impedisce di agirla?"></div>
-        <div class="q-input-row">
-          <input class="q-inp" type="text" placeholder="La tua risposta..." data-i="4">
-          <button class="q-btn" onclick="sendQ(4)">→</button>
-        </div>
-        <div class="q-reply" id="qr-4"></div>
       </div>
 
       <div class="lp-cta-box reveal">
@@ -1050,62 +1034,7 @@ var obs2=new IntersectionObserver(function(e){
 },{threshold:.12});
 document.querySelectorAll('.reveal').forEach(function(el){obs2.observe(el);});
 
-// LUMINEL MINI CHAT
-var LM_QUESTIONS=[
-  'Cosa faresti se sapessi che non puoi fallire — e perch&eacute; non lo stai gi&agrave; facendo?',
-  'Qual &egrave; la bugia pi&ugrave; confortante che ti racconti su questa situazione?',
-  'Di tutte le persone nella tua vita — chi non vuoi deludere? E chi stai deludendo proprio ora, evitando questa scelta?',
-  'Tra 5 anni — cosa ti coster&agrave; non aver agito oggi?',
-  'Hai gi&agrave; la risposta. Cosa ti impedisce di agirla?'
-];
-var LM_REPLIES=[
-  'Quella risposta rivela il confine tra chi sei e chi sai di poter essere.',
-  'Il comfort della bugia &egrave; proporzionale al costo di non vederla.',
-  'Stai vivendo la vita di qualcun altro per paura di iniziare la tua.',
-  'Tra 5 anni ricorderai questo momento. Come vuoi ricordarlo?',
-  'La risposta &egrave; sempre stata l&igrave;. Luminel aiuta a togliere il rumore.'
-];
 
-function sendQ(index) {
-  var inp = document.querySelector('.q-block[data-q="'+index+'"] .q-inp');
-  var btn = document.querySelector('.q-block[data-q="'+index+'"] .q-btn');
-  var reply = document.getElementById('qr-'+index);
-  if(!inp || !inp.value.trim()) return;
-  inp.disabled = true;
-  btn.style.opacity = '0';
-  reply.classList.add('open');
-  reply.innerHTML = '';
-  var i=0,text='— '+LM_REPLIES[index];
-  var t=setInterval(function(){
-    if(i>=text.length){
-      clearInterval(t);
-      if(index<4){
-        var nextQ = document.querySelector('.q-block[data-q="'+(index+1)+'"]');
-        if(nextQ) nextQ.classList.add('visible');
-      } else {
-        var ctaBox = document.querySelector('.lp-cta-box');
-        if(ctaBox) ctaBox.classList.add('visible');
-      }
-      return;
-    }
-    reply.innerHTML+=text[i++];
-  },22);
-}
-
-// Show first question immediately when in view
-var qObs=new IntersectionObserver(function(entries){
-  entries.forEach(function(e){if(e.isIntersecting){
-    var firstQ = document.querySelector('.q-block[data-q="0"]');
-    if(firstQ) firstQ.classList.add('visible');
-    qObs.disconnect();
-  }});
-},{threshold:.2});
-setTimeout(function(){var s=document.getElementById('prova');if(s)qObs.observe(s);},500);
-document.addEventListener('keydown',function(e){
-  if(e.key==='Enter'&&document.activeElement&&document.activeElement.classList.contains('q-inp')){
-    sendQ(parseInt(document.activeElement.getAttribute('data-i')));
-  }
-});
 
 // MESSAGGI POSTMESSAGE IN INGRESSO (es. mute da parent)
 window.addEventListener('message', function(event) {
