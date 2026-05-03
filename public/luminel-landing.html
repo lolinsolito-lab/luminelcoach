@@ -1243,14 +1243,16 @@ if(cur&&ring){
 
 // ══ AUDIO SUNO ══
 let bgAudio = null, audioOn = false, fadeInt = null;
-const AUDIO_URL = 'https://cdn1.suno.ai/BvHG1OB8M7CDViZu.mp3';
+const AUDIO_URL = '/luminel-ambient.mp3'; // Inserisci il tuo file mp3 nella cartella public
 
 function initAudio(){
   if(bgAudio)return;
   bgAudio = new Audio(AUDIO_URL);
   bgAudio.loop = true;
   bgAudio.volume = 0;
-  bgAudio.play().catch(e => console.error("Audio err:", e));
+  bgAudio.play().catch(e => {
+    if(e.name !== 'NotSupportedError' && e.name !== 'NotAllowedError') console.error("Audio err:", e);
+  });
   audioOn = true;
   fadeAudio(0.5);
 }
