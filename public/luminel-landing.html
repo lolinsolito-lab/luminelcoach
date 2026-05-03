@@ -90,7 +90,7 @@ nav.scrolled{background:rgba(6,6,15,0.92);border-bottom:0.5px solid var(--glassB
 .mirror-card-text{font-size:12px;line-height:1.75;color:rgba(240,235,224,0.55)}
 
 /* ── ACT 4: PROVA IN AZIONE ── */
-#luminel-parla{padding:160px 24px;position:relative;z-index:1;background:linear-gradient(to bottom,var(--void),var(--deep) 50%,var(--void))}
+#prova{padding:160px 24px;position:relative;z-index:1;background:linear-gradient(to bottom,var(--void),var(--deep) 50%,var(--void))}
 .lp-inner{max-width:720px;margin:0 auto}
 .lp-header{text-align:center;margin-bottom:100px}
 .lp-label{font-size:10px;letter-spacing:.26em;text-transform:uppercase;color:var(--gold);opacity:.7;margin-bottom:20px;display:block}
@@ -231,7 +231,7 @@ footer{padding:60px 48px;border-top:0.5px solid var(--glassB);display:flex;align
   .act3-right{gap:14px}
 
   /* Luminel parla */
-  #luminel-parla{padding:80px 20px}
+  #prova{padding:80px 20px}
   .q-text{font-size:clamp(18px,5vw,28px)}
 
   /* Plans 4col → 1col su mobile */
@@ -273,7 +273,7 @@ footer{padding:60px 48px;border-top:0.5px solid var(--glassB);display:flex;align
   .act1{padding:90px 16px 70px}
   .act2{padding:60px 16px}
   .act3{padding:60px 16px}
-  #luminel-parla{padding:60px 16px}
+  #prova{padding:60px 16px}
   .act5{padding:60px 16px}
   .proof{padding:60px 16px}
   .final{padding:80px 16px}
@@ -447,7 +447,7 @@ Avviene quando non puoi pi&ugrave; ignorare chi sei."</blockquote>
   </section>
 
   <!-- ── ACT 4: PROVA IN AZIONE ── -->
-  <section id="luminel-parla" id="prova">
+  <section id="prova">
     <div class="lp-inner">
       <div class="lp-header">
         <span class="lp-label reveal">Prova adesso · Gratis</span>
@@ -992,6 +992,18 @@ function toggleAudio(){
 
 var audioBtn = document.getElementById('audio-toggle');
 if(audioBtn) audioBtn.addEventListener('click', toggleAudio);
+
+// Tenta autoplay su prima interazione utente (bypass browser policy)
+var landingAudioAttempted = false;
+function tryLandingAutoplay(){
+  if(landingAudioAttempted || audioOn) return;
+  landingAudioAttempted = true;
+  initAudio();
+  var lbl = document.getElementById('audio-label');
+  if(lbl) lbl.textContent = 'Audio on';
+}
+document.addEventListener('click', tryLandingAutoplay, { once: true });
+document.addEventListener('touchstart', tryLandingAutoplay, { once: true });
 
 
 // POSTMESSAGE NAVIGATION

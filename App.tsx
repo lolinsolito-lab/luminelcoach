@@ -43,10 +43,34 @@ const RequireAuth: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 };
 
 const LandingWrapper: React.FC = () => {
-  const hasSeenIntro = localStorage.getItem('luminel_intro_seen');
-  if (!hasSeenIntro) {
-    return <Navigate to="/intro" replace />;
+  const [introDone, setIntroDone] = React.useState(
+    !!localStorage.getItem('luminel_intro_seen')
+  );
+
+  React.useEffect(() => {
+    const handler = (event: MessageEvent) => {
+      if (event.data?.type === 'NAVIGATE') {
+        localStorage.setItem('luminel_intro_seen', 'true');
+        setIntroDone(true);
+        // La navigazione reale viene gestita da LandingPage via postMessage
+      }
+    };
+    window.addEventListener('message', handler);
+    return () => window.removeEventListener('message', handler);
+  }, []);
+
+  if (!introDone) {
+    return (
+      <div style={{ position: 'fixed', inset: 0, zIndex: 99999, background: '#000' }}>
+        <iframe
+          src="/luminel-intro.html?v=7"
+          title="Luminel Awakening"
+          style={{ width: '100%', height: '100%', border: 'none', display: 'block' }}
+        />
+      </div>
+    );
   }
+
   return <LandingPage />;
 };
 
