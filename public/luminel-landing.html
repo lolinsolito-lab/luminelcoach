@@ -311,6 +311,244 @@ footer{padding:60px 48px;border-top:0.5px solid var(--glassB);display:flex;align
 .lm-dot{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,0.12);transition:all .4s}
 .lm-dot.active{background:var(--gold);width:20px;border-radius:3px}
 .lm-dot.done{background:rgba(201,168,76,0.4)}
+/* ── SEZIONE DEMO WRAPPER ── */
+#luminel-demo{
+  padding:140px 24px;
+  position:relative;
+  z-index:1;
+  overflow:hidden;
+  background:linear-gradient(to bottom,var(--void),var(--deep),var(--void));
+}
+
+/* cosmos background */
+#demo-cosmos{
+  position:absolute;inset:0;width:100%;height:100%;
+  pointer-events:none;z-index:0;
+}
+
+/* ── HEADER ── */
+.demo-label{
+  font-size:10px;letter-spacing:.28em;text-transform:uppercase;
+  color:rgba(201,168,76,0.65);text-align:center;
+  display:block;margin-bottom:18px;position:relative;z-index:1;
+}
+.demo-title{
+  font-family:'Cormorant Garamond',serif;
+  font-size:clamp(36px,5vw,60px);font-weight:300;
+  text-align:center;color:var(--white);line-height:1.15;
+  margin-bottom:14px;position:relative;z-index:1;
+}
+.demo-title em{font-style:italic;color:var(--gold)}
+.demo-sub{
+  font-size:14px;color:rgba(240,235,224,0.42);text-align:center;
+  line-height:1.85;max-width:500px;margin:0 auto 64px;
+  position:relative;z-index:1;
+}
+
+/* ── CARDS GRID ── */
+.demo-grid{
+  display:grid;grid-template-columns:1fr 1fr;
+  gap:16px;max-width:880px;margin:0 auto;
+  position:relative;z-index:1;
+}
+@media(max-width:680px){.demo-grid{grid-template-columns:1fr}}
+
+/* ── CARD BASE ── */
+.demo-card{
+  border-radius:20px;
+  border:0.5px solid var(--glassB);
+  background:rgba(255,255,255,0.025);
+  overflow:hidden;position:relative;
+  transition:border-color .35s,transform .35s;
+}
+.demo-card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:1.5px;
+  background:linear-gradient(90deg,transparent,rgba(201,168,76,0.5),transparent);
+  opacity:0;transition:opacity .35s;
+}
+.demo-card:hover{border-color:rgba(201,168,76,0.28);transform:translateY(-4px)}
+.demo-card:hover::before{opacity:1}
+.demo-card.featured{
+  border-color:rgba(201,168,76,0.22);
+  background:rgba(201,168,76,0.045);
+}
+.demo-card.featured::before{opacity:1}
+
+/* ── CARD HEADER ── */
+.card-head{
+  padding:22px 26px 18px;
+  border-bottom:0.5px solid rgba(255,255,255,0.06);
+}
+.card-badge{
+  font-size:9px;letter-spacing:.18em;text-transform:uppercase;
+  padding:4px 13px;border-radius:100px;display:inline-block;margin-bottom:12px;
+}
+.badge-chat{background:rgba(74,158,212,0.12);color:var(--stra);border:0.5px solid rgba(74,158,212,0.28)}
+.badge-voice{background:rgba(155,116,224,0.12);color:var(--alch);border:0.5px solid rgba(155,116,224,0.28)}
+.card-name{
+  font-family:'Cormorant Garamond',serif;font-size:24px;
+  font-weight:400;color:var(--white);margin-bottom:5px;
+}
+.card-desc{font-size:12px;color:rgba(240,235,224,0.4);line-height:1.7}
+
+/* ── CARD BODY ── */
+.card-body{padding:22px 26px}
+
+/* ── CHAT PREVIEW ── */
+.chat-bubbles{display:flex;flex-direction:column;gap:10px;margin-bottom:16px;max-height:200px;overflow-y:auto;padding-right:5px;}
+.chat-bubbles::-webkit-scrollbar{width:4px}
+.chat-bubbles::-webkit-scrollbar-thumb{background:rgba(201,168,76,0.3);border-radius:2px}
+.bubble{max-width:84%;padding:10px 14px;font-size:12px;line-height:1.65;border-radius:14px}
+.bubble-user{
+  background:rgba(201,168,76,0.12);
+  border:0.5px solid rgba(201,168,76,0.22);
+  color:rgba(237,217,128,0.88);
+  margin-left:auto;border-radius:14px 3px 14px 14px;
+}
+.bubble-ai{
+  background:rgba(255,255,255,0.04);
+  border:0.5px solid rgba(255,255,255,0.08);
+  color:rgba(240,235,224,0.8);
+  border-radius:3px 14px 14px 14px;
+}
+.ai-label{
+  font-size:9px;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--gold);margin-bottom:6px;display:block;
+}
+.typing-dots{display:flex;gap:4px;padding:2px 0}
+.dot{width:5px;height:5px;border-radius:50%;background:rgba(201,168,76,0.5);
+  animation:dotPulse 1.4s ease-in-out infinite}
+.dot:nth-child(2){animation-delay:.22s}
+.dot:nth-child(3){animation-delay:.44s}
+@keyframes dotPulse{
+  0%,100%{opacity:.3;transform:scale(1)}
+  50%{opacity:1;transform:scale(1.35)}
+}
+.ai-text{opacity:0;transition:opacity .5s}
+.ai-text.visible{opacity:1}
+
+/* Chat input */
+.chat-input-row{
+  display:flex;gap:8px;padding:10px 14px;
+  background:rgba(255,255,255,0.03);
+  border:0.5px solid rgba(255,255,255,0.07);
+  border-radius:12px;align-items:center;
+  transition:border-color .2s;
+}
+.chat-input-row:focus-within{border-color:rgba(201,168,76,0.3)}
+.chat-input-row input{
+  flex:1;background:none;border:none;outline:none;
+  font-size:12px;color:var(--white);font-family:'DM Sans',sans-serif;
+  caret-color:var(--gold);
+}
+.chat-input-row input::placeholder{color:rgba(240,235,224,0.22);font-style:italic}
+.send-btn{
+  width:28px;height:28px;border-radius:8px;background:var(--gold);
+  border:none;cursor:pointer;color:#06060F;font-size:15px;
+  display:flex;align-items:center;justify-content:center;
+  transition:all .2s;flex-shrink:0;
+}
+.send-btn:hover{transform:scale(1.1);background:var(--goldBr)}
+
+/* ── VOICE INTERFACE ── */
+.voice-center{
+  display:flex;flex-direction:column;align-items:center;
+  gap:18px;padding:8px 0 16px;
+}
+.orb-wrap{
+  position:relative;width:104px;height:104px;
+  display:flex;align-items:center;justify-content:center;
+}
+.orb-ring{
+  position:absolute;border-radius:50%;border:0.5px solid;
+  animation:orbPulse 2.8s ease-in-out infinite;
+}
+.orb-ring:nth-child(1){inset:0;border-color:rgba(155,116,224,0.14);animation-delay:0s}
+.orb-ring:nth-child(2){inset:13%;border-color:rgba(155,116,224,0.26);animation-delay:.45s}
+.orb-ring:nth-child(3){inset:26%;border-color:rgba(155,116,224,0.45);animation-delay:.9s}
+@keyframes orbPulse{
+  0%,100%{transform:scale(1);opacity:.6}
+  50%{transform:scale(1.07);opacity:1}
+}
+.orb-core{
+  width:46px;height:46px;border-radius:50%;
+  background:linear-gradient(135deg,rgba(155,116,224,0.18),rgba(201,168,76,0.08));
+  border:0.5px solid rgba(155,116,224,0.45);
+  display:flex;align-items:center;justify-content:center;
+  position:relative;z-index:2;
+}
+.mic-svg{width:18px;height:18px;fill:none;stroke:var(--alch);stroke-width:1.8;stroke-linecap:round}
+
+/* Waveform */
+.waveform{display:flex;align-items:center;gap:3px;height:34px}
+.wbar{
+  width:3px;border-radius:2px;background:rgba(155,116,224,0.5);
+  animation:waveAnim 1.3s ease-in-out infinite;
+}
+.wbar:nth-child(1){animation-delay:.00s;height:7px}
+.wbar:nth-child(2){animation-delay:.10s;height:15px}
+.wbar:nth-child(3){animation-delay:.20s;height:24px}
+.wbar:nth-child(4){animation-delay:.30s;height:30px}
+.wbar:nth-child(5){animation-delay:.15s;height:22px}
+.wbar:nth-child(6){animation-delay:.25s;height:13px}
+.wbar:nth-child(7){animation-delay:.35s;height:6px}
+@keyframes waveAnim{
+  0%,100%{transform:scaleY(1);opacity:.45}
+  50%{transform:scaleY(1.7);opacity:1}
+}
+.voice-status{
+  font-size:9px;letter-spacing:.22em;text-transform:uppercase;
+  color:rgba(155,116,224,0.65);
+}
+.voice-transcript{
+  font-family:'Cormorant Garamond',serif;font-size:15px;font-style:italic;
+  color:rgba(201,168,76,0.75);text-align:center;line-height:1.65;
+  min-height:44px;padding:0 12px;transition:opacity .4s;
+}
+
+/* ── FEATURE LIST ── */
+.feat-list{
+  display:flex;flex-direction:column;gap:9px;
+  margin-top:18px;padding-top:18px;
+  border-top:0.5px solid rgba(255,255,255,0.06);
+}
+.feat{display:flex;align-items:center;gap:9px;font-size:11px;color:rgba(240,235,224,0.48)}
+.feat-dot{width:5px;height:5px;border-radius:50%;flex-shrink:0}
+
+/* ── BOTTOM CTA ── */
+.demo-footer{text-align:center;margin-top:56px;position:relative;z-index:1}
+.demo-footer-title{
+  font-family:'Cormorant Garamond',serif;
+  font-size:clamp(22px,3.5vw,38px);font-weight:300;
+  color:var(--white);margin-bottom:10px;
+}
+.demo-footer-title em{font-style:italic;color:var(--gold)}
+.demo-footer-sub{font-size:13px;color:rgba(240,235,224,0.38);margin-bottom:32px;line-height:1.75}
+.demo-btns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+
+.btn-gold{
+  background:var(--gold);color:#06060F;padding:14px 44px;
+  border-radius:12px;font-size:13px;font-weight:500;border:none;
+  cursor:pointer;letter-spacing:.04em;transition:all .28s;
+  font-family:'DM Sans',sans-serif;display:inline-flex;align-items:center;gap:6px;
+  text-decoration:none;
+}
+.btn-gold:hover{transform:translateY(-3px);box-shadow:0 22px 55px rgba(201,168,76,0.28)}
+.btn-outline{
+  background:none;border:0.5px solid var(--goldB);color:var(--gold);
+  padding:14px 44px;border-radius:12px;font-size:13px;
+  cursor:pointer;letter-spacing:.04em;transition:all .28s;
+  font-family:'DM Sans',sans-serif;
+  text-decoration:none;
+}
+.btn-outline:hover{background:var(--goldDim)}
+
+@media(max-width:480px){
+  #luminel-demo{padding:80px 16px}
+  .card-head{padding:18px 20px 14px}
+  .card-body{padding:18px 20px}
+  .chat-input-row input{font-size:11px}
+}
 </style>
 </head>
 <body>
@@ -364,7 +602,7 @@ footer{padding:60px 48px;border-top:0.5px solid var(--glassB);display:flex;align
   </a>
     <div class="nav-links">
       <a href="#metodo">Il Metodo</a>
-      <a href="#demo">Demo</a>
+      <a href="#luminel-demo">Demo</a>
       <a href="#scelta">Piani</a>
       <button onclick="doNav('/login')" class="nav-cta" style="cursor:pointer">Accedi</button>
     </div>
@@ -447,59 +685,124 @@ Avviene quando non puoi pi&ugrave; ignorare chi sei."</blockquote>
   </section>
 
   <!-- ── ACT 4: PROVA IN AZIONE ── -->
-  <section id="demo">
-    <div class="lp-inner">
-      <div class="lp-header">
-        <span class="lp-label reveal">Esplora l'Interfaccia · Demo</span>
-        <h2 class="lp-title reveal d1">Luminel<br><em>in due dimensioni.</em></h2>
-        <p class="lp-sub reveal d2">Scopri l'interazione profonda via Chat e le sessioni Elite via Audio/Video Call.</p>
+  <!-- ══════════════════════════════════════════════
+       SEZIONE DEMO LUMINEL
+  ══════════════════════════════════════════════ -->
+  <section id="luminel-demo">
+    <canvas id="demo-cosmos"></canvas>
+
+    <span class="demo-label reveal">Esplora l&apos;interfaccia &middot; Demo</span>
+    <h2 class="demo-title reveal d1">Luminel in due <em>dimensioni.</em></h2>
+    <p class="demo-sub reveal d2">Una via per ogni momento. La profondit&agrave; della Chat. L&apos;immediatezza della Voce. Lo stesso Metodo Jara &mdash; due esperienze distinte.</p>
+
+    <div class="demo-grid reveal d3">
+
+      <!-- ── CHAT CARD ── -->
+      <div class="demo-card featured">
+        <div class="card-head">
+          <span class="card-badge badge-chat">Chat &middot; Tutti i piani</span>
+          <div class="card-name">Sessione Trasformativa</div>
+          <div class="card-desc">Luminel legge tra le righe. Ricorda ogni sessione. Fa la domanda che nessuno osa fare.</div>
+        </div>
+        <div class="card-body">
+          <div class="chat-bubbles" id="chat-bubbles">
+            <div class="bubble bubble-user">Come posso sbloccare il mio potenziale?</div>
+            <div class="bubble bubble-ai">
+              <span class="ai-label">Luminel Coach</span>
+              Interessante che tu dica &ldquo;sbloccare&rdquo; &mdash; come se qualcosa ti tenesse fermo. Cosa ti impedisce di muoverti, esattamente?
+            </div>
+            <div class="bubble bubble-user">Ho paura di fallire.</div>
+            <div class="bubble bubble-ai" id="ai-typing">
+              <span class="ai-label">Luminel Coach</span>
+              <div class="typing-dots" id="typing-dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+              <span class="ai-text" id="ai-response">Quella paura protegge qualcosa di preciso. Di solito non &egrave; il fallimento &mdash; &egrave; cosa il fallimento direbbe di te. Di cosa avrebbe paura?</span>
+            </div>
+          </div>
+
+          <div class="chat-input-row">
+            <input type="text" id="demo-input" placeholder="La tua risposta..." autocomplete="off">
+            <button class="send-btn" id="demo-send" onclick="demoSend()">&#8594;</button>
+          </div>
+
+          <div class="feat-list">
+            <div class="feat">
+              <div class="feat-dot" style="background:var(--stra)"></div>
+              Memoria AI tra le sessioni &mdash; pattern identificati nel tempo
+            </div>
+            <div class="feat">
+              <div class="feat-dot" style="background:var(--stra)"></div>
+              Reality Quest dopo ogni sessione &mdash; azione concreta entro 24h
+            </div>
+            <div class="feat">
+              <div class="feat-dot" style="background:var(--stra)"></div>
+              Modalit&agrave;: Coach &middot; Shadow Work &middot; Strategia
+            </div>
+          </div>
+        </div>
       </div>
 
-      <div class="demo-container reveal d3" style="display:flex;gap:24px;flex-wrap:wrap;justify-content:center;margin-bottom:60px">
-        <!-- Chat Demo -->
-        <div class="mirror-card" style="flex:1;min-width:300px;display:flex;flex-direction:column;gap:16px">
-           <h3 style="font-family:'Cinzel',serif;font-size:16px;color:#C9A84C;text-align:center">Interfaccia Chat</h3>
-           <div style="background:rgba(6,6,15,0.6);border:1px solid rgba(201,168,76,0.15);border-radius:12px;padding:20px;height:300px;display:flex;flex-direction:column;gap:16px">
-             <div style="align-self:flex-end;background:rgba(201,168,76,0.1);padding:12px 16px;border-radius:12px 12px 0 12px;font-size:13px;color:#F0EBE0;border:1px solid rgba(201,168,76,0.2)">
-               Come posso sbloccare il mio potenziale?
-             </div>
-             <div style="align-self:flex-start;background:rgba(255,255,255,0.03);padding:12px 16px;border-radius:12px 12px 12px 0;font-size:13px;color:rgba(240,235,224,0.7);border:1px solid rgba(255,255,255,0.05);max-width:90%">
-               <strong style="color:#C9A84C;display:block;margin-bottom:6px;font-size:10px;text-transform:uppercase;letter-spacing:1px">Luminel Coach</strong>
-               La vera domanda &egrave;: cosa stai proteggendo rimanendo fermo? Il Metodo ti guida ad osservare...
-             </div>
-             <div style="align-self:flex-end;background:rgba(201,168,76,0.1);padding:12px 16px;border-radius:12px 12px 0 12px;font-size:13px;color:#F0EBE0;border:1px solid rgba(201,168,76,0.2)">
-               Ho paura di fallire.
-             </div>
-           </div>
+      <!-- ── VOICE CARD ── -->
+      <div class="demo-card">
+        <div class="card-head">
+          <span class="card-badge badge-voice">Voice Coach &middot; Solo VIP</span>
+          <div class="card-name">Sessione Vocale HD</div>
+          <div class="card-desc">Parli. Luminel risponde con la voce di Michael Jara. In tempo reale. Senza limiti.</div>
         </div>
+        <div class="card-body">
+          <div class="voice-center">
+            <div class="orb-wrap">
+              <div class="orb-ring"></div>
+              <div class="orb-ring"></div>
+              <div class="orb-ring"></div>
+              <div class="orb-core">
+                <svg class="mic-svg" viewBox="0 0 24 24">
+                  <rect x="9" y="2" width="6" height="12" rx="3"/>
+                  <path d="M5 10a7 7 0 0 0 14 0"/>
+                  <line x1="12" y1="19" x2="12" y2="22"/>
+                  <line x1="8" y1="22" x2="16" y2="22"/>
+                </svg>
+              </div>
+            </div>
 
-        <!-- Call Demo -->
-        <div class="mirror-card" style="flex:1;min-width:300px;display:flex;flex-direction:column;gap:16px">
-           <h3 style="font-family:'Cinzel',serif;font-size:16px;color:#C9A84C;text-align:center">Interfaccia Call</h3>
-           <div style="background:rgba(6,6,15,0.6);border:1px solid rgba(201,168,76,0.15);border-radius:12px;position:relative;height:300px;overflow:hidden;display:flex;align-items:center;justify-content:center">
-             <div style="position:absolute;inset:0;background:radial-gradient(circle at center, rgba(201,168,76,0.15) 0%, transparent 70%)"></div>
-             
-             <!-- Animated Glow Rings -->
-             <div style="position:absolute;width:120px;height:120px;border-radius:50%;border:1px solid rgba(201,168,76,0.2);animation:pulse 2s infinite"></div>
-             <div style="position:absolute;width:160px;height:160px;border-radius:50%;border:1px solid rgba(201,168,76,0.1);animation:pulse 2s infinite 0.5s"></div>
+            <div class="waveform">
+              <div class="wbar"></div><div class="wbar"></div>
+              <div class="wbar"></div><div class="wbar"></div>
+              <div class="wbar"></div><div class="wbar"></div>
+              <div class="wbar"></div>
+            </div>
 
-             <div style="width:70px;height:70px;border-radius:50%;background:rgba(201,168,76,0.15);display:flex;align-items:center;justify-content:center;border:1px solid rgba(201,168,76,0.4);box-shadow:0 0 30px rgba(201,168,76,0.3);z-index:2;backdrop-filter:blur(4px)">
-                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#EDD980" stroke-width="1.5"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><line x1="12" y1="19" x2="12" y2="23"></line><line x1="8" y1="23" x2="16" y2="23"></line></svg>
-             </div>
-             <div style="position:absolute;bottom:30px;left:0;right:0;text-align:center;font-size:11px;color:rgba(201,168,76,0.8);letter-spacing:1.5px;text-transform:uppercase">
-               Luminel &egrave; in ascolto...
-             </div>
-           </div>
+            <div class="voice-status" id="voice-status">Luminel &egrave; in ascolto&hellip;</div>
+            <div class="voice-transcript" id="voice-transcript">
+              &ldquo;Dimmi &mdash; cosa ti ha portato qui oggi, davvero?&rdquo;
+            </div>
+          </div>
+
+          <div class="feat-list">
+            <div class="feat">
+              <div class="feat-dot" style="background:var(--alch)"></div>
+              Voce sintetica HD di Michael Jara &mdash; ElevenLabs
+            </div>
+            <div class="feat">
+              <div class="feat-dot" style="background:var(--alch)"></div>
+              Analisi emotiva post-sessione con report AI
+            </div>
+            <div class="feat">
+              <div class="feat-dot" style="background:var(--gold)"></div>
+              Esclusivo piano VIP Sovereign &mdash; illimitato
+            </div>
+          </div>
         </div>
       </div>
 
-      <div class="lp-cta-box reveal">
-        <h3 class="lp-cta-title">Sei pronto a smettere<br><em>di aspettare te stesso?</em></h3>
-        <p class="lp-cta-sub">Luminel costruisce un profilo di te nel tempo. Ricorda i tuoi pattern, le tue resistenze, le tue Reality Quest. Non &egrave; una chat. &Egrave; un percorso.</p>
-        <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
-          <button onclick="doNav('/onboarding')" class="btn-primary">Inizia gratis →</button>
-          <button onclick="doNav('/login')" class="btn-ghost">Ho gi&agrave; un account</button>
-        </div>
+    </div>
+
+    <!-- CTA BOTTOM -->
+    <div class="demo-footer reveal">
+      <div class="demo-footer-title">Scegli la tua <em>prima sessione.</em></div>
+      <div class="demo-footer-sub">Gratis per iniziare. Nessuna carta richiesta. Nessun impegno.</div>
+      <div class="demo-btns">
+        <button onclick="doNav('/onboarding')" class="btn-gold" style="border:none">Inizia con Chat gratis &#8594;</button>
+        <button onclick="doNav('/plans')" class="btn-outline">Scopri Voice Coach VIP</button>
       </div>
     </div>
   </section>
@@ -1042,6 +1345,121 @@ window.addEventListener('message', function(event) {
     toggleAudio();
   }
 });
+
+// ── DEMO COSMOS ────────────────────────────────────────────────────────────────────
+(function(){
+  var dc=document.getElementById('demo-cosmos');
+  if(!dc)return;
+  var ctx=dc.getContext('2d'),W,H,stars=[];
+  function rsz(){
+    W=dc.width=dc.parentElement.offsetWidth;
+    H=dc.height=dc.parentElement.offsetHeight;
+    stars=[];
+    for(var i=0;i<150;i++)stars.push({
+      x:Math.random(),y:Math.random(),
+      r:Math.random()*1.3+.2,
+      o:Math.random()*.65+.15,
+      s:Math.random()*.45+.1
+    });
+  }
+  rsz();window.addEventListener('resize',rsz);
+  var t=0;
+  (function anim(){
+    t+=.003;ctx.clearRect(0,0,W,H);
+    stars.forEach(function(s){
+      var x=(s.x+t*s.s*.012)%1*W,y=s.y*H;
+      var fl=.55+.45*Math.sin(t*s.s*2.8+s.o*7);
+      ctx.beginPath();ctx.arc(x,y,s.r,0,Math.PI*2);
+      ctx.fillStyle='rgba(240,235,224,'+(s.o*fl*.42)+')';
+      ctx.fill();
+    });
+    requestAnimationFrame(anim);
+  })();
+})();
+
+// ── CHAT TYPING ANIMATION ─────────────────────────────────────────────────────
+(function(){
+  var dots=document.getElementById('typing-dots');
+  var resp=document.getElementById('ai-response');
+  if(!dots||!resp)return;
+  setTimeout(function(){
+    if(dots){dots.style.display='none';}
+    if(resp){resp.classList.add('visible');}
+  },1800);
+})();
+
+// ── DEMO CHAT INTERACTION ─────────────────────────────────────────────────────
+var demoReplies=[
+  'Quella risposta rivela gi&agrave; qualcosa. Cosa succederebbe se smettessi di aspettare il momento giusto?',
+  'La vera domanda non &egrave; se ce la farai. &Egrave; chi vuoi essere mentre ci provi.',
+  'Hai gi&agrave; la risposta. Cosa ti impedisce di ammetterla?',
+  'Luminel ricorda questa sessione. La prossima volta partiremo da qui.',
+];
+var demoIdx=0,demoLocked=false;
+
+function demoSend(){
+  if(demoLocked)return;
+  var inp=document.getElementById('demo-input');
+  var bubbles=document.getElementById('chat-bubbles');
+  if(!inp||!bubbles||!inp.value.trim())return;
+  demoLocked=true;
+
+  // Add user bubble
+  var ub=document.createElement('div');
+  ub.className='bubble bubble-user';
+  ub.textContent=inp.value;
+  inp.value='';
+  bubbles.appendChild(ub);
+  bubbles.scrollTop=bubbles.scrollHeight;
+
+  // Add AI typing bubble
+  var ab=document.createElement('div');
+  ab.className='bubble bubble-ai';
+  ab.innerHTML='<span class="ai-label">Luminel Coach</span><div class="typing-dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div><span class="ai-text" style="display:none"></span>';
+  bubbles.appendChild(ab);
+  bubbles.scrollTop=bubbles.scrollHeight;
+
+  setTimeout(function(){
+    var td=ab.querySelector('.typing-dots');
+    var at=ab.querySelector('.ai-text');
+    if(td)td.style.display='none';
+    if(at){
+      at.style.display='block';
+      at.innerHTML=demoReplies[demoIdx%demoReplies.length];
+      demoIdx++;
+      setTimeout(function(){at.classList.add('visible');demoLocked=false;},50);
+    }
+    bubbles.scrollTop=bubbles.scrollHeight;
+  },1400);
+}
+
+// Enter key
+var di=document.getElementById('demo-input');
+if(di)di.addEventListener('keydown',function(e){if(e.key==='Enter')demoSend();});
+
+// ── VOICE ROTATION ────────────────────────────────────────────────────────────
+var vPhrases=[
+  '&ldquo;Dimmi &mdash; cosa ti ha portato qui oggi, davvero?&rdquo;',
+  '&ldquo;La terza volta che eviti questo argomento. Lo notiamo insieme.&rdquo;',
+  '&ldquo;Non &egrave; la paura del fallimento. &Egrave; cosa il fallimento direbbe di te.&rdquo;',
+  '&ldquo;Quella risposta &egrave; gi&agrave; dentro di te. Cosa ti impedisce di dirla ad alta voce?&rdquo;',
+];
+var vStatus=[
+  'Luminel &egrave; in ascolto&hellip;',
+  'Luminel risponde&hellip;',
+  'Elaborando il pattern&hellip;',
+  'Luminel &egrave; in ascolto&hellip;',
+];
+var vIdx=0;
+setInterval(function(){
+  vIdx=(vIdx+1)%vPhrases.length;
+  var vt=document.getElementById('voice-transcript');
+  var vs=document.getElementById('voice-status');
+  if(!vt)return;
+  vt.style.opacity='0';
+  if(vs)vs.innerHTML=vStatus[vIdx];
+  setTimeout(function(){vt.innerHTML=vPhrases[vIdx];vt.style.opacity='1';},420);
+},3400);
 
 </script>
 </body>
