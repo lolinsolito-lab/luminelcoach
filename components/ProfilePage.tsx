@@ -92,7 +92,7 @@ const ProfilePage: React.FC = () => {
   const { streak, xp, level, weeklyProgress, weeklyGoal } = useProgress();
   const navigate = useNavigate();
 
-  const handleLogout = () => { signOut(); navigate("/welcome"); };
+  const handleLogout = () => { signOut(); navigate("/"); };
 
   if (!user) return null;
 

@@ -165,7 +165,7 @@ const LoginPage: React.FC = () => {
 
         <p style={{ textAlign: "center", marginTop: 20, fontSize: 12, color: DL.muted }}>
           Non hai ancora un account?{" "}
-          <button onClick={() => navigate("/welcome")}
+          <button onClick={() => navigate("/onboarding")}
             style={{ color: DL.gold, background: "none", border: "none", cursor: "pointer", fontSize: 12, fontFamily: "'DM Sans',sans-serif", fontWeight: 500 }}
             onMouseEnter={e => e.currentTarget.style.color = DL.goldBr}
             onMouseLeave={e => e.currentTarget.style.color = DL.gold}>

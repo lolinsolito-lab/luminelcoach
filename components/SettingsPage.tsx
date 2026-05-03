@@ -177,7 +177,7 @@ const SettingsPage: React.FC = () => {
                             );
                         })}
                         <div style={{ borderTop: `0.5px solid ${DL.dim}` }}>
-                            <button onClick={() => { signOut(); navigate("/welcome"); }}
+                            <button onClick={() => { signOut(); navigate("/"); }}
                                 className="w-full flex items-center gap-3 px-4 py-3 text-left transition-all"
                                 style={{ color: DL.guer }}
                                 onMouseEnter={e => e.currentTarget.style.background = "rgba(212,96,58,0.06)"}
