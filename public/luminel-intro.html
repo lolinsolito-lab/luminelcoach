@@ -277,7 +277,11 @@ function initAudio(){
   bgAudio = new Audio(AUDIO_URL);
   bgAudio.loop = true;
   bgAudio.volume = 0;
-  bgAudio.play().catch(e => console.error("Audio err:", e));
+  bgAudio.play().catch(e => {
+    if (e.name !== 'NotAllowedError' && e.name !== 'NotSupportedError') {
+      console.warn("Audio ignorato:", e.message);
+    }
+  });
   audioOn = true;
   fadeAudio(0.5);
 }

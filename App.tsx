@@ -63,7 +63,7 @@ const LandingWrapper: React.FC = () => {
     return (
       <div style={{ position: 'fixed', inset: 0, zIndex: 99999, background: '#000' }}>
         <iframe
-          src="/luminel-intro.html?v=7"
+          src="/luminel-intro.html?v=8"
           title="Luminel Awakening"
           style={{ width: '100%', height: '100%', border: 'none', display: 'block' }}
         />
