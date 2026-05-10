@@ -86,6 +86,8 @@ export default async function handler(req: any, res: any) {
         const updateData: Record<string, any> = {
           plan,
           updated_at: new Date().toISOString(),
+          stripe_customer_id: session.customer,
+          stripe_subscription_id: session.subscription,
           // Se acquista VIP la prima volta, gli diamo il primo blocco di 120 minuti mensili gratuiti
           ...(plan === 'vip' && { voice_balance_minutes: 120 })
         };
@@ -110,10 +112,34 @@ export default async function handler(req: any, res: any) {
 
   if (event.type === 'customer.subscription.deleted') {
     const subscription = event.data.object as Stripe.Subscription;
-    // Qui andrebbe gestito il downgrade a 'free' quando l'abbonamento scade o viene annullato
-    // Per trovarlo, occorre o mappare il customer_id di Stripe al nostro utente,
-    // o passare un metadata nell'abbonamento. Per ora lo ignoriamo o facciamo in base all'email se la abbiamo.
-    console.log(`❌ Abbonamento cancellato: ${subscription.id}`);
+    // Downgrade a 'free' quando l'abbonamento viene annullato e scade
+    const customerId = subscription.customer as string;
+    if (customerId) {
+      console.log(`❌ Abbonamento cancellato per customer: ${customerId}. Downgrade a free.`);
+      await supabase.from('profiles').update({ plan: 'free' }).eq('stripe_customer_id', customerId);
+    }
+  }
+
+  // 🔴 LA MAGIA DEL RINNOVO MENSILE (MRR)
+  if (event.type === 'invoice.payment_succeeded') {
+    const invoice = event.data.object as Stripe.Invoice;
+    // Se è il rinnovo mensile di un abbonamento (e non l'acquisto iniziale o un boost)
+    if (invoice.billing_reason === 'subscription_cycle' && invoice.customer) {
+      const customerId = invoice.customer as string;
+      
+      // Cerchiamo l'utente nel DB tramite il customer_id
+      const { data: profile } = await supabase.from('profiles').select('id, plan').eq('stripe_customer_id', customerId).single();
+      
+      if (profile && profile.plan === 'vip') {
+        console.log(`🔄 Rinnovo mensile VIP per utente ${profile.id}. Ricarica 120 minuti HD.`);
+        // Il mese riparte, quindi REIMPOSTIAMO i minuti a 120 (non si sommano, è un tetto mensile)
+        // Oppure se vuoi farli accumulare, si fa currentMins + 120. Noi li resettiamo a 120 come i gestori telefonici.
+        await supabase.from('profiles').update({ 
+          voice_balance_minutes: 120,
+          updated_at: new Date().toISOString()
+        }).eq('id', profile.id);
+      }
+    }
   }
 
   res.status(200).json({ received: true });
