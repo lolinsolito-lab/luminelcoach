@@ -84,7 +84,7 @@ const PIANI = [
     popular: true,
     badge: "Più scelto",
     features: [
-      { t: "100 messaggi AI/giorno con Claude Sonnet", h: true },
+      { t: "100 messaggi AI/giorno (Luminel HD)", h: true },
       { t: "Tutti i corsi completi con audio", h: true },
       { t: "Tutte le modalità (Coach+Shadow+Strategia)", h: true },
       { t: "Memoria AI profonda con pattern behavior", h: true },
@@ -109,7 +109,7 @@ const PIANI = [
     fullPrice: FULL_PRICES.vip,
     badge: "Elite",
     features: [
-      { t: "Messaggi illimitati con Claude Opus", h: true },
+      { t: "Messaggi illimitati (Luminel Sovereign)", h: true },
       { t: "Il Consiglio dei 4 Archetipi", h: true },
       { t: "Voice Coach HD (120 min/mese) — voce Michael Jara", h: true },
       { t: "Corsi VIP esclusivi con video di Michael Jara", h: true },
@@ -127,7 +127,7 @@ const PIANI = [
 // ─── CONFRONTO TIER ───────────────────────────────────────────────────────────
 const COMPARE = [
   { f: "Messaggi AI/giorno", free: "5", starter: "30", premium: "100", vip: "Illimitati" },
-  { f: "Modello AI", free: "Haiku", starter: "Haiku", premium: "Sonnet", vip: "Opus (migliore)" },
+  { f: "Modello AI", free: "Luminel Base", starter: "Luminel Base", premium: "Luminel HD", vip: "Luminel Sovereign" },
   { f: "Corsi disponibili", free: "Preview 2L", starter: "3 base", premium: "Tutti + audio", vip: "Tutti + VIP esclusivi" },
   { f: "Video Michael Jara", free: false, starter: false, premium: false, vip: true },
   { f: "Memoria AI tra sessioni", free: false, starter: "Base", premium: "Profonda", vip: "Profonda + pattern" },
