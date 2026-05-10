@@ -58,32 +58,52 @@ export default async function handler(req: any, res: any) {
     const plan = session.metadata?.plan || 'premium';
 
     if (userId) {
-      console.log(`✅ Pagamento completato per utente ${userId}. Upgrade a ${plan}.`);
+      if (plan.startsWith('boost_')) {
+        console.log(`✅ Pagamento completato per utente ${userId}. Boost acquistato: ${plan}.`);
+        let addedMinutes = 0;
+        if (plan === 'boost_1h') addedMinutes = 60;
+        if (plan === 'boost_3h') addedMinutes = 180;
+        if (plan === 'boost_5h') addedMinutes = 300;
 
-      // Recupera il prezzo pagato per tracciare il prezzo Fondatore
-      const lineItems = await stripe.checkout.sessions.listLineItems(session.id, { limit: 1 });
-      const pricePaid = lineItems.data[0]?.price?.unit_amount
-        ? lineItems.data[0].price.unit_amount / 100
-        : null;
+        const { data: profile } = await supabase.from('profiles').select('voice_balance_minutes').eq('id', userId).single();
+        const currentMins = profile?.voice_balance_minutes || 0;
+        
+        const { error } = await supabase.from('profiles').update({ 
+          voice_balance_minutes: currentMins + addedMinutes, 
+          updated_at: new Date().toISOString() 
+        }).eq('id', userId);
 
-      const updateData: Record<string, any> = {
-        plan,
-        updated_at: new Date().toISOString(),
-      };
+        if (error) console.error("Errore aggiornamento boost Supabase:", error);
+      } else {
+        console.log(`✅ Pagamento completato per utente ${userId}. Upgrade a ${plan}.`);
 
-      // Salva il prezzo bloccato Fondatore solo al primo acquisto
-      if (pricePaid && plan !== 'free') {
-        updateData.founder_plan_price = pricePaid;
-        updateData.is_founder = true;
-      }
+        // Recupera il prezzo pagato per tracciare il prezzo Fondatore
+        const lineItems = await stripe.checkout.sessions.listLineItems(session.id, { limit: 1 });
+        const pricePaid = lineItems.data[0]?.price?.unit_amount
+          ? lineItems.data[0].price.unit_amount / 100
+          : null;
 
-      const { error } = await supabase
-        .from('profiles')
-        .update(updateData)
-        .eq('id', userId);
+        const updateData: Record<string, any> = {
+          plan,
+          updated_at: new Date().toISOString(),
+          // Se acquista VIP la prima volta, gli diamo il primo blocco di 120 minuti mensili gratuiti
+          ...(plan === 'vip' && { voice_balance_minutes: 120 })
+        };
 
-      if (error) {
-        console.error("Errore aggiornamento profilo Supabase:", error);
+        // Salva il prezzo bloccato Fondatore solo al primo acquisto
+        if (pricePaid && plan !== 'free') {
+          updateData.founder_plan_price = pricePaid;
+          updateData.is_founder = true;
+        }
+
+        const { error } = await supabase
+          .from('profiles')
+          .update(updateData)
+          .eq('id', userId);
+
+        if (error) {
+          console.error("Errore aggiornamento profilo Supabase:", error);
+        }
       }
     }
   }

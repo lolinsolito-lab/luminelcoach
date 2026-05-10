@@ -19,12 +19,21 @@ export default async function handler(req: any, res: any) {
     const isLaunch = Date.now() < new Date('2026-09-01T00:00:00Z').getTime();
     
     let priceId = '';
-    if (plan === 'vip') {
-      priceId = isLaunch ? process.env.STRIPE_PRICE_VIP_LAUNCH! : process.env.STRIPE_PRICE_VIP_FULL!;
-    } else if (plan === 'starter') {
-      priceId = isLaunch ? process.env.STRIPE_PRICE_STARTER_LAUNCH! : process.env.STRIPE_PRICE_STARTER_FULL!;
+    let mode: 'subscription' | 'payment' = 'subscription';
+
+    if (plan.startsWith('boost_')) {
+      mode = 'payment';
+      if (plan === 'boost_1h') priceId = process.env.STRIPE_PRICE_BOOST_1H!;
+      else if (plan === 'boost_3h') priceId = process.env.STRIPE_PRICE_BOOST_3H!;
+      else if (plan === 'boost_5h') priceId = process.env.STRIPE_PRICE_BOOST_5H!;
     } else {
-      priceId = isLaunch ? process.env.STRIPE_PRICE_PREMIUM_LAUNCH! : process.env.STRIPE_PRICE_PREMIUM_FULL!;
+      if (plan === 'vip') {
+        priceId = isLaunch ? process.env.STRIPE_PRICE_VIP_LAUNCH! : process.env.STRIPE_PRICE_VIP_FULL!;
+      } else if (plan === 'starter') {
+        priceId = isLaunch ? process.env.STRIPE_PRICE_STARTER_LAUNCH! : process.env.STRIPE_PRICE_STARTER_FULL!;
+      } else {
+        priceId = isLaunch ? process.env.STRIPE_PRICE_PREMIUM_LAUNCH! : process.env.STRIPE_PRICE_PREMIUM_FULL!;
+      }
     }
 
     if (!priceId) {
@@ -52,7 +61,7 @@ export default async function handler(req: any, res: any) {
           quantity: 1,
         },
       ],
-      mode: 'subscription',
+      mode,
       success_url: successUrl,
       cancel_url: cancelUrl,
       customer_email: email,
