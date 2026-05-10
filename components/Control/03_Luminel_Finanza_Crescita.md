@@ -17,10 +17,12 @@
 ### Costi Variabili per Utente
 | Piano | API usata | Costo/utente/mese |
 |---|---|---|
-| Free | Haiku (10 msg/die) | ~€0.06 |
+| Free | Haiku (5 msg/die) | ~€0.06 |
 | Starter | Haiku (30 msg/die) | ~€0.12 |
 | Premium | Sonnet (100 msg/die) | ~€0.70 |
-| VIP | Opus (100 msg/die) | ~€1.80 |
+| VIP | Opus (999 msg/die) | ~€1.80 |
+
+> **Nota sui Prezzi (Lancio vs Regime):** I prezzi mostrati di seguito sono a "regime". Durante la fase di lancio (fino al 1° Settembre 2026), i prezzi effettivi sulla Landing Page sono inferiori (es. Starter €9.99, VIP €149). L'Edge Function ignora il prezzo: legge solo il campo `plan` (`starter`, `premium`, `vip`) aggiornato via webhook da Stripe, che è l'unico sistema delegato a calcolare l'importo corretto in base alla data.
 
 ### Margini per Piano
 ```

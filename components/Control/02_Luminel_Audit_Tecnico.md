@@ -79,12 +79,14 @@ REQUEST
   ├─ Verifica JWT utente
   ├─ Legge plan da profiles
   ├─ Controlla daily_message_count
-  │   ├─ FREE:    limit 10
-  │   ├─ PREMIUM: limit 50
+  │   ├─ FREE:    limit 5
+  │   ├─ STARTER: limit 30
+  │   ├─ PREMIUM: limit 100
   │   └─ VIP:     limit 999
   │
   ├─ Sceglie modello:
   │   ├─ FREE:    claude-haiku-4-5-20251001
+  │   ├─ STARTER: claude-haiku-4-5-20251001
   │   ├─ PREMIUM: claude-sonnet-4-6
   │   └─ VIP:     claude-opus-4-6
   │
