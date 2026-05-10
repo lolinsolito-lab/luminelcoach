@@ -296,7 +296,7 @@ c:\LuminelCoach\
 free:    chat (10/die), 1 quest/giorno, prime 2 lezioni corsi, 1 voice demo/mese
 starter: chat (30/die), 1 quest/giorno, 3 corsi base completi, community base
 premium: chat (100/die), tutte le quests, tutti i corsi, audio binaural
-vip:     tutto + Il Consiglio, Voice HD illimitato, sessione Michael Jara 1/mese
+vip:     tutto + Il Consiglio, Voice HD (120 min), sessione Michael Jara 1/mese
 ```
 
 **Prezzi ufficiali — NON modificare:**

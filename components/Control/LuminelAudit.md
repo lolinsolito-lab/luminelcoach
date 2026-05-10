@@ -112,7 +112,7 @@ select cron.schedule(
 // Logica canAccess() usata nei componenti
 free:    chat (10/die), 1 quest, 3 corsi, 1 voice demo/mese
 premium: chat illimitata (50/die), tutte le quests, tutti i corsi, audio binaural
-vip:     tutto + Il Consiglio, Voice HD illimitato, sessione Michael Jara 1/mese
+vip:     tutto + Il Consiglio, Voice HD (120 min), sessione Michael Jara 1/mese
 ```
 
 ---

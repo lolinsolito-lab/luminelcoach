@@ -88,7 +88,7 @@ const planData = {
     topLine: 'linear-gradient(90deg,transparent,rgba(155,116,224,0.65),transparent)',
     features: [
       'Tutto il piano Premium incluso',
-      'Voice Coach illimitato HD (ElevenLabs)',
+      'Voice Coach HD (120 min/mese)',
       'Analisi emotiva post-call con AI',
       '1 sessione mensile 1:1 con Michael Jara',
       'Report settimanale del percorso vocale',

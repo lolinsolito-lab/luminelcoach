@@ -14,6 +14,7 @@ const AICallModal: React.FC<AICallModalProps> = ({ onClose }) => {
   const [status, setStatus] = useState<'connecting' | 'listening' | 'processing' | 'speaking' | 'ended'>('connecting');
   const [transcript, setTranscript] = useState('');
   const [isMuted, setIsMuted] = useState(false);
+  const [memoryContext, setMemoryContext] = useState('');
   
   const recognitionRef = useRef<any>(null);
   const synthesisRef = useRef<SpeechSynthesis>(window.speechSynthesis);
@@ -36,7 +37,7 @@ const AICallModal: React.FC<AICallModalProps> = ({ onClose }) => {
             : 0;
 
           if (profile?.plan !== 'vip' && count >= 1) {
-            alert('Hai già usato la tua demo vocale del mese. Passa a VIP per accesso illimitato.');
+            alert('Hai già usato la tua demo vocale del mese. Passa a VIP per 120 minuti mensili HD.');
             onClose();
             return;
           }
@@ -47,6 +48,19 @@ const AICallModal: React.FC<AICallModalProps> = ({ onClose }) => {
             last_voice_month: currentMonth,
             updated_at: new Date().toISOString(),
           });
+
+          // Se VIP, recupera il contesto delle chat testuali per memoria condivisa
+          if (profile?.plan === 'vip') {
+            const { data: userCtx } = await supabase.from('user_context').select('*').eq('user_id', user.id).single();
+            if (userCtx) {
+              const patterns = userCtx.observed_patterns?.length ? `Pattern osservati: ${userCtx.observed_patterns.join(", ")}` : "";
+              const quest = userCtx.active_quest_text ? `Quest attiva: ${userCtx.active_quest_text}` : "";
+              const summary = userCtx.last_session_summary ? `Ultima chat testuale: ${userCtx.last_session_summary}` : "";
+              const ikigai = `Fase Ikigai: ${userCtx.ikigai_stage || "scoperta"}`;
+              const memBlock = `[MEMORIA CLIENTE VIP]\nTieni a mente questo contesto estratto dalle sue chat scritte passate:\n${ikigai}\n${summary}\n${patterns}\n${quest}\n[FINE MEMORIA]`;
+              setMemoryContext(memBlock);
+            }
+          }
         }
 
         aiRef.current = new GoogleGenAI({ apiKey: process.env.API_KEY });
@@ -135,7 +149,7 @@ const AICallModal: React.FC<AICallModalProps> = ({ onClose }) => {
         model: "gemini-2.5-flash",
         contents: userText,
         config: {
-          systemInstruction: LUMINEL_SYSTEM_INSTRUCTION + "\n\nIMPORTANTE: Rispondi in VOCE. Sii breve (max 2 frasi), empatica e calda. Usa linguaggio parlato."
+          systemInstruction: LUMINEL_SYSTEM_INSTRUCTION + "\n\nIMPORTANTE: Rispondi in VOCE. Sii breve (max 2 frasi), empatica e calda. Usa linguaggio parlato." + (memoryContext ? "\n\n" + memoryContext : "")
         }
       });
 

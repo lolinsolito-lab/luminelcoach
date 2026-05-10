@@ -111,7 +111,7 @@ const PIANI = [
     features: [
       { t: "Messaggi illimitati con Claude Opus", h: true },
       { t: "Il Consiglio dei 4 Archetipi", h: true },
-      { t: "Voice Coach illimitato HD — voce Michael Jara", h: true },
+      { t: "Voice Coach HD (120 min/mese) — voce Michael Jara", h: true },
       { t: "Corsi VIP esclusivi con video di Michael Jara", h: true },
       { t: "1 sessione live con Michael Jara/mese", h: true },
       { t: "Report settimanale AI del tuo percorso", h: false },
@@ -133,7 +133,7 @@ const COMPARE = [
   { f: "Memoria AI tra sessioni", free: false, starter: "Base", premium: "Profonda", vip: "Profonda + pattern" },
   { f: "Reality Quest", free: "1/sett", starter: "Ogni giorno", premium: "AI + analytics", vip: "Prioritaria + analisi" },
   { f: "Calm Space & Binaural", free: "Base", starter: "Base", premium: "Completo", vip: "Completo" },
-  { f: "Voice Coach", free: "1 demo/mese", starter: false, premium: "3 sess/mese", vip: "Illimitato HD" },
+  { f: "Voice Coach", free: "1 demo/mese", starter: false, premium: "3 sess/mese", vip: "120 min HD" },
   { f: "Voce Michael Jara", free: false, starter: false, premium: false, vip: true },
   { f: "Il Consiglio Archetipi", free: false, starter: false, premium: false, vip: true },
   { f: "Sessione con Michael Jara", free: false, starter: false, premium: false, vip: "1/mese" },
@@ -156,7 +156,7 @@ const FAQS = [
   },
   {
     q: "Il Voice Coach VIP — come funziona esattamente?",
-    a: "Parli con Luminel a voce. Luminel ti risponde con la voce sintetica HD di Michael Jara (ElevenLabs). Non è un recording — è una sessione AI vocale in tempo reale con la metodologia Jara. Illimitato per i VIP.",
+    a: "Parli con Luminel a voce. Luminel ti risponde con la voce sintetica HD di Michael Jara (ElevenLabs). Non è un recording — è una sessione AI vocale in tempo reale con la metodologia Jara. 120 minuti inclusi per i VIP.",
   },
   {
     q: "Posso cancellare quando voglio?",
