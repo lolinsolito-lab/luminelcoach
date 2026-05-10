@@ -486,6 +486,7 @@ const PlansPage: React.FC = () => {
   const [selectedPlan, setSelectedPlan] = useState<"premium" | "vip" | "starter">("premium");
   const currentPlan: string = (user as any)?.plan ?? "free";
   const isFounder = (user as any)?.is_founder ?? false;
+  const isLaunch = Date.now() < new Date('2026-09-01T00:00:00Z').getTime();
 
   const handleSelect = (planId: string) => {
     if (planId === "free") return;

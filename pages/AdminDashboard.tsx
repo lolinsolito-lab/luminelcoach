@@ -9,7 +9,7 @@ import {
 import { FireIcon } from "@heroicons/react/24/solid";
 import {
   getFinanceKPI, getAdminUsers, getAIHealth, getFunnelData,
-  getUserSegments, adminUpgradePlan,
+  getUserSegments, adminUpgradePlan, adminToggleFounder,
   FinanceKPI, AdminUser, AIHealth, FunnelData,
 } from "../services/adminService";
 import { isAdmin } from "../services/adminService";
@@ -83,7 +83,7 @@ const RiskBadge: React.FC<{ score: number }> = ({ score }) => {
 
 // ── PLAN BADGE ────────────────────────────────────────────────────────────────
 const PlanBadge: React.FC<{ plan: string }> = ({ plan }) => {
-  const colors: Record<string, string> = { free: DL.muted, starter: DL.stra, premium: DL.gold, vip: DL.alch };
+  const colors: Record<string, string> = { free: DL.muted, starter: DL.stra, premium: DL.gold, vip: DL.alch, elite: DL.guer };
   const c = colors[plan] ?? DL.muted;
   return (
     <span style={{ fontSize: 9, padding: "2px 8px", borderRadius: 4, background: `${c}15`, color: c, border: `0.5px solid ${c}30`, textTransform: "uppercase", letterSpacing: ".08em" }}>
@@ -112,7 +112,7 @@ const FinanceModule: React.FC<{ kpi: FinanceKPI | null }> = ({ kpi }) => {
         <div style={{ fontSize: 10, letterSpacing: ".16em", textTransform: "uppercase", color: DL.muted, marginBottom: 16 }}>Breakdown per piano</div>
         <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
           {Object.entries(kpi.byPlan).map(([plan, data]) => {
-            const colors: Record<string, string> = { free: DL.muted, starter: DL.stra, premium: DL.gold, vip: DL.alch };
+            const colors: Record<string, string> = { free: DL.muted, starter: DL.stra, premium: DL.gold, vip: DL.alch, elite: DL.guer };
             const c = colors[plan] ?? DL.muted;
             const maxUsers = Math.max(...Object.values(kpi.byPlan).map(d => d.count), 1);
             return (
@@ -153,7 +153,7 @@ const FinanceModule: React.FC<{ kpi: FinanceKPI | null }> = ({ kpi }) => {
 };
 
 // ── CRM MODULE ────────────────────────────────────────────────────────────────
-const CRMModule: React.FC<{ users: AdminUser[]; onUpgrade: (id: string, plan: string) => void }> = ({ users, onUpgrade }) => {
+const CRMModule: React.FC<{ users: AdminUser[]; onUpgrade: (id: string, plan: string) => void; onToggleFounder: (id: string, isFounder: boolean) => void }> = ({ users, onUpgrade, onToggleFounder }) => {
   const [search, setSearch] = useState("");
   const [planFilter, setPlanFilter] = useState("all");
   const [selected, setSelected] = useState<AdminUser | null>(null);
@@ -176,7 +176,7 @@ const CRMModule: React.FC<{ users: AdminUser[]; onUpgrade: (id: string, plan: st
           <input value={search} onChange={e => setSearch(e.target.value)}
             placeholder="Cerca per nome..."
             style={{ flex: 1, minWidth: 180, padding: "8px 14px", background: "rgba(255,255,255,0.03)", border: "0.5px solid rgba(255,255,255,0.08)", borderRadius: 9, fontSize: 12, color: DL.white, outline: "none", fontFamily: "'DM Sans',sans-serif" }} />
-          {["all", "free", "starter", "premium", "vip"].map(p => (
+          {["all", "free", "starter", "premium", "vip", "elite"].map(p => (
             <button key={p} onClick={() => setPlanFilter(p)}
               style={{
                 padding: "7px 14px", borderRadius: 9, fontSize: 11, cursor: "pointer", fontFamily: "'DM Sans',sans-serif",
@@ -251,6 +251,7 @@ const CRMModule: React.FC<{ users: AdminUser[]; onUpgrade: (id: string, plan: st
             <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 20 }}>
               {[
                 { label: "Piano", value: <PlanBadge plan={selected.plan} /> },
+                { label: "Status Fondatore", value: selected.isFounder ? "Sì ★" : "No" },
                 { label: "Streak", value: `🔥 ${selected.streakDays} giorni` },
                 { label: "XP totali", value: `${selected.xpTotal} xp — Lv.${selected.level}` },
                 { label: "Sessioni", value: `${selected.sessionCount}` },
@@ -266,14 +267,28 @@ const CRMModule: React.FC<{ users: AdminUser[]; onUpgrade: (id: string, plan: st
 
             {/* Azioni */}
             <div style={{ fontSize: 10, letterSpacing: ".14em", textTransform: "uppercase", color: DL.muted, marginBottom: 10 }}>Azioni admin</div>
+            
+            <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 16 }}>
+              <button onClick={() => { onToggleFounder(selected.id, !selected.isFounder); setSelected({ ...selected, isFounder: !selected.isFounder }); }}
+                style={{
+                  padding: "9px", borderRadius: 9, fontSize: 12, cursor: "pointer", fontFamily: "'DM Sans',sans-serif",
+                  background: selected.isFounder ? "rgba(255,255,255,0.03)" : DL.goldDim,
+                  border: `0.5px solid ${selected.isFounder ? "rgba(255,255,255,0.07)" : DL.goldB}`,
+                  color: selected.isFounder ? DL.muted : DL.gold
+                }}>
+                {selected.isFounder ? "Rimuovi Status Founder" : "★ Rendi Founder"}
+              </button>
+            </div>
+
+            <div style={{ fontSize: 10, letterSpacing: ".14em", textTransform: "uppercase", color: DL.muted, marginBottom: 10 }}>Cambia Piano</div>
             <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-              {(["free", "starter", "premium", "vip"] as const).filter(p => p !== selected.plan).map(plan => (
+              {(["free", "starter", "premium", "vip", "elite"] as const).filter(p => p !== selected.plan).map(plan => (
                 <button key={plan} onClick={() => { onUpgrade(selected.id, plan); setSelected({ ...selected, plan }); }}
                   style={{
                     padding: "9px", borderRadius: 9, fontSize: 12, cursor: "pointer", fontFamily: "'DM Sans',sans-serif",
-                    background: plan === "vip" ? "rgba(155,116,224,0.1)" : plan === "premium" ? DL.goldDim : plan === "starter" ? "rgba(74,158,212,0.1)" : "rgba(255,255,255,0.03)",
-                    border: `0.5px solid ${plan === "vip" ? "rgba(155,116,224,0.3)" : plan === "premium" ? DL.goldB : plan === "starter" ? "rgba(74,158,212,0.3)" : "rgba(255,255,255,0.07)"}`,
-                    color: plan === "vip" ? DL.alch : plan === "premium" ? DL.gold : plan === "starter" ? DL.stra : DL.muted
+                    background: plan === "elite" ? "rgba(212,96,58,0.1)" : plan === "vip" ? "rgba(155,116,224,0.1)" : plan === "premium" ? DL.goldDim : plan === "starter" ? "rgba(74,158,212,0.1)" : "rgba(255,255,255,0.03)",
+                    border: `0.5px solid ${plan === "elite" ? "rgba(212,96,58,0.3)" : plan === "vip" ? "rgba(155,116,224,0.3)" : plan === "premium" ? DL.goldB : plan === "starter" ? "rgba(74,158,212,0.3)" : "rgba(255,255,255,0.07)"}`,
+                    color: plan === "elite" ? DL.guer : plan === "vip" ? DL.alch : plan === "premium" ? DL.gold : plan === "starter" ? DL.stra : DL.muted
                   }}>
                   Passa a {plan.toUpperCase()}
                 </button>
@@ -555,6 +570,12 @@ const AdminDashboard: React.FC = () => {
     setUsers(updated);
   };
 
+  const handleToggleFounder = async (userId: string, isFounder: boolean) => {
+    await adminToggleFounder(userId, isFounder);
+    const updated = await getAdminUsers();
+    setUsers(updated);
+  };
+
   const TABS: { id: Tab; label: string; icon: React.ReactNode; color: string }[] = [
     { id: "finance", label: "Finance", icon: <CurrencyEuroIcon className="w-4 h-4" />, color: DL.gold },
     { id: "crm", label: "CRM", icon: <UsersIcon className="w-4 h-4" />, color: DL.stra },
@@ -620,7 +641,7 @@ const AdminDashboard: React.FC = () => {
           <AnimatePresence mode="wait">
             <motion.div key={tab} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}>
               {tab === "finance" && <FinanceModule kpi={kpi} />}
-              {tab === "crm" && <CRMModule users={users} onUpgrade={handleUpgrade} />}
+              {tab === "crm" && <CRMModule users={users} onUpgrade={handleUpgrade} onToggleFounder={handleToggleFounder} />}
               {tab === "clsm" && <CLSMModule funnel={funnel} segments={segments} />}
               {tab === "promo" && <PromoModule />}
               {tab === "ai" && <AIHealthModule health={health} />}

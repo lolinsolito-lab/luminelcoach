@@ -146,6 +146,7 @@ const Dashboard: React.FC = () => {
   const [prevMoodId, setPrevMoodId] = useState("focused");
   const [nudge, setNudge] = useState(false);
   const [dbPlan, setDbPlan] = useState<string>("free");
+  const [isFounder, setIsFounder] = useState(false);
   const timer = useTimer(3);
 
   // Carica piano e mood salvato da Supabase
@@ -153,11 +154,12 @@ const Dashboard: React.FC = () => {
     if (!user) return;
     supabase
       .from("profiles")
-      .select("plan")
+      .select("plan, is_founder")
       .eq("id", user.id)
       .single()
       .then(({ data }) => {
         if (data?.plan) setDbPlan(data.plan);
+        if (data?.is_founder) setIsFounder(data.is_founder);
       });
     supabase
       .from("user_context")
@@ -205,8 +207,13 @@ const Dashboard: React.FC = () => {
 
       {/* ══ HEADER ══ */}
       <motion.div initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} className="mb-8">
-        <div style={{ fontSize: 9, letterSpacing: ".32em", textTransform: "uppercase", color: "rgba(201,168,76,0.45)", marginBottom: 6 }}>
-          Luminel Daily Guidance · {today}
+        <div style={{ fontSize: 9, letterSpacing: ".32em", textTransform: "uppercase", color: "rgba(201,168,76,0.45)", marginBottom: 6, display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <span>Luminel Daily Guidance · {today}</span>
+          {isFounder && (
+            <span style={{ background: 'rgba(201,168,76,0.15)', border: '0.5px solid rgba(201,168,76,0.3)', color: '#C9A84C', padding: '2px 8px', borderRadius: '12px', fontWeight: 600 }}>
+              ★ FOUNDER
+            </span>
+          )}
         </div>
         <h1 style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: "clamp(38px,4.5vw,56px)", fontWeight: 400, lineHeight: 1.02, color: "#F0EBE0", letterSpacing: "-0.01em" }}>
           Bentornato,{" "}

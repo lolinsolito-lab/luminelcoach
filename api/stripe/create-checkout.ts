@@ -9,10 +9,26 @@ export default async function handler(req: any, res: any) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
   try {
-    const { priceId, userId, successUrl, cancelUrl } = req.body;
+    const { plan, userId, successUrl, cancelUrl } = req.body;
 
-    if (!priceId || !userId) {
-      return res.status(400).json({ error: 'Missing priceId or userId' });
+    if (!plan || !userId) {
+      return res.status(400).json({ error: 'Missing plan or userId' });
+    }
+
+    // AUTOMAZIONE PREZZI: Dal 1° Settembre 2026 scattano i prezzi a regime
+    const isLaunch = Date.now() < new Date('2026-09-01T00:00:00Z').getTime();
+    
+    let priceId = '';
+    if (plan === 'vip') {
+      priceId = isLaunch ? process.env.STRIPE_PRICE_VIP_LAUNCH! : process.env.STRIPE_PRICE_VIP_FULL!;
+    } else if (plan === 'starter') {
+      priceId = isLaunch ? process.env.STRIPE_PRICE_STARTER_LAUNCH! : process.env.STRIPE_PRICE_STARTER_FULL!;
+    } else {
+      priceId = isLaunch ? process.env.STRIPE_PRICE_PREMIUM_LAUNCH! : process.env.STRIPE_PRICE_PREMIUM_FULL!;
+    }
+
+    if (!priceId) {
+      return res.status(500).json({ error: 'Stripe Price ID configuration missing for this plan/date' });
     }
 
     const supabase = createClient(
@@ -43,11 +59,7 @@ export default async function handler(req: any, res: any) {
       client_reference_id: userId,
       metadata: {
         userId,
-        plan: priceId === process.env.VITE_STRIPE_PRICE_VIP
-          ? 'vip'
-          : priceId === process.env.STRIPE_STARTER_PRICE_ID
-          ? 'starter'
-          : 'premium'
+        plan
       }
     });
 

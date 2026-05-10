@@ -1463,6 +1463,40 @@ setInterval(function(){
   setTimeout(function(){vt.innerHTML=vPhrases[vIdx];vt.style.opacity='1';},420);
 },3400);
 
+// ── AUTOMAZIONE PREZZI SETTEMBRE 2026 ───────────────────────────────────────
+document.addEventListener('DOMContentLoaded', function() {
+  var isLaunch = Date.now() < new Date('2026-09-01T00:00:00Z').getTime();
+  if (!isLaunch) {
+    // Aggiorna etichette
+    var overlines = document.querySelectorAll('.act5-overline');
+    if(overlines.length > 0) overlines[0].innerText = 'Scegli il tuo percorso';
+    var sub = document.querySelector('.act5-sub');
+    if(sub) sub.innerHTML = 'Luminel evolve con te. Sblocca la profondit&agrave; di cui hai bisogno.';
+    
+    // Nascondi badge fondatori
+    var fBadge = document.querySelector('.act5-header .reveal.d3[style*="border-radius:100px"]');
+    if(fBadge) fBadge.style.display = 'none';
+
+    // Rimuovi le note "Da settembre..." e aggiorna period
+    document.querySelectorAll('.plan-period').forEach(function(el) {
+      if(el.innerText.includes('lancio')) el.innerText = 'al mese';
+    });
+    document.querySelectorAll('.plan-price-wrap > div:last-child').forEach(function(el) {
+      if(el.innerText.includes('settembre')) el.style.display = 'none';
+    });
+
+    // Aggiorna i prezzi numerici dei tre piani a pagamento (Starter, Premium, VIP)
+    var starterPrice = document.querySelector('.plan.d1 .plan-price');
+    if(starterPrice) starterPrice.innerHTML = '<span style="color:var(--muted)">€</span>14<span style="font-size:20px">.99</span>';
+    
+    var premiumPrice = document.querySelector('.plan.d2 .plan-price');
+    if(premiumPrice) premiumPrice.innerHTML = '<span style="color:var(--muted)">€</span>67';
+
+    var vipPrice = document.querySelector('.plan.d3 .plan-price');
+    if(vipPrice) vipPrice.innerHTML = '<span style="color:var(--muted)">€</span>199';
+  }
+});
+
 </script>
 </body>
 </html>

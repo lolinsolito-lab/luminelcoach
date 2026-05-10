@@ -40,6 +40,7 @@ const IntroScreen: React.FC = () => {
       <iframe 
         src="/luminel-intro.html?v=6" 
         title="Luminel Awakening"
+        allow="autoplay"
         style={{ width: '100%', height: '100%', border: 'none', display: 'block' }}
       />
     </div>

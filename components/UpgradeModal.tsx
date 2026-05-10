@@ -104,6 +104,7 @@ const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose, planType }
   const { user } = useAuth();
   const [loading, setLoading] = useState(false);
   const plan = planData[planType];
+  const isLaunch = Date.now() < new Date('2026-09-01T00:00:00Z').getTime();
 
   const handleCheckout = async () => {
     if (!user) {
@@ -113,17 +114,11 @@ const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose, planType }
     
     setLoading(true);
     try {
-      const priceId = planType === 'vip'
-        ? import.meta.env.VITE_STRIPE_PRICE_VIP
-        : planType === 'starter'
-        ? import.meta.env.VITE_STRIPE_STARTER_PRICE_ID
-        : import.meta.env.VITE_STRIPE_PRICE_PREMIUM;
-        
       const res = await fetch('/api/stripe/create-checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          priceId,
+          plan: planType,
           userId: user.id,
           successUrl: `${window.location.origin}/dashboard?checkout=success`,
           cancelUrl: `${window.location.origin}/plans?checkout=canceled`,
@@ -213,15 +208,17 @@ const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose, planType }
               {/* Price */}
               <div className="flex items-end justify-center gap-1 mt-4 mb-1">
                 <span className="font-serif text-[42px] font-normal leading-none" style={{ color: DL.white }}>
-                  {plan.price}
+                  {isLaunch ? plan.price : (planType === 'vip' ? '€199' : planType === 'starter' ? '€14,99' : '€67')}
                 </span>
                 <span className="text-[14px] mb-2" style={{ color: DL.muted }}>
                   {plan.period}
                 </span>
               </div>
-              <p className="text-[11px]" style={{ color: DL.muted }}>
-                {plan.annualNote}
-              </p>
+              {isLaunch && (
+                <p className="text-[11px]" style={{ color: DL.muted }}>
+                  {plan.annualNote}
+                </p>
+              )}
             </div>
 
             {/* Divider */}
