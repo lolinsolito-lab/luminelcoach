@@ -159,6 +159,10 @@ const FAQS = [
     a: "Parli con Luminel a voce. Luminel ti risponde con la voce sintetica HD di Michael Jara (ElevenLabs). Non è un recording — è una sessione AI vocale in tempo reale con la metodologia Jara. 120 minuti inclusi per i VIP.",
   },
   {
+    q: "Cosa succede se esaurisco i 120 minuti di Voice Coach HD?",
+    a: "I 120 minuti mensili inclusi nel piano VIP sono progettati per coprire il fabbisogno di un intero mese di coaching avanzato. Tuttavia, se desideri intensificare il lavoro vocale, potrai ricaricare il tuo 'Cristallo Vocale' direttamente dalla Dashboard con pacchetti extra: Boost Scintilla (1 ora), Boost Flusso (3 ore) o Boost Sovrano (5 ore).",
+  },
+  {
     q: "Posso cancellare quando voglio?",
     a: "Sempre. Nessun vincolo, nessuna penale. Cancelli da Settings → Abbonamento. L'accesso rimane attivo fino alla fine del periodo pagato.",
   },
