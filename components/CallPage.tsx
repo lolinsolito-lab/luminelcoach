@@ -68,20 +68,20 @@ const CallPage: React.FC = () => {
   const handleStartDemo = () => setIsCallModalOpen(true);
 
   // Allineato con PlansPage: Premium NON include Voice Coach (solo 1 demo come Free)
-  // VIP Sovereign: Voice Coach illimitato HD
+  // VIP Sovereign: Voice Coach HD 120 min
   const planVoiceFeatures = {
     free: {
       included: ["1 Demo vocale al mese", "Qualità standard"],
-      excluded: ["Voice Coach illimitato", "Voce HD Ultra-Realistica", "Analisi emotiva post-call"],
+      excluded: ["Voice Coach HD (120 min/mese)", "Voce HD Ultra-Realistica", "Analisi emotiva post-call"],
     },
     premium: {
       included: ["1 Demo vocale al mese", "Qualità standard"],
-      excluded: ["Voice Coach illimitato", "Voce HD Ultra-Realistica", "Analisi emotiva post-call"],
-      note: "⚠️ Il Voice Coach illimitato è esclusivo del piano VIP"
+      excluded: ["Voice Coach HD (120 min/mese)", "Voce HD Ultra-Realistica", "Analisi emotiva post-call"],
+      note: "⚠️ Il Voice Coach HD completo è esclusivo del piano VIP"
     },
     vip: {
       included: [
-        "Voice Coach illimitato HD",
+        "Voice Coach HD (120 minuti inclusi)",
         "Voce Ultra-Realistica (ElevenLabs)",
         "Analisi emotiva post-call con AI",
         "1 sessione mensile con Michael Jara",
@@ -186,7 +186,7 @@ const CallPage: React.FC = () => {
           Scegli il tuo <em className="italic" style={{ color: DL.gold }}>livello</em>
         </h2>
         <p className="text-[12px] text-center mb-8" style={{ color: DL.muted }}>
-          Il Voice Coach illimitato è una funzionalità <span style={{ color: "#9B74E0" }}>esclusiva del piano VIP Sovereign</span>
+          Il Voice Coach HD completo (120 min/mese) è una funzionalità <span style={{ color: "#9B74E0" }}>esclusiva del piano VIP Sovereign</span>
         </p>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5 max-w-3xl mx-auto">
@@ -204,7 +204,7 @@ const CallPage: React.FC = () => {
             <div className="flex items-start gap-2 px-3 py-2.5 rounded-lg mb-5 text-[11px]"
               style={{ background: "rgba(212,96,58,0.07)", border: "0.5px solid rgba(212,96,58,0.2)", color: "#D4603A" }}>
               <span className="flex-shrink-0 mt-0.5">⚠</span>
-              <span>Il Voice Coach illimitato HD è disponibile solo con il piano <strong>VIP Sovereign</strong> (€199/mese)</span>
+              <span>Il Voice Coach HD completo è disponibile solo con il piano <strong>VIP Sovereign</strong> (€199/mese)</span>
             </div>
 
             <div className="flex flex-col gap-2.5 mb-6 flex-1">
@@ -241,8 +241,8 @@ const CallPage: React.FC = () => {
                 Esclusivo
               </span>
             </div>
-            <div className="font-serif text-[28px] font-normal mb-1" style={{ color: DL.white }}>Illimitato</div>
-            <p className="text-[12px] mb-5" style={{ color: DL.muted }}>Voice Coach HD · tutto incluso · €199/mese</p>
+            <div className="font-serif text-[28px] font-normal mb-1" style={{ color: DL.white }}>120 Minuti</div>
+            <p className="text-[12px] mb-5" style={{ color: DL.muted }}>Voice Coach HD · Ricaricabile se esaurito · €199/mese</p>
             <div className="mb-5"><Waveform color="#9B74E0" /></div>
             <div className="flex flex-col gap-2.5 mb-6 flex-1">
               {planVoiceFeatures.vip.included.map((f, i) => (
@@ -348,7 +348,7 @@ const CallPage: React.FC = () => {
         style={{ background: DL.goldDim, border: `0.5px solid ${DL.goldB}` }}>
         <div className="font-serif text-[22px] font-normal mb-2" style={{ color: DL.white }}>Pronto a sentire la differenza?</div>
         <p className="text-[13px] mb-6" style={{ color: DL.muted }}>
-          1 demo gratuita · Nessuna carta di credito · Voice Coach illimitato con VIP (€199/mese)
+          1 demo gratuita · Nessuna carta di credito · Voice Coach HD (120 min) con VIP (€199/mese)
         </p>
         <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
           <button onClick={handleStartDemo}
