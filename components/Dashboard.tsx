@@ -467,7 +467,7 @@ const Dashboard: React.FC = () => {
                   
                   <button onClick={() => handleBuyBoost("boost_1h")} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%", padding: "10px 14px", background: "rgba(255,255,255,0.03)", border: "0.5px solid rgba(255,255,255,0.1)", borderRadius: 8, cursor: "pointer", transition: "all 0.2s" }} onMouseOver={e => e.currentTarget.style.background = "rgba(255,255,255,0.06)"} onMouseOut={e => e.currentTarget.style.background = "rgba(255,255,255,0.03)"}>
                     <span style={{ fontSize: 11, color: "#F0EBE0", fontFamily: "'DM Sans',sans-serif" }}>Boost Scintilla (1h)</span>
-                    <span style={{ fontSize: 11, color: "#C9A84C", fontWeight: 600 }}>€29</span>
+                    <span style={{ fontSize: 11, color: "#C9A84C", fontWeight: 600 }}>€39</span>
                   </button>
                   <button onClick={() => handleBuyBoost("boost_3h")} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%", padding: "10px 14px", background: "rgba(255,255,255,0.03)", border: "0.5px solid rgba(255,255,255,0.1)", borderRadius: 8, cursor: "pointer", transition: "all 0.2s" }} onMouseOver={e => e.currentTarget.style.background = "rgba(255,255,255,0.06)"} onMouseOut={e => e.currentTarget.style.background = "rgba(255,255,255,0.03)"}>
                     <span style={{ fontSize: 11, color: "#F0EBE0", fontFamily: "'DM Sans',sans-serif" }}>Boost Flusso (3h)</span>
@@ -475,7 +475,7 @@ const Dashboard: React.FC = () => {
                   </button>
                   <button onClick={() => handleBuyBoost("boost_5h")} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%", padding: "10px 14px", background: "linear-gradient(90deg, rgba(201,168,76,0.1), transparent)", border: "0.5px solid rgba(201,168,76,0.3)", borderRadius: 8, cursor: "pointer", transition: "all 0.2s" }} onMouseOver={e => e.currentTarget.style.boxShadow = "0 0 10px rgba(201,168,76,0.2)"} onMouseOut={e => e.currentTarget.style.boxShadow = "none"}>
                     <span style={{ fontSize: 11, color: "#C9A84C", fontWeight: 600, fontFamily: "'DM Sans',sans-serif" }}>Boost Sovrano (5h)</span>
-                    <span style={{ fontSize: 11, color: "#C9A84C", fontWeight: 600 }}>€119</span>
+                    <span style={{ fontSize: 11, color: "#C9A84C", fontWeight: 600 }}>€99</span>
                   </button>
                 </div>
               </div>
