@@ -2,9 +2,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { PhoneXMarkIcon, MicrophoneIcon, MicrophoneIcon as MicrophoneSolid, SparklesIcon } from '@heroicons/react/24/solid';
-import { GoogleGenAI } from "@google/genai";
-import { LUMINEL_SYSTEM_PROMPT as LUMINEL_SYSTEM_INSTRUCTION } from '../lib/coach/system-prompt';
 import { supabase } from "../services/supabase";
+
+const SUPABASE_FUNCTIONS_URL = import.meta.env.VITE_SUPABASE_URL + "/functions/v1";
 
 interface AICallModalProps {
   onClose: () => void;
@@ -17,76 +17,33 @@ const AICallModal: React.FC<AICallModalProps> = ({ onClose }) => {
   const [memoryContext, setMemoryContext] = useState('');
   
   const recognitionRef = useRef<any>(null);
-  const synthesisRef = useRef<SpeechSynthesis>(window.speechSynthesis);
-  const aiRef = useRef<GoogleGenAI | null>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
     const init = async () => {
       try {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (user) {
-          const currentMonth = new Date().toISOString().slice(0, 7);
-          const { data: profile } = await supabase
-            .from('profiles')
-            .select('monthly_voice_count, last_voice_month, plan')
-            .eq('id', user.id)
-            .single();
-
-          const count = profile?.last_voice_month === currentMonth 
-            ? (profile?.monthly_voice_count ?? 0) 
-            : 0;
-
-          if (profile?.plan !== 'vip' && count >= 1) {
-            alert('Hai già usato la tua demo vocale del mese. Passa a VIP per 120 minuti mensili HD.');
-            onClose();
-            return;
-          }
-
-          await supabase.from('profiles').upsert({
-            id: user.id,
-            monthly_voice_count: count + 1,
-            last_voice_month: currentMonth,
-            updated_at: new Date().toISOString(),
-          });
-
-          // Se VIP, recupera il contesto delle chat testuali per memoria condivisa
-          if (profile?.plan === 'vip') {
-            const { data: userCtx } = await supabase.from('user_context').select('*').eq('user_id', user.id).single();
-            if (userCtx) {
-              const patterns = userCtx.observed_patterns?.length ? `Pattern osservati: ${userCtx.observed_patterns.join(", ")}` : "";
-              const quest = userCtx.active_quest_text ? `Quest attiva: ${userCtx.active_quest_text}` : "";
-              const summary = userCtx.last_session_summary ? `Ultima chat testuale: ${userCtx.last_session_summary}` : "";
-              const ikigai = `Fase Ikigai: ${userCtx.ikigai_stage || "scoperta"}`;
-              const memBlock = `[MEMORIA CLIENTE VIP]\nTieni a mente questo contesto estratto dalle sue chat scritte passate:\n${ikigai}\n${summary}\n${patterns}\n${quest}\n[FINE MEMORIA]`;
-              setMemoryContext(memBlock);
-            }
-          }
-        }
-
-        aiRef.current = new GoogleGenAI({ apiKey: process.env.API_KEY });
-        
-        // Fix for TypeScript error: Property 'SpeechRecognition' does not exist on type 'Window'
+        // Setup Speech Recognition (microfono)
         const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
         if (SpeechRecognition) {
           recognitionRef.current = new SpeechRecognition();
           recognitionRef.current.continuous = false;
           recognitionRef.current.lang = 'it-IT';
           recognitionRef.current.interimResults = false;
-          
+
           recognitionRef.current.onstart = () => setStatus('listening');
-          
+
           recognitionRef.current.onresult = (event: any) => {
             const text = event.results[0][0].transcript;
             setTranscript(text);
             handleAIResponse(text);
           };
-          
+
           recognitionRef.current.onerror = (event: any) => {
             console.log("Speech error, restarting...", event);
             if (status !== 'ended' && status !== 'speaking') {
-               setTimeout(() => {
-                   try { recognitionRef.current?.start(); } catch(e) {}
-               }, 1000);
+              setTimeout(() => {
+                try { recognitionRef.current?.start(); } catch(e) {}
+              }, 1000);
             }
           };
         }
@@ -106,7 +63,7 @@ const AICallModal: React.FC<AICallModalProps> = ({ onClose }) => {
 
     return () => {
       if (recognitionRef.current) recognitionRef.current.stop();
-      if (synthesisRef.current) synthesisRef.current.cancel();
+      if (audioRef.current) { audioRef.current.pause(); audioRef.current = null; }
     };
   }, []);
 
@@ -116,45 +73,94 @@ const AICallModal: React.FC<AICallModalProps> = ({ onClose }) => {
     }
   };
 
-  const speak = (text: string) => {
+  const speak = async (text: string) => {
     if (!text) return;
     setStatus('speaking');
-    synthesisRef.current.cancel();
 
-    const utterance = new SpeechSynthesisUtterance(text);
-    utterance.lang = 'it-IT';
-    utterance.rate = 0.95;
-    
-    const voices = synthesisRef.current.getVoices();
-    const preferredVoice = voices.find(v => v.lang === 'it-IT' && v.name.includes('Google')) || voices.find(v => v.lang === 'it-IT');
-    if (preferredVoice) utterance.voice = preferredVoice;
+    // Ferma audio precedente
+    if (audioRef.current) { audioRef.current.pause(); audioRef.current = null; }
 
-    utterance.onend = () => {
-      if (status !== 'ended') {
-        setStatus('listening');
-        startListening();
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const token = session?.access_token;
+
+      const res = await fetch(`${SUPABASE_FUNCTIONS_URL}/luminel-voice`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ text }),
+      });
+
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        if (err.error === 'accesso_negato') {
+          alert('Il Voice Coach HD è esclusivo del piano VIP Sovereign.');
+          onClose(); return;
+        }
+        if (err.error === 'saldo_esaurito') {
+          alert('Hai esaurito i tuoi minuti HD. Ricarica dalla Dashboard con un Voice Boost.');
+          onClose(); return;
+        }
+        throw new Error(err.error || 'Errore Edge Function');
       }
-    };
 
-    synthesisRef.current.speak(utterance);
+      // Aggiorna saldo mostrato (header X-Voice-Balance-Remaining)
+      const remaining = res.headers.get('X-Voice-Balance-Remaining');
+      if (remaining) console.log(`⏱ Minuti voce rimanenti: ${remaining}`);
+
+      const audioBlob = await res.blob();
+      const audioUrl = URL.createObjectURL(audioBlob);
+      const audio = new Audio(audioUrl);
+      audioRef.current = audio;
+
+      audio.onended = () => {
+        URL.revokeObjectURL(audioUrl);
+        if (status !== 'ended') {
+          setStatus('listening');
+          startListening();
+        }
+      };
+
+      audio.play();
+    } catch (err) {
+      console.error('speak() error:', err);
+      // Fallback: browser TTS se ElevenLabs non disponibile
+      const utt = new SpeechSynthesisUtterance(text);
+      utt.lang = 'it-IT';
+      utt.onend = () => { setStatus('listening'); startListening(); };
+      window.speechSynthesis.speak(utt);
+    }
   };
 
   const handleAIResponse = async (userText: string) => {
     setStatus('processing');
-    if (!aiRef.current) return;
 
     try {
-      // Updated to use the correct method from @google/genai
-      const response = await aiRef.current.models.generateContent({
-        model: "gemini-2.5-flash",
-        contents: userText,
-        config: {
-          systemInstruction: LUMINEL_SYSTEM_INSTRUCTION + "\n\nIMPORTANTE: Rispondi in VOCE. Sii breve (max 2 frasi), empatica e calda. Usa linguaggio parlato." + (memoryContext ? "\n\n" + memoryContext : "")
-        }
+      // Usa luminel-chat per generare la risposta testuale
+      const { data: { session } } = await supabase.auth.getSession();
+      const token = session?.access_token;
+
+      const chatRes = await fetch(`${SUPABASE_FUNCTIONS_URL}/luminel-chat`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          message: userText,
+          mode: 'voice', // modalità voce = risposte brevi e calde
+        }),
       });
 
-      // Updated to use the correct property access
-      const responseText = response.text || "";
+      let responseText = "Sono qui con te. Dimmi di più.";
+      if (chatRes.ok) {
+        const chatData = await chatRes.json();
+        responseText = chatData.reply || responseText;
+      }
+
+      // Ora sintetizza la risposta con ElevenLabs (via luminel-voice)
       speak(responseText);
     } catch (error) {
       console.error(error);
