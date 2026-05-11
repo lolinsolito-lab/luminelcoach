@@ -1,14 +1,17 @@
 // supabase/functions/luminel-voice/index.ts
 // DEPLOY: supabase functions deploy luminel-voice
-// SECRETS: ELEVENLABS_API_KEY, ELEVENLABS_VOICE_ID
+// SECRETS RICHIESTI: ELEVENLABS_API_KEY, ELEVENLABS_VOICE_ID
 //
-// Questo è il "guardiano" della voce HD:
+// Guardiano della voce HD Luminel.
+// Flusso:
 // 1. Verifica JWT → utente autenticato
-// 2. Verifica piano → deve essere VIP
-// 3. Verifica saldo → voice_balance_minutes > 0
-// 4. Chiama ElevenLabs TTS con la voce di Michael Jara
-// 5. Scala i minuti usati dal saldo nel DB
-// 6. Restituisce l'audio al client
+// 2. Verifica accesso → VIP (illimitato base) OPPURE voice_balance_minutes > 0 (Boost)
+// 3. Chiama ElevenLabs TTS con la voce clonata di Michael Jara
+// 4. Scala i minuti usati dal saldo
+// 5. Logga l'utilizzo su voice_usage_logs per analytics Admin
+// 6. Restituisce l'audio MP3 al client
+//
+// ═══════════════════════════════════════════════════════════════════════════════
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
@@ -18,14 +21,21 @@ const CORS = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
+const VIP_MONTHLY_MINUTES = 9999;
+const MAX_TEXT_LENGTH = 2000;
+
 serve(async (req: Request) => {
-  // ── PREFLIGHT ──────────────────────────────────────────────────────────────
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: CORS });
   }
 
+  const supabase = createClient(
+    Deno.env.get("SUPABASE_URL") ?? "",
+    Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
+  );
+
   try {
-    // ── 1. AUTENTICAZIONE JWT ──────────────────────────────────────────────────
+    // ── 1. AUTENTICAZIONE JWT ────────────────────────────────────────────────
     const authHeader = req.headers.get("Authorization");
     if (!authHeader) {
       return new Response(
@@ -34,12 +44,6 @@ serve(async (req: Request) => {
       );
     }
 
-    const supabase = createClient(
-      Deno.env.get("SUPABASE_URL") ?? "",
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
-    );
-
-    // Verifica il JWT dell'utente
     const token = authHeader.replace("Bearer ", "");
     const { data: { user }, error: authError } = await supabase.auth.getUser(token);
 
@@ -50,7 +54,7 @@ serve(async (req: Request) => {
       );
     }
 
-    // ── 2. RECUPERA PROFILO + VERIFICA PIANO ──────────────────────────────────
+    // ── 2. RECUPERA PROFILO ──────────────────────────────────────────────────
     const { data: profile, error: profileError } = await supabase
       .from("profiles")
       .select("plan, voice_balance_minutes")
@@ -64,32 +68,25 @@ serve(async (req: Request) => {
       );
     }
 
-    // Solo VIP può usare la voce HD
-    if (profile.plan !== "vip") {
+    const isVip = profile.plan === "vip" || profile.plan === "elite";
+    const balanceMinutes = profile.voice_balance_minutes ?? 0;
+
+    // ── 3. VERIFICA ACCESSO ──────────────────────────────────────────────────
+    // Accesso consentito se:
+    //   a) Piano VIP/Elite (minuti inclusi nel piano, non scalati)
+    //   b) Qualsiasi piano con voice_balance_minutes > 0 (Voice Boost acquistato)
+    if (!isVip && balanceMinutes <= 0) {
       return new Response(
         JSON.stringify({
           error: "accesso_negato",
-          message: "Il Voice Coach HD è esclusivo del piano VIP Sovereign.",
-          cta: "upgrade"
+          message: "Il Voice Coach HD e' disponibile per VIP Sovereign o con Voice Boosts.",
+          cta: "upgrade",
         }),
         { status: 403, headers: { ...CORS, "Content-Type": "application/json" } }
       );
     }
 
-    // Verifica saldo minuti
-    const balanceMinutes = profile.voice_balance_minutes ?? 0;
-    if (balanceMinutes <= 0) {
-      return new Response(
-        JSON.stringify({
-          error: "saldo_esaurito",
-          message: "Hai esaurito i tuoi minuti voce HD. Ricarica dalla Dashboard.",
-          cta: "boost"
-        }),
-        { status: 402, headers: { ...CORS, "Content-Type": "application/json" } }
-      );
-    }
-
-    // ── 3. LEGGI IL TESTO DA SINTETIZZARE ─────────────────────────────────────
+    // ── 4. LEGGI IL TESTO ────────────────────────────────────────────────────
     const body = await req.json();
     const { text, session_id } = body;
 
@@ -100,12 +97,11 @@ serve(async (req: Request) => {
       );
     }
 
-    // Limite sicurezza: max 2000 caratteri per chiamata (≈ 2-3 minuti audio)
-    const safeText = text.trim().slice(0, 2000);
+    const safeText = text.trim().slice(0, MAX_TEXT_LENGTH);
 
-    // ── 4. CHIAMA ELEVENLABS TTS ───────────────────────────────────────────────
+    // ── 5. CHIAMA ELEVENLABS TTS ─────────────────────────────────────────────
     const elevenLabsApiKey = Deno.env.get("ELEVENLABS_API_KEY");
-    const voiceId = Deno.env.get("ELEVENLABS_VOICE_ID"); // Voice ID di Michael Jara
+    const voiceId = Deno.env.get("ELEVENLABS_VOICE_ID");
 
     if (!elevenLabsApiKey || !voiceId) {
       console.error("❌ ELEVENLABS_API_KEY o ELEVENLABS_VOICE_ID non configurati");
@@ -116,24 +112,24 @@ serve(async (req: Request) => {
     }
 
     const elevenRes = await fetch(
-      `https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`,
+      "https://api.elevenlabs.io/v1/text-to-speech/" + voiceId,
       {
         method: "POST",
         headers: {
           "xi-api-key": elevenLabsApiKey,
           "Content-Type": "application/json",
-          "Accept": "audio/mpeg",
+          Accept: "audio/mpeg",
         },
         body: JSON.stringify({
           text: safeText,
-          model_id: "eleven_multilingual_v2", // ottimale per italiano
+          model_id: "eleven_multilingual_v2",
           voice_settings: {
-            stability: 0.55,        // voce stabile ma naturale
-            similarity_boost: 0.85, // fedele alla voce originale
-            style: 0.35,            // un tocco di espressività
-            use_speaker_boost: true
-          }
-        })
+            stability: 0.55,
+            similarity_boost: 0.85,
+            style: 0.35,
+            use_speaker_boost: true,
+          },
+        }),
       }
     );
 
@@ -146,37 +142,68 @@ serve(async (req: Request) => {
       );
     }
 
-    // ── 5. SCALA I MINUTI USATI ────────────────────────────────────────────────
-    // Stima: ~150 parole/minuto, ~5 caratteri/parola
-    const estimatedWords = safeText.length / 5;
-    const estimatedMinutes = Math.ceil(estimatedWords / 150);
-    const minutesToDeduct = Math.max(1, estimatedMinutes); // minimo 1 minuto
-
-    const newBalance = Math.max(0, balanceMinutes - minutesToDeduct);
-
-    await supabase
-      .from("profiles")
-      .update({
-        voice_balance_minutes: newBalance,
-        updated_at: new Date().toISOString()
-      })
-      .eq("id", user.id);
-
-    console.log(`✅ Voice HD: utente ${user.id} | -${minutesToDeduct} min | saldo: ${newBalance} min`);
-
-    // ── 6. RESTITUISCE L'AUDIO ─────────────────────────────────────────────────
     const audioBuffer = await elevenRes.arrayBuffer();
 
+    // ── 6. CALCOLA MINUTI USATI ──────────────────────────────────────────────
+    // Metodo primario: durata reale da bitrate MP3 (128kbps = 16000 bytes/s)
+    // Metodo fallback: stima da testo
+    const audioBytes = audioBuffer.byteLength;
+    const estimatedSeconds = audioBytes > 0
+      ? Math.ceil(audioBytes / 16000)
+      : Math.ceil(safeText.length / 5 / 150 * 60);
+
+    const minutesUsed = Math.max(1, Math.ceil(estimatedSeconds / 60));
+
+    // ── 7. SCALA I MINUTI ────────────────────────────────────────────────────
+    // VIP/Elite: minuti inclusi nel piano → non scala dal saldo DB
+    // Non-VIP con Boost: scala dal saldo acquistato
+    let newBalance = balanceMinutes;
+
+    if (!isVip) {
+      newBalance = Math.max(0, balanceMinutes - minutesUsed);
+      await supabase
+        .from("profiles")
+        .update({
+          voice_balance_minutes: newBalance,
+          updated_at: new Date().toISOString(),
+        })
+        .eq("id", user.id);
+    }
+
+    // ── 8. LOG UTILIZZO (non bloccante) ─────────────────────────────────────
+    await supabase.from("voice_usage_logs").insert({
+      user_id:         user.id,
+      session_id:      session_id ?? null,
+      plan:            profile.plan,
+      minutes_used:    minutesUsed,
+      characters_sent: safeText.length,
+      audio_bytes:     audioBytes,
+      balance_after:   isVip ? null : newBalance,
+      source:          isVip ? "plan_included" : "boost",
+      created_at:      new Date().toISOString(),
+    }).then(({ error }) => {
+      if (error) console.warn("⚠️ voice_usage_logs insert failed:", error.message);
+    });
+
+    console.log(
+      "✅ Voice HD: utente " + user.id +
+      " | piano " + profile.plan +
+      " | -" + minutesUsed + " min" +
+      " | saldo: " + (isVip ? "illimitato" : newBalance + " min") +
+      " | audio: " + Math.round(audioBytes / 1024) + " KB"
+    );
+
+    // ── 9. RESTITUISCE L'AUDIO ───────────────────────────────────────────────
     return new Response(audioBuffer, {
       status: 200,
       headers: {
         ...CORS,
         "Content-Type": "audio/mpeg",
-        "X-Voice-Minutes-Used": minutesToDeduct.toString(),
-        "X-Voice-Balance-Remaining": newBalance.toString(),
-      }
+        "X-Voice-Minutes-Used": minutesUsed.toString(),
+        "X-Voice-Balance-Remaining": isVip ? "unlimited" : newBalance.toString(),
+        "X-Voice-Plan": profile.plan,
+      },
     });
-
   } catch (err) {
     console.error("❌ luminel-voice error:", err);
     return new Response(
