@@ -21,8 +21,10 @@ const PLAN_CONFIG: Record<string, { model: string; dailyLimit: number; maxTokens
   free:    { model: "claude-haiku-4-5-20251001", dailyLimit: 5,   maxTokens: 512  },
   starter: { model: "claude-haiku-4-5-20251001", dailyLimit: 30,  maxTokens: 768  },
   premium: { model: "claude-sonnet-4-6",          dailyLimit: 100, maxTokens: 768  },
-  vip:     { model: "claude-opus-4-6",            dailyLimit: 200, maxTokens: 2048 },
-  elite:   { model: "claude-opus-4-6",            dailyLimit: 200, maxTokens: 2048 },
+  vip:     { model: "claude-sonnet-4-6",          dailyLimit: 200, maxTokens: 2048 },
+  elite:   { model: "claude-sonnet-4-6",          dailyLimit: 200, maxTokens: 2048 },
+  // NOTE: Opus è riservato al Consiglio degli Archetipi (councilService.ts)
+  // VIP usa Sonnet per chat — qualità eccellente, costo 5x inferiore a Opus
 };
 
 // ── SYSTEM PROMPT ─────────────────────────────────────────────────────────────
@@ -340,12 +342,19 @@ serve(async (req: Request) => {
       .single();
 
     const plan = profile?.plan ?? "free";
-    const cfg = PLAN_CONFIG[plan] ?? PLAN_CONFIG.free;
+    let cfg = PLAN_CONFIG[plan] ?? PLAN_CONFIG.free;
     const today = new Date().toISOString().split("T")[0];
     const todayCount =
       profile?.last_message_date === today
         ? (profile?.daily_message_count ?? 0)
         : 0;
+
+    // ── SMART THROTTLE (protezione margini) ──────────────────────────────────
+    // Premium: dopo 50 msg/giorno, passa silenziosamente a Haiku.
+    // Invisibile per l'utente — protegge il margine al 61%+ anche al massimo utilizzo.
+    if (plan === "premium" && todayCount >= 50) {
+      cfg = { model: "claude-haiku-4-5-20251001", dailyLimit: 100, maxTokens: 512 };
+    }
 
     if (todayCount >= cfg.dailyLimit) {
       const upgradeMessages: Record<string, string> = {
