@@ -18,11 +18,11 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 // ── CONFIGURAZIONE PIANI ──────────────────────────────────────────────────────
 const PLAN_CONFIG: Record<string, { model: string; dailyLimit: number; maxTokens: number }> = {
-  free:    { model: "claude-haiku-4-5-20251001", dailyLimit: 5,    maxTokens: 512  },
-  starter: { model: "claude-haiku-4-5-20251001", dailyLimit: 30,   maxTokens: 768  },
-  premium: { model: "claude-sonnet-4-6",          dailyLimit: 100,  maxTokens: 1024 },
-  vip:     { model: "claude-opus-4-6",            dailyLimit: 9999, maxTokens: 2048 },
-  elite:   { model: "claude-opus-4-6",            dailyLimit: 9999, maxTokens: 2048 },
+  free:    { model: "claude-haiku-4-5-20251001", dailyLimit: 5,   maxTokens: 512  },
+  starter: { model: "claude-haiku-4-5-20251001", dailyLimit: 30,  maxTokens: 768  },
+  premium: { model: "claude-sonnet-4-6",          dailyLimit: 100, maxTokens: 768  },
+  vip:     { model: "claude-opus-4-6",            dailyLimit: 200, maxTokens: 2048 },
+  elite:   { model: "claude-opus-4-6",            dailyLimit: 200, maxTokens: 2048 },
 };
 
 // ── SYSTEM PROMPT ─────────────────────────────────────────────────────────────
