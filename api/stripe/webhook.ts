@@ -88,8 +88,9 @@ export default async function handler(req: any, res: any) {
           updated_at: new Date().toISOString(),
           stripe_customer_id: session.customer,
           stripe_subscription_id: session.subscription,
-          // Se acquista VIP la prima volta, gli diamo il primo blocco di 120 minuti mensili gratuiti
-          ...(plan === 'vip' && { voice_balance_minutes: 120 })
+          // Assegna minuti voce iniziali in base al piano acquistato
+          ...(plan === 'vip'     && { voice_balance_minutes: 120 }),
+          ...(plan === 'premium' && { voice_balance_minutes: 30 }),
         };
 
         // Salva il prezzo bloccato Fondatore solo al primo acquisto
@@ -130,14 +131,31 @@ export default async function handler(req: any, res: any) {
       // Cerchiamo l'utente nel DB tramite il customer_id
       const { data: profile } = await supabase.from('profiles').select('id, plan').eq('stripe_customer_id', customerId).single();
       
-      if (profile && profile.plan === 'vip') {
-        console.log(`🔄 Rinnovo mensile VIP per utente ${profile.id}. Ricarica 120 minuti HD.`);
-        // Il mese riparte, quindi REIMPOSTIAMO i minuti a 120 (non si sommano, è un tetto mensile)
-        // Oppure se vuoi farli accumulare, si fa currentMins + 120. Noi li resettiamo a 120 come i gestori telefonici.
-        await supabase.from('profiles').update({ 
-          voice_balance_minutes: 120,
-          updated_at: new Date().toISOString()
-        }).eq('id', profile.id);
+      if (profile) {
+        if (profile.plan === 'vip') {
+          console.log(`🔄 Rinnovo mensile VIP per utente ${profile.id}. Ricarica 120 minuti HD.`);
+          // Reset a 120 — si parte da zero ogni mese (come GB telefonici)
+          // I Boost acquistati si sommano sopra questo via checkout.session.completed
+          await supabase.from('profiles').update({ 
+            voice_balance_minutes: 120,
+            updated_at: new Date().toISOString()
+          }).eq('id', profile.id);
+        } else if (profile.plan === 'premium') {
+          console.log(`🔄 Rinnovo mensile Premium per utente ${profile.id}. Ricarica 30 minuti voce.`);
+          // Reset a 30 — i Boost non vengono azzerati, si sommano
+          // Logica: prendiamo il MAX tra 30 e il saldo attuale se l'utente ha Boost non usati
+          const { data: currentProfile } = await supabase
+            .from('profiles')
+            .select('voice_balance_minutes')
+            .eq('id', profile.id)
+            .single();
+          const currentMins = currentProfile?.voice_balance_minutes ?? 0;
+          const newMins = Math.max(30, currentMins); // non toglie Boost non usati
+          await supabase.from('profiles').update({ 
+            voice_balance_minutes: newMins,
+            updated_at: new Date().toISOString()
+          }).eq('id', profile.id);
+        }
       }
     }
   }

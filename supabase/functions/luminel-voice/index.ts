@@ -3,14 +3,10 @@
 // SECRETS RICHIESTI: ELEVENLABS_API_KEY, ELEVENLABS_VOICE_ID
 //
 // Guardiano della voce HD Luminel.
-// Flusso:
-// 1. Verifica JWT → utente autenticato
-// 2. Verifica accesso → VIP (illimitato base) OPPURE voice_balance_minutes > 0 (Boost)
-// 3. Chiama ElevenLabs TTS con la voce clonata di Michael Jara
-// 4. Scala i minuti usati dal saldo
-// 5. Logga l'utilizzo su voice_usage_logs per analytics Admin
-// 6. Restituisce l'audio MP3 al client
-//
+// MATRICE ACCESSO:
+//   Free / Starter → mai voce live (trailer statico nel client)
+//   Premium        → voce live se voice_balance_minutes > 0 (30 min/mese inclusi + Boost)
+//   VIP / Elite    → voce live sempre, saldo non decrementato (piano include 120 min/mese)
 // ═══════════════════════════════════════════════════════════════════════════════
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
@@ -21,8 +17,7 @@ const CORS = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-const VIP_MONTHLY_MINUTES = 9999;
-const MAX_TEXT_LENGTH = 2000;
+const MAX_TEXT_LENGTH = 2000; // ~2-3 minuti di audio
 
 serve(async (req: Request) => {
   if (req.method === "OPTIONS") {
@@ -68,21 +63,33 @@ serve(async (req: Request) => {
       );
     }
 
-    const isVip = profile.plan === "vip" || profile.plan === "elite";
+    const isVip     = profile.plan === "vip" || profile.plan === "elite";
+    const isPremium = profile.plan === "premium";
     const balanceMinutes = profile.voice_balance_minutes ?? 0;
 
-    // ── 3. VERIFICA ACCESSO ──────────────────────────────────────────────────
-    // Accesso consentito se:
-    //   a) Piano VIP/Elite (minuti inclusi nel piano, non scalati)
-    //   b) Qualsiasi piano con voice_balance_minutes > 0 (Voice Boost acquistato)
-    if (!isVip && balanceMinutes <= 0) {
+    // ── 3. MATRICE ACCESSO VOCE ──────────────────────────────────────────────
+    // Free / Starter → mai voce live (neanche con boost acquistato per errore)
+    // Premium        → voce live se balance > 0 (30 min/mese refreshati + Boost)
+    // VIP / Elite    → voce live sempre (saldo non decrementato)
+    if (!isVip && !isPremium) {
       return new Response(
         JSON.stringify({
           error: "accesso_negato",
-          message: "Il Voice Coach HD e' disponibile per VIP Sovereign o con Voice Boosts.",
+          message: "Il Voice Coach live e' disponibile dal piano Premium. Scopri i piani su /plans.",
           cta: "upgrade",
         }),
         { status: 403, headers: { ...CORS, "Content-Type": "application/json" } }
+      );
+    }
+
+    if (isPremium && balanceMinutes <= 0) {
+      return new Response(
+        JSON.stringify({
+          error: "saldo_esaurito",
+          message: "Hai esaurito i tuoi 30 minuti voce del mese. Ricarica con un Voice Boost o passa a VIP per 120 min/mese con la voce di Michael Jara.",
+          cta: "boost",
+        }),
+        { status: 402, headers: { ...CORS, "Content-Type": "application/json" } }
       );
     }
 
@@ -101,10 +108,13 @@ serve(async (req: Request) => {
 
     // ── 5. CHIAMA ELEVENLABS TTS ─────────────────────────────────────────────
     const elevenLabsApiKey = Deno.env.get("ELEVENLABS_API_KEY");
-    const voiceId = Deno.env.get("ELEVENLABS_VOICE_ID");
+    // VIP ottiene la voce clonata di Michael Jara, Premium una voce standard italiana
+    const voiceId = isVip
+      ? Deno.env.get("ELEVENLABS_VOICE_ID")        // voce Michael Jara (clonata)
+      : Deno.env.get("ELEVENLABS_VOICE_ID_STANDARD"); // voce standard italiana
 
     if (!elevenLabsApiKey || !voiceId) {
-      console.error("❌ ELEVENLABS_API_KEY o ELEVENLABS_VOICE_ID non configurati");
+      console.error("❌ ELEVENLABS_API_KEY o VOICE_ID non configurati");
       return new Response(
         JSON.stringify({ error: "Servizio voce non configurato" }),
         { status: 503, headers: { ...CORS, "Content-Type": "application/json" } }
@@ -124,9 +134,9 @@ serve(async (req: Request) => {
           text: safeText,
           model_id: "eleven_multilingual_v2",
           voice_settings: {
-            stability: 0.55,
-            similarity_boost: 0.85,
-            style: 0.35,
+            stability: isVip ? 0.55 : 0.65,
+            similarity_boost: isVip ? 0.85 : 0.75,
+            style: isVip ? 0.35 : 0.20,
             use_speaker_boost: true,
           },
         }),
@@ -145,8 +155,6 @@ serve(async (req: Request) => {
     const audioBuffer = await elevenRes.arrayBuffer();
 
     // ── 6. CALCOLA MINUTI USATI ──────────────────────────────────────────────
-    // Metodo primario: durata reale da bitrate MP3 (128kbps = 16000 bytes/s)
-    // Metodo fallback: stima da testo
     const audioBytes = audioBuffer.byteLength;
     const estimatedSeconds = audioBytes > 0
       ? Math.ceil(audioBytes / 16000)
@@ -155,8 +163,8 @@ serve(async (req: Request) => {
     const minutesUsed = Math.max(1, Math.ceil(estimatedSeconds / 60));
 
     // ── 7. SCALA I MINUTI ────────────────────────────────────────────────────
-    // VIP/Elite: minuti inclusi nel piano → non scala dal saldo DB
-    // Non-VIP con Boost: scala dal saldo acquistato
+    // VIP/Elite: piano include minuti → non decrementa saldo
+    // Premium: decrementa da voice_balance_minutes (30/mese + eventuali Boost)
     let newBalance = balanceMinutes;
 
     if (!isVip) {
@@ -179,14 +187,14 @@ serve(async (req: Request) => {
       characters_sent: safeText.length,
       audio_bytes:     audioBytes,
       balance_after:   isVip ? null : newBalance,
-      source:          isVip ? "plan_included" : "boost",
+      source:          isVip ? "plan_included" : "premium_or_boost",
       created_at:      new Date().toISOString(),
     }).then(({ error }) => {
       if (error) console.warn("⚠️ voice_usage_logs insert failed:", error.message);
     });
 
     console.log(
-      "✅ Voice HD: utente " + user.id +
+      "✅ Voice: utente " + user.id +
       " | piano " + profile.plan +
       " | -" + minutesUsed + " min" +
       " | saldo: " + (isVip ? "illimitato" : newBalance + " min") +

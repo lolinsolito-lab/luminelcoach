@@ -8,9 +8,14 @@ const SUPABASE_FUNCTIONS_URL = import.meta.env.VITE_SUPABASE_URL + "/functions/v
 
 interface AICallModalProps {
   onClose: () => void;
+  plan?: string; // 'free' | 'starter' | 'premium' | 'vip' | 'elite'
 }
 
-const AICallModal: React.FC<AICallModalProps> = ({ onClose }) => {
+// URL del trailer preregistrato — carica una volta, costo €0
+// Sostituire con l'URL reale del file su Supabase Storage una volta registrato
+const DEMO_TRAILER_URL = "/audio/luminel-demo-trailer.mp3";
+
+const AICallModal: React.FC<AICallModalProps> = ({ onClose, plan = 'free' }) => {
   const [status, setStatus] = useState<'connecting' | 'listening' | 'processing' | 'speaking' | 'ended'>('connecting');
   const [transcript, setTranscript] = useState('');
   const [isMuted, setIsMuted] = useState(false);
@@ -49,6 +54,29 @@ const AICallModal: React.FC<AICallModalProps> = ({ onClose }) => {
         }
 
         setTimeout(() => {
+          const isFreeOrStarter = plan === 'free' || plan === 'starter';
+
+          if (isFreeOrStarter) {
+            // ── DEMO MODE: riproduce trailer preregistrato (costo €0) ──────────
+            setStatus('speaking');
+            const audio = new Audio(DEMO_TRAILER_URL);
+            audioRef.current = audio;
+            audio.play().catch(() => {
+              // Se il file non esiste ancora, usa TTS di sistema come fallback
+              const utt = new SpeechSynthesisUtterance(
+                "Ciao, sono Luminel. Questa è una demo della mia voce. " +
+                "Con il piano Premium avrai 30 minuti di sessione live ogni mese. " +
+                "Con il piano VIP Sovereign, la voce sarà quella di Michael Jara."
+              );
+              utt.lang = 'it-IT';
+              utt.onend = () => { if (status !== 'ended') setStatus('listening'); };
+              window.speechSynthesis.speak(utt);
+            });
+            audio.onended = () => setStatus('ended');
+            return;
+          }
+
+          // ── LIVE MODE: Premium e VIP → luminel-voice Edge Function ───────────
           setStatus('listening');
           startListening();
           speak("Ciao, sono Luminel. Sono qui con te. Dimmi, come ti senti in questo momento?");
@@ -96,11 +124,11 @@ const AICallModal: React.FC<AICallModalProps> = ({ onClose }) => {
       if (!res.ok) {
         const err = await res.json().catch(() => ({}));
         if (err.error === 'accesso_negato') {
-          alert('Il Voice Coach HD è esclusivo del piano VIP Sovereign.');
+          alert('Il Voice Coach live è disponibile dal piano Premium. Vai su /plans per scoprire i piani.');
           onClose(); return;
         }
         if (err.error === 'saldo_esaurito') {
-          alert('Hai esaurito i tuoi minuti HD. Ricarica dalla Dashboard con un Voice Boost.');
+          alert('Hai esaurito i tuoi 30 minuti voce del mese. Ricarica con un Voice Boost dalla Dashboard o passa a VIP per 120 min.');
           onClose(); return;
         }
         throw new Error(err.error || 'Errore Edge Function');

@@ -447,24 +447,31 @@ const Dashboard: React.FC = () => {
         {/* ── RIGHT SIDEBAR ── */}
         <div style={{ display: "flex", flexDirection: "column", gap: 12, position: "sticky", top: 0 }}>
 
-          {/* VOICE BALANCE WIDGET (VIP ONLY) */}
-          {isVIP && (
+          {/* VOICE BALANCE WIDGET — Premium (30min) e VIP (120min) */}
+          {(isVIP || plan === 'premium') && (
             <SideCard delay={0.08}>
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "13px 18px 12px", borderBottom: "0.5px solid rgba(201,168,76,0.2)", background: "rgba(201,168,76,0.03)" }}>
-                <span style={{ fontSize: 9, letterSpacing: ".22em", textTransform: "uppercase", color: "#C9A84C" }}>Cristallo Vocale HD</span>
-                <span style={{ fontSize: 12, color: "#F0EBE0", fontWeight: 500 }}>{voiceMins} <span style={{fontSize: 10, color: "#6A6560"}}>min</span></span>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "13px 18px 12px", borderBottom: `0.5px solid ${isVIP ? "rgba(201,168,76,0.2)" : "rgba(74,158,212,0.2)"}`, background: isVIP ? "rgba(201,168,76,0.03)" : "rgba(74,158,212,0.03)" }}>
+                <span style={{ fontSize: 9, letterSpacing: ".22em", textTransform: "uppercase", color: isVIP ? "#C9A84C" : "#4A9ED4" }}>
+                  {isVIP ? "Cristallo Vocale HD" : "Voice Coach · Saldo"}
+                </span>
+                <span style={{ fontSize: 12, color: "#F0EBE0", fontWeight: 500 }}>
+                  {voiceMins} <span style={{fontSize: 10, color: "#6A6560"}}>min</span>
+                </span>
               </div>
               <div style={{ padding: "14px 18px" }}>
                 <div style={{ height: 4, background: "rgba(37,35,48,0.9)", borderRadius: 2, overflow: "hidden", marginBottom: 12 }}>
-                  <motion.div style={{ height: "100%", borderRadius: 2, background: "linear-gradient(90deg, #D4603A, #C9A84C)" }}
-                    initial={{ width: 0 }} animate={{ width: `${Math.min((voiceMins / 120) * 100, 100)}%` }}
+                  <motion.div style={{ height: "100%", borderRadius: 2, background: isVIP ? "linear-gradient(90deg, #D4603A, #C9A84C)" : "linear-gradient(90deg, #4A9ED4, #9B74E0)" }}
+                    initial={{ width: 0 }} animate={{ width: `${Math.min((voiceMins / (isVIP ? 120 : 30)) * 100, 100)}%` }}
                     transition={{ duration: 1, ease: "easeOut" }} />
                 </div>
                 <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
                   <span style={{ fontSize: 10, color: "rgba(240,235,224,0.6)", lineHeight: 1.4, marginBottom: 4 }}>
-                    Esauriti i minuti mensili, ricarica la riserva HD per chiamate senza limiti.
+                    {isVIP
+                      ? "Esauriti i 120 min mensili, ricarica la riserva HD con un Boost."
+                      : `Hai ${voiceMins} min su 30 inclusi questo mese. Vuoi di più?`
+                    }
                   </span>
-                  
+
                   <button onClick={() => handleBuyBoost("boost_1h")} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%", padding: "10px 14px", background: "rgba(255,255,255,0.03)", border: "0.5px solid rgba(255,255,255,0.1)", borderRadius: 8, cursor: "pointer", transition: "all 0.2s" }} onMouseOver={e => e.currentTarget.style.background = "rgba(255,255,255,0.06)"} onMouseOut={e => e.currentTarget.style.background = "rgba(255,255,255,0.03)"}>
                     <span style={{ fontSize: 11, color: "#F0EBE0", fontFamily: "'DM Sans',sans-serif" }}>Boost Scintilla (1h)</span>
                     <span style={{ fontSize: 11, color: "#C9A84C", fontWeight: 600 }}>€39</span>
@@ -477,10 +484,17 @@ const Dashboard: React.FC = () => {
                     <span style={{ fontSize: 11, color: "#C9A84C", fontWeight: 600, fontFamily: "'DM Sans',sans-serif" }}>Boost Sovrano (5h)</span>
                     <span style={{ fontSize: 11, color: "#C9A84C", fontWeight: 600 }}>€99</span>
                   </button>
+
+                  {!isVIP && (
+                    <button onClick={() => navigate("/plans")} style={{ width: "100%", padding: "9px", borderRadius: 8, background: "rgba(155,116,224,0.12)", border: "0.5px solid rgba(155,116,224,0.3)", color: "#9B74E0", fontSize: 11, cursor: "pointer", fontFamily: "'DM Sans',sans-serif", marginTop: 2 }}>
+                      Passa a VIP → 120 min + voce Michael Jara
+                    </button>
+                  )}
                 </div>
               </div>
             </SideCard>
           )}
+
 
           {/* PERCORSO ATTIVO */}
           <SideCard delay={0.1}>
