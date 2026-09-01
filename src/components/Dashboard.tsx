@@ -227,6 +227,20 @@ const Dashboard: React.FC = () => {
       {/* ══ WELCOME MODAL (prima visita) ══ */}
       <WelcomeVideoModal />
 
+      {/* ══ THE TRUTH MIRROR (Accountability) ══ */}
+      {streak === 0 && level > 1 && (
+        <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}
+          style={{ background: 'rgba(212,96,58,0.1)', border: '1px solid rgba(212,96,58,0.4)', borderRadius: 12, padding: 16, marginBottom: 24, display: 'flex', gap: 16, alignItems: 'flex-start' }}>
+          <div style={{ color: '#D4603A', marginTop: 2 }}>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          </div>
+          <div>
+            <div style={{ fontSize: 11, letterSpacing: '.18em', textTransform: 'uppercase', color: '#D4603A', marginBottom: 4, fontWeight: 600 }}>Wake-Up Call</div>
+            <div style={{ fontSize: 14, color: '#F0EBE0', lineHeight: 1.4 }}>Hai ignorato l'ultima Reality Quest e rotto la tua costanza. Luminel non è qui per consolarti. Quale verità stai evitando di guardare oggi? Affrontala subito.</div>
+          </div>
+        </motion.div>
+      )}
+
       {/* ══ HEADER ══ */}
       <motion.div initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} className="mb-8">
         <div style={{ fontSize: 9, letterSpacing: ".32em", textTransform: "uppercase", color: "rgba(201,168,76,0.45)", marginBottom: 6, display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -242,6 +256,20 @@ const Dashboard: React.FC = () => {
           <em style={{ color: "#C9A84C", fontStyle: "italic", textShadow: "0 0 40px rgba(201,168,76,0.3)" }}>{name}</em>
         </h1>
         <div style={{ height: .5, marginTop: 18, background: "linear-gradient(90deg,rgba(201,168,76,0.45),rgba(201,168,76,0.08),transparent)" }} />
+      </motion.div>
+
+      {/* ══ DAILY VOICE NOTE (Presenza) ══ */}
+      <motion.div initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="mb-8">
+        <div style={{ background: 'rgba(255,255,255,0.03)', border: '0.5px solid rgba(255,255,255,0.08)', borderRadius: 16, padding: '16px 20px', display: 'flex', alignItems: 'center', gap: 16 }}>
+          <button style={{ width: 44, height: 44, borderRadius: '50%', background: '#C9A84C', display: 'flex', alignItems: 'center', justifyContent: 'center', border: 'none', cursor: 'pointer', flexShrink: 0, boxShadow: '0 0 16px rgba(201,168,76,0.3)' }}>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="#06060F"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+          </button>
+          <div style={{ flex: 1 }}>
+            <div style={{ fontSize: 10, letterSpacing: '.18em', textTransform: 'uppercase', color: '#C9A84C', marginBottom: 2 }}>Nota vocale del giorno</div>
+            <div style={{ fontSize: 13, color: '#F0EBE0' }}>Ascolta l'intenzione di oggi da Michael Luminels</div>
+          </div>
+          <div style={{ fontSize: 11, color: '#6A6560' }}>01:14</div>
+        </div>
       </motion.div>
 
       {/* ══ MOOD SELECTOR ══ */}

@@ -2,6 +2,8 @@ import path from 'path';
 import { defineConfig, loadEnv } from 'vite';
 import react from '@vitejs/plugin-react';
 
+import { VitePWA } from 'vite-plugin-pwa';
+
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, '.', '');
 
@@ -12,7 +14,30 @@ export default defineConfig(({ mode }) => {
       historyApiFallback: true, // serve index.html su qualsiasi rotta (BrowserRouter)
     },
 
-    plugins: [react()],
+    plugins: [
+      react(),
+      VitePWA({
+        registerType: 'autoUpdate',
+        devOptions: {
+          enabled: true
+        },
+        manifest: {
+          name: 'Luminel - Il Metodo Michael Luminels',
+          short_name: 'Luminel',
+          description: 'Applicazione ufficiale del Metodo Michael Luminels',
+          theme_color: '#06060F',
+          background_color: '#06060F',
+          display: 'standalone',
+          icons: [
+            {
+              src: 'favicon.ico',
+              sizes: '64x64 32x32 24x24 16x16',
+              type: 'image/x-icon'
+            }
+          ]
+        }
+      })
+    ],
 
     define: {
       'process.env.API_KEY': JSON.stringify(env.GEMINI_API_KEY),

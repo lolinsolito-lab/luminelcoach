@@ -29,6 +29,7 @@ import { ProgressProvider } from './contexts/ProgressContext';
 import { ThemeProvider } from './contexts/ThemeContext';
 import { EmotionalStateProvider } from './contexts/EmotionalStateContext';
 import { ZenAudioProvider } from './contexts/ZenAudioContext';
+import InstallPWAPrompt from './components/InstallPWAPrompt';
 
 const RequireAuth: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { isAuthenticated, loading } = useAuth();
@@ -240,6 +241,7 @@ const App: React.FC = () => {
           <ZenAudioProvider>
             <EmotionalStateProvider>
               <ProgressProvider>
+                <InstallPWAPrompt />
                 <AppRoutes />
               </ProgressProvider>
             </EmotionalStateProvider>

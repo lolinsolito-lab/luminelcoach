@@ -278,6 +278,15 @@ const CRMModule: React.FC<{ users: AdminUser[]; onUpgrade: (id: string, plan: st
                 }}>
                 {selected.isFounder ? "Rimuovi Status Founder" : "★ Rendi Founder"}
               </button>
+              <button onClick={() => { alert(`Wake-Up Call inviato a ${selected.fullName}`); }}
+                style={{
+                  padding: "9px", borderRadius: 9, fontSize: 12, cursor: "pointer", fontFamily: "'DM Sans',sans-serif",
+                  background: "rgba(212,96,58,0.1)",
+                  border: "0.5px solid rgba(212,96,58,0.3)",
+                  color: "#D4603A"
+                }}>
+                ⚠️ Invia Wake-Up Call (Reality Check)
+              </button>
             </div>
 
             <div style={{ fontSize: 10, letterSpacing: ".14em", textTransform: "uppercase", color: DL.muted, marginBottom: 10 }}>Cambia Piano</div>
