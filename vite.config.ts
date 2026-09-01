@@ -21,6 +21,10 @@ export default defineConfig(({ mode }) => {
         devOptions: {
           enabled: true
         },
+        workbox: {
+          navigateFallbackDenylist: [/^\/luminel-landing\.html/, /^\/luminel-intro\.html/],
+          globPatterns: ['**/*.{js,css,html,ico,png,svg}']
+        },
         manifest: {
           name: 'Luminel - Il Metodo Michael Luminels',
           short_name: 'Luminel',
