@@ -39,12 +39,12 @@ const Ul: React.FC<{ items: string[] }> = ({ items }) => (
 const PrivacyContent: React.FC = () => (
   <>
     <p style={{ color: DL.muted, fontSize: 12, marginBottom: 32 }}>
-      Ultimo aggiornamento: 1 Settembre 2026 · Titolare: Insolito Experiences di Michael Jara · P.IVA in corso di registrazione
+      Ultimo aggiornamento: 1 Settembre 2026 · Titolare: Insolito Experiences di Michael Luminels · P.IVA in corso di registrazione
     </p>
 
     <Section title="1. Chi siamo e come contattarci">
       <P>
-        Insolito Experiences di Michael Jara ("Titolare") è il titolare del trattamento dei dati
+        Insolito Experiences di Michael Luminels ("Titolare") è il titolare del trattamento dei dati
         personali raccolti tramite la piattaforma LuminelCoach, accessibile all'indirizzo luminelcoach.com
         e sue sottopagine.
       </P>
@@ -142,7 +142,7 @@ const TermsContent: React.FC = () => (
     <Section title="2. Natura del Servizio">
       <P>LuminelCoach è una piattaforma di sviluppo personale che utilizza sistemi di intelligenza artificiale per:</P>
       <Ul items={[
-        'Sessioni di coaching basate sul Metodo Jara e sul framework Ikigai',
+        'Sessioni di coaching basate sul Metodo Michael Luminels e sul framework Ikigai',
         'Supporto alla crescita personale, chiarezza sugli obiettivi e azione strategica',
         'Percorsi formativi in modalità digitale',
         'Sessioni vocali con AI Coach (piani Premium e VIP)',
@@ -159,7 +159,7 @@ const TermsContent: React.FC = () => (
         'Free: accesso limitato, rinnovabile gratuitamente senza impegno',
         'Starter (€9.99/mese): accesso base, 30 messaggi/giorno, 3 corsi',
         'Premium (€49/mese): accesso completo, 100 messaggi/giorno, 30 min Voice Coach/mese',
-        'VIP Sovereign (€149/mese): accesso illimitato, 120 min Voice Coach Jara/mese',
+        'VIP Sovereign (€149/mese): accesso illimitato, 120 min Voice Coach Luminels/mese',
         'I Boost vocali (1h/3h/5h) sono acquisti singoli senza rinnovo automatico',
         'I prezzi Fondatore sono bloccati per tutta la vita del contratto se acquistati durante il periodo di lancio',
       ]} />
@@ -168,8 +168,8 @@ const TermsContent: React.FC = () => (
 
     <Section title="4. Proprietà intellettuale">
       <P>
-        Il Metodo Jara, i contenuti dei corsi, il sistema di prompt AI di Luminel e il brand
-        "Luminel" sono proprietà esclusiva di Insolito Experiences di Michael Jara.
+        Il Metodo Michael Luminels, i contenuti dei corsi, il sistema di prompt AI di Luminel e il brand
+        "Luminel" sono proprietà esclusiva di Insolito Experiences di Michael Luminels.
         È vietata la riproduzione, distribuzione o modifica senza autorizzazione scritta.
       </P>
       <P>
@@ -255,7 +255,7 @@ const LegalPage: React.FC = () => {
           <p style={{ fontSize: 12, color: DL.muted, lineHeight: 1.8 }}>
             Per domande legali: <strong style={{ color: DL.gold }}>privacy@insolito.it</strong>
             {' · '}
-            Insolito Experiences di Michael Jara · Professione non organizzata ai sensi della Legge 4/2013
+            Insolito Experiences di Michael Luminels · Professione non organizzata ai sensi della Legge 4/2013
             {' · '}
             Consulenza professionale ai sensi del d.lgs. 206/2005 (Codice del Consumo)
           </p>

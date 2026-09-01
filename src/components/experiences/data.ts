@@ -300,7 +300,7 @@ export const meditationData: Meditation[] = [
         popularity: 98,
         isNew: false,
         plan: "free",
-        instructor: "Metodo Jara",
+        instructor: "Metodo Michael Luminels",
     },
     {
         id: "beg-body-scan",
@@ -315,7 +315,7 @@ export const meditationData: Meditation[] = [
         popularity: 92,
         isNew: false,
         plan: "free",
-        instructor: "Metodo Jara",
+        instructor: "Metodo Michael Luminels",
     },
     {
         id: "beg-guided",
@@ -346,12 +346,12 @@ export const meditationData: Meditation[] = [
         popularity: 91,
         isNew: false,
         plan: "free",
-        instructor: "Metodo Jara",
+        instructor: "Metodo Michael Luminels",
     },
     {
         id: "morning-intention",
         title: "Impostazione dell'Intenzione",
-        description: "Definisci la tua parola guida del giorno. Pratica del Metodo Jara — 15 minuti che cambiano il day.",
+        description: "Definisci la tua parola guida del giorno. Pratica del Metodo Michael Luminels — 15 minuti che cambiano il day.",
         category: "Mattina",
         duration: "15min",
         icon: "🌅",
@@ -361,7 +361,7 @@ export const meditationData: Meditation[] = [
         popularity: 87,
         isNew: true,
         plan: "premium",
-        instructor: "Michael Jara",
+        instructor: "Michael Luminels",
     },
 
     // ── NOTTE ──
@@ -392,7 +392,7 @@ export const meditationData: Meditation[] = [
         popularity: 89,
         isNew: false,
         plan: "vip",
-        instructor: "Metodo Jara · Tradizione Tantrica",
+        instructor: "Metodo Michael Luminels · Tradizione Tantrica",
     },
 
     // ── INTERMEDIO ──
@@ -453,7 +453,7 @@ export const meditationData: Meditation[] = [
         popularity: 75,
         isNew: false,
         plan: "vip",
-        instructor: "Tradizione Theravada · adattata da Michael Jara",
+        instructor: "Tradizione Theravada · adattata da Michael Luminels",
     },
     {
         id: "adv-zen",
@@ -504,7 +504,7 @@ export const meditationData: Meditation[] = [
     {
         id: "guided-ikigai",
         title: "Viaggio nell'Ikigai",
-        description: "Meditazione guidata esclusiva del Metodo Jara. Scopri il tuo scopo di vita attraverso le 4 sfere.",
+        description: "Meditazione guidata esclusiva del Metodo Michael Luminels. Scopri il tuo scopo di vita attraverso le 4 sfere.",
         category: "Guidata",
         duration: "30min",
         icon: "⭕",
@@ -514,12 +514,12 @@ export const meditationData: Meditation[] = [
         popularity: 99,
         isNew: true,
         plan: "vip",
-        instructor: "Michael Jara",
+        instructor: "Michael Luminels",
     },
     {
         id: "guided-shadow",
         title: "Shadow Work Guidato",
-        description: "Incontra la tua ombra — la parte di te che eviti. Jung + Metodo Jara. Solo per chi è pronto.",
+        description: "Incontra la tua ombra — la parte di te che eviti. Jung + Metodo Michael Luminels. Solo per chi è pronto.",
         category: "Guidata",
         duration: "45min",
         icon: "🌑",
@@ -529,7 +529,7 @@ export const meditationData: Meditation[] = [
         popularity: 88,
         isNew: true,
         plan: "vip",
-        instructor: "Michael Jara",
+        instructor: "Michael Luminels",
     },
 ];
 

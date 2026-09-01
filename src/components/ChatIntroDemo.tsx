@@ -94,7 +94,7 @@ const ChatIntroDemo: React.FC<ChatIntroDemoProps> = ({ onComplete }) => {
       <motion.p
         initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}
         style={{ fontSize: 14, color: DL.muted, lineHeight: 1.75, maxWidth: 520, marginBottom: 48 }}>
-        Questo non è un chatbot. È uno specchio trasformativo basato sul Metodo Jara — progettato per sbloccare ciò che già sai ma non ti permetti ancora di fare.
+        Questo non è un chatbot. È uno specchio trasformativo basato sul Metodo Michael Luminels — progettato per sbloccare ciò che già sai ma non ti permetti ancora di fare.
       </motion.p>
 
       {/* Feature cards */}

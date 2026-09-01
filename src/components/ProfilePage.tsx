@@ -217,7 +217,7 @@ const ProfilePage: React.FC = () => {
                 <p className="text-[11px] leading-snug" style={{ color: DL.muted }}>
                   {plan === "free"
                     ? "Chat AI illimitata, Reality Quest ogni giorno, audio binaural"
-                    : "Il Consiglio degli Archetipi, Voice Coach HD, sessione con Michael Jara"}
+                    : "Il Consiglio degli Archetipi, Voice Coach HD, sessione con Michael Luminels"}
                 </p>
               </motion.div>
             )}

@@ -103,14 +103,14 @@ const WelcomeVideoModal: React.FC = () => {
                     </div>
 
                     <div style={{ fontSize: 9, letterSpacing: ".28em", textTransform: "uppercase", color: "rgba(201,168,76,0.6)", marginBottom: 12 }}>
-                      Insolito Experiences · Metodo Jara
+                      Insolito Experiences · Metodo Michael Luminels
                     </div>
                     <h2 style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: "clamp(26px,4vw,36px)", fontWeight: 400, color: "#F0EBE0", marginBottom: 8, lineHeight: 1.2 }}>
                       Benvenuto nel tuo<br />
                       <em style={{ color: "#C9A84C", fontStyle: "italic" }}>Impero Interiore</em>
                     </h2>
                     <p style={{ fontSize: 14, color: "#6A6560", lineHeight: 1.7, marginBottom: 32, maxWidth: 380, margin: "0 auto 32px" }}>
-                      Ciao <strong style={{ color: "#F0EBE0" }}>{name}</strong> — sono Michael Jara. Questo è il tuo spazio di trasformazione. Non un'app. Un campo di forza che diventa te.
+                      Ciao <strong style={{ color: "#F0EBE0" }}>{name}</strong> — sono Michael Luminels. Questo è il tuo spazio di trasformazione. Non un'app. Un campo di forza che diventa te.
                     </p>
 
                     {/* Pillole features */}
@@ -136,7 +136,7 @@ const WelcomeVideoModal: React.FC = () => {
                           onClick={handleVideoPhase}
                           style={{ width: "100%", padding: "14px", borderRadius: 12, background: "transparent", border: "0.5px solid rgba(201,168,76,0.4)", color: "#C9A84C", fontSize: 13, fontWeight: 500, cursor: "pointer", fontFamily: "'DM Sans',sans-serif", display: "flex", alignItems: "center", justifyContent: "center", gap: 10 }}>
                           <PlayIcon style={{ width: 16, height: 16 }} />
-                          Guarda il messaggio di Michael Jara
+                          Guarda il messaggio di Michael Luminels
                         </motion.button>
                       )}
                       <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}

@@ -293,13 +293,13 @@ const CoursesPage: React.FC = () => {
       {/* Header */}
       <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} className="mb-10">
         <p className="text-[9px] tracking-[0.24em] uppercase mb-2 opacity-70" style={{ color: "#C9A84C" }}>
-          Metodo Jara · Biblioteca dei percorsi
+          Metodo Michael Luminels · Biblioteca dei percorsi
         </p>
         <h1 className="font-serif font-normal leading-tight mb-2" style={{ fontSize: "clamp(28px,5vw,40px)", color: "#F0EBE0" }}>
           Course <em className="italic" style={{ color: "#C9A84C" }}>Library</em>
         </h1>
         <p className="text-[13px] leading-relaxed" style={{ color: "#6A6560" }}>
-          Esplora la collezione completa di percorsi trasformativi creati da Michael Jara
+          Esplora la collezione completa di percorsi trasformativi creati da Michael Luminels
         </p>
       </motion.div>
 
@@ -513,7 +513,7 @@ const CoursesPage: React.FC = () => {
                   Sblocca i corsi VIP Sovereign
                 </div>
                 <div className="text-[12px]" style={{ color: "#6A6560" }}>
-                  Include Il Consiglio degli Archetipi, Voice Coach HD, sessione mensile con Michael Jara · €199/mese
+                  Include Il Consiglio degli Archetipi, Voice Coach HD, sessione mensile con Michael Luminels · €199/mese
                 </div>
               </div>
               <button onClick={() => navigate("/plans")}

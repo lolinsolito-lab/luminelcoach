@@ -487,7 +487,7 @@ const Dashboard: React.FC = () => {
 
                   {!isVIP && (
                     <button onClick={() => navigate("/plans")} style={{ width: "100%", padding: "9px", borderRadius: 8, background: "rgba(155,116,224,0.12)", border: "0.5px solid rgba(155,116,224,0.3)", color: "#9B74E0", fontSize: 11, cursor: "pointer", fontFamily: "'DM Sans',sans-serif", marginTop: 2 }}>
-                      Passa a VIP → 120 min + voce Michael Jara
+                      Passa a VIP → 120 min + voce Michael Luminels
                     </button>
                   )}
                 </div>

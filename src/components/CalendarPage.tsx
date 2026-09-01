@@ -370,7 +370,7 @@ const CalendarPage: React.FC = () => {
                     {/* Title */}
                     <div className="flex items-start justify-between mb-4">
                         <div>
-                            <div className="text-[9px] tracking-[0.24em] uppercase mb-1 opacity-70" style={{ color: DL.gold }}>Metodo Jara · Percorso nel tempo</div>
+                            <div className="text-[9px] tracking-[0.24em] uppercase mb-1 opacity-70" style={{ color: DL.gold }}>Metodo Michael Luminels · Percorso nel tempo</div>
                             <h1 className="font-serif text-[28px] font-normal leading-tight" style={{ color: DL.white }}>
                                 My <em className="italic" style={{ color: DL.gold }}>Journey</em>
                             </h1>

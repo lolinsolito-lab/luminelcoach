@@ -86,7 +86,7 @@ serve(async (req: Request) => {
       return new Response(
         JSON.stringify({
           error: "saldo_esaurito",
-          message: "Hai esaurito i tuoi 30 minuti voce del mese. Ricarica con un Voice Boost o passa a VIP per 120 min/mese con la voce di Michael Jara.",
+          message: "Hai esaurito i tuoi 30 minuti voce del mese. Ricarica con un Voice Boost o passa a VIP per 120 min/mese con la voce di Michael Luminels.",
           cta: "boost",
         }),
         { status: 402, headers: { ...CORS, "Content-Type": "application/json" } }
@@ -108,9 +108,9 @@ serve(async (req: Request) => {
 
     // ── 5. CHIAMA ELEVENLABS TTS ─────────────────────────────────────────────
     const elevenLabsApiKey = Deno.env.get("ELEVENLABS_API_KEY");
-    // VIP ottiene la voce clonata di Michael Jara, Premium una voce standard italiana
+    // VIP ottiene la voce clonata di Michael Luminels, Premium una voce standard italiana
     const voiceId = isVip
-      ? Deno.env.get("ELEVENLABS_VOICE_ID")        // voce Michael Jara (clonata)
+      ? Deno.env.get("ELEVENLABS_VOICE_ID")        // voce Michael Luminels (clonata)
       : Deno.env.get("ELEVENLABS_VOICE_ID_STANDARD"); // voce standard italiana
 
     if (!elevenLabsApiKey || !voiceId) {

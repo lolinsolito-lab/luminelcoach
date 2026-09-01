@@ -291,7 +291,7 @@ const CouncilPage: React.FC = () => {
               </button>
             </div>
             <p className="text-[10px]" style={{ color:DL.muted }}>
-              Include anche: Voice Coach illimitato HD · Corsi VIP · 1 sessione mensile con Michael Jara
+              Include anche: Voice Coach illimitato HD · Corsi VIP · 1 sessione mensile con Michael Luminels
             </p>
           </div>
           {/* Preview blurred archetypes */}

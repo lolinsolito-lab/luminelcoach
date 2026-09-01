@@ -90,7 +90,7 @@ const planData = {
       'Tutto il piano Premium incluso',
       'Voice Coach HD (120 min/mese)',
       'Analisi emotiva post-call con AI',
-      '1 sessione mensile 1:1 con Michael Jara',
+      '1 sessione mensile 1:1 con Michael Luminels',
       'Report settimanale del percorso vocale',
       'Accesso prioritario alle nuove funzioni',
     ],

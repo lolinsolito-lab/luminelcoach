@@ -23,7 +23,7 @@ const POSTS = [
 ];
 
 const GROUPS = [
-  { id: 1, name: "Ikigai Explorers", members: 234, desc: "Scopri e vivi il tuo scopo di vita con il metodo Jara", color: "#C9A84C", icon: "⭕" },
+  { id: 1, name: "Ikigai Explorers", members: 234, desc: "Scopri e vivi il tuo scopo di vita con il metodo Luminels", color: "#C9A84C", icon: "⭕" },
   { id: 2, name: "Mindful Leaders", members: 189, desc: "Leadership consapevole per manager e imprenditori", color: "#4A9ED4", icon: "♟" },
   { id: 3, name: "Deep Transformers", members: 142, desc: "Percorsi avanzati — solo VIP. Shadow work e identità sovrana", color: "#9B74E0", icon: "🔥" },
   { id: 4, name: "Morning Ritualists", members: 312, desc: "Condividi e migliora il tuo rituale mattutino quotidiano", color: "#F59E0B", icon: "☀️" },

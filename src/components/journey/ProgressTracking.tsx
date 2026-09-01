@@ -73,7 +73,7 @@ const ProgressTracking: React.FC = () => {
             {/* Header */}
             <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} className="mb-10">
                 <div className="text-[9px] tracking-[0.24em] uppercase mb-2 opacity-70" style={{ color: DL.gold }}>
-                    Metodo Jara · Evoluzione nel tempo
+                    Metodo Michael Luminels · Evoluzione nel tempo
                 </div>
                 <h1 className="font-serif text-[38px] font-normal leading-tight mb-2" style={{ color: DL.white }}>
                     Il tuo <em className="italic" style={{ color: DL.gold }}>Progresso</em>

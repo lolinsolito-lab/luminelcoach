@@ -604,7 +604,7 @@ const AdminDashboard: React.FC = () => {
               </div>
               <div>
                 <div style={{ fontSize: 16, fontWeight: 600, color: DL.white }}>Luminel Admin</div>
-                <div style={{ fontSize: 11, letterSpacing: ".12em", textTransform: "uppercase", color: DL.muted }}>Control Center · Michael Jara</div>
+                <div style={{ fontSize: 11, letterSpacing: ".12em", textTransform: "uppercase", color: DL.muted }}>Control Center · Michael Luminels</div>
               </div>
             </div>
             <div style={{ display: "flex", alignItems: "center", gap: 12 }}>

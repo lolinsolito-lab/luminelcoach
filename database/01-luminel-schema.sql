@@ -139,7 +139,7 @@ CREATE TABLE quests (
   is_featured   BOOLEAN DEFAULT FALSE,
 
   -- Autore
-  author_name   TEXT DEFAULT 'Michael Jara',
+  author_name   TEXT DEFAULT 'Michael Luminels',
   author_avatar TEXT,
 
   -- Stats
@@ -335,14 +335,14 @@ CREATE INDEX idx_council_user       ON council_sessions(user_id, created_at DESC
 CREATE INDEX idx_community_created  ON community_posts(created_at DESC);
 
 -- ============================================================
--- SEED: Quests di default (Michael Jara)
+-- SEED: Quests di default (Michael Luminels)
 -- ============================================================
 INSERT INTO quests (title, description, category, difficulty, duration_days, required_plan, is_featured, author_name, rating, completions) VALUES
 ('Morning Spark',          'Energetizza il tuo risveglio con esercizi brevi e focalizzati.',                  'mindfulness', 'principiante', 7,  'free',    FALSE, 'Luminel Coach', 4.8, 1245),
-('Mindful Moments',        'Brevi pause di consapevolezza per mantenere la mente lucida.',                   'mindfulness', 'principiante', 7,  'free',    FALSE, 'Michael Jara',  4.6, 980),
-('Gratitude Journal',      'Diario guidato per annotare ogni giorno 3 motivi di gratitudine.',               'ikigai',      'principiante', 7,  'free',    FALSE, 'Michael Jara',  4.9, 1520),
-('The Art of Mindful Living','Un viaggio per trasformare le tue abitudini quotidiane e coltivare la pace.', 'mindfulness', 'principiante', 21, 'free',    TRUE,  'Michael Jara',  4.8, 2100),
-('Daily Momentum',         'Abitudini vincenti e mindfulness quotidiana.',                                   'identity',    'intermedio',   30, 'premium', FALSE, 'Michael Jara',  4.9, 780),
-('Emotional Intelligence', 'Sviluppa la capacità di leggere e guidare le emozioni.',                        'relationships','intermedio',  30, 'premium', FALSE, 'Michael Jara',  4.8, 950),
-('Deep Transformation',    'Supera blocchi profondi e sviluppa resilienza e leadership.',                    'identity',    'avanzato',     60, 'vip',     FALSE, 'Michael Jara',  5.0, 320),
-('Empowerment Journey',    'Da pattern limitante a creatore: coaching di auto-leadership.',                  'leadership',  'avanzato',     45, 'vip',     FALSE, 'Michael Jara',  4.9, 280);
+('Mindful Moments',        'Brevi pause di consapevolezza per mantenere la mente lucida.',                   'mindfulness', 'principiante', 7,  'free',    FALSE, 'Michael Luminels',  4.6, 980),
+('Gratitude Journal',      'Diario guidato per annotare ogni giorno 3 motivi di gratitudine.',               'ikigai',      'principiante', 7,  'free',    FALSE, 'Michael Luminels',  4.9, 1520),
+('The Art of Mindful Living','Un viaggio per trasformare le tue abitudini quotidiane e coltivare la pace.', 'mindfulness', 'principiante', 21, 'free',    TRUE,  'Michael Luminels',  4.8, 2100),
+('Daily Momentum',         'Abitudini vincenti e mindfulness quotidiana.',                                   'identity',    'intermedio',   30, 'premium', FALSE, 'Michael Luminels',  4.9, 780),
+('Emotional Intelligence', 'Sviluppa la capacità di leggere e guidare le emozioni.',                        'relationships','intermedio',  30, 'premium', FALSE, 'Michael Luminels',  4.8, 950),
+('Deep Transformation',    'Supera blocchi profondi e sviluppa resilienza e leadership.',                    'identity',    'avanzato',     60, 'vip',     FALSE, 'Michael Luminels',  5.0, 320),
+('Empowerment Journey',    'Da pattern limitante a creatore: coaching di auto-leadership.',                  'leadership',  'avanzato',     45, 'vip',     FALSE, 'Michael Luminels',  4.9, 280);

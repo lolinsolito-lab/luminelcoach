@@ -84,7 +84,7 @@ const CallPage: React.FC = () => {
         "Voice Coach HD (120 minuti inclusi)",
         "Voce Ultra-Realistica (ElevenLabs)",
         "Analisi emotiva post-call con AI",
-        "1 sessione mensile con Michael Jara",
+        "1 sessione mensile con Michael Luminels",
         "Report settimanale del percorso vocale",
         "Accesso prioritario alle nuove voci",
       ],
@@ -302,7 +302,7 @@ const CallPage: React.FC = () => {
           {[
             { num: "01", title: "Premi il pulsante", desc: "Nessuna installazione. Clicca 'Prova la Demo' e sei dentro in 3 secondi.", color: DL.stra },
             { num: "02", title: "Parla liberamente", desc: "Di' quello che hai in mente. Luminel ascolta, comprende e risponde con empatia.", color: DL.gold },
-            { num: "03", title: "Ricevi guida reale", desc: "Domande potenti, Reality Quest vocale, insight basati sul metodo Jara.", color: DL.alch },
+            { num: "03", title: "Ricevi guida reale", desc: "Domande potenti, Reality Quest vocale, insight basati sul metodo Luminels.", color: DL.alch },
           ].map((s, i) => (
             <div key={i} className="flex gap-4 items-start">
               <div className="font-serif text-[30px] font-normal flex-shrink-0 leading-none mt-1" style={{ color: s.color, opacity: 0.35 }}>{s.num}</div>

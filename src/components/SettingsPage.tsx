@@ -216,7 +216,7 @@ const SettingsPage: React.FC = () => {
                                             </button>
                                         </div>
                                         <div>
-                                            <div className="text-[15px] font-medium mb-0.5" style={{ color: DL.white }}>{(user as any)?.fullName ?? "Michael Jara"}</div>
+                                            <div className="text-[15px] font-medium mb-0.5" style={{ color: DL.white }}>{(user as any)?.fullName ?? "Michael Luminels"}</div>
                                             <div className="text-[12px] mb-2" style={{ color: DL.muted }}>{(user as any)?.email ?? "michael@luminelcoach.com"}</div>
                                             <button className="text-[11px] transition-all" style={{ color: DL.gold }}
                                                 onMouseEnter={e => e.currentTarget.style.color = DL.goldBr}

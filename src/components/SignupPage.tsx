@@ -130,7 +130,7 @@ const SignupPage: React.FC = () => {
 
           <form onSubmit={handleSignup} style={{ display: "flex", flexDirection: "column", gap: 16 }}>
             <Field label="Nome completo" type="text" value={name} onChange={setName}
-              placeholder="Michael Jara" autoComplete="name"
+              placeholder="Michael Luminels" autoComplete="name"
               icon={<UserIcon style={{ width: 16, height: 16 }} />} />
             <Field label="Email" type="email" value={email} onChange={setEmail}
               placeholder="nome@esempio.com" autoComplete="email"

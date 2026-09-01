@@ -244,7 +244,7 @@ const EliteBanner: React.FC<{ navigate: (p: string) => void }> = ({ navigate }) 
               </span>
             </div>
             <div style={{ fontSize: 11, color: "#6A6560" }}>
-              1 sessione mensile con Michael Jara · €5.000/anno · Accesso diretto
+              1 sessione mensile con Michael Luminels · €5.000/anno · Accesso diretto
             </div>
           </div>
         </div>

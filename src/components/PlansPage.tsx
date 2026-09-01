@@ -111,9 +111,9 @@ const PIANI = [
     features: [
       { t: "Messaggi illimitati (Luminel Sovereign)", h: true },
       { t: "Il Consiglio dei 4 Archetipi", h: true },
-      { t: "Voice Coach HD 120 min/mese · voce Michael Jara", h: true },
-      { t: "Corsi VIP esclusivi con video di Michael Jara", h: true },
-      { t: "1 sessione live con Michael Jara/mese", h: true },
+      { t: "Voice Coach HD 120 min/mese · voce Michael Luminels", h: true },
+      { t: "Corsi VIP esclusivi con video di Michael Luminels", h: true },
+      { t: "1 sessione live con Michael Luminels/mese", h: true },
       { t: "Report settimanale AI del tuo percorso", h: false },
       { t: "Badge Sovereign + rank community", h: false },
       { t: "Accesso anticipato nuovi contenuti", h: false },
@@ -129,14 +129,14 @@ const COMPARE = [
   { f: "Messaggi AI/giorno", free: "5", starter: "30", premium: "100", vip: "Illimitati" },
   { f: "Modello AI", free: "Luminel Base", starter: "Luminel Base", premium: "Luminel HD", vip: "Luminel Sovereign" },
   { f: "Corsi disponibili", free: "Preview 2L", starter: "3 base", premium: "Tutti + audio", vip: "Tutti + VIP esclusivi" },
-  { f: "Video Michael Jara", free: false, starter: false, premium: false, vip: true },
+  { f: "Video Michael Luminels", free: false, starter: false, premium: false, vip: true },
   { f: "Memoria AI tra sessioni", free: false, starter: "Base", premium: "Profonda", vip: "Profonda + pattern" },
   { f: "Reality Quest", free: "1/sett", starter: "Ogni giorno", premium: "AI + analytics", vip: "Prioritaria + analisi" },
   { f: "Calm Space & Binaural", free: "Base", starter: "Base", premium: "Completo", vip: "Completo" },
-  { f: "Voice Coach", free: "Trailer demo", starter: false, premium: "30 min live/mese", vip: "120 min HD · voce Jara" },
-  { f: "Voce Michael Jara", free: false, starter: false, premium: false, vip: true },
+  { f: "Voice Coach", free: "Trailer demo", starter: false, premium: "30 min live/mese", vip: "120 min HD · voce Luminels" },
+  { f: "Voce Michael Luminels", free: false, starter: false, premium: false, vip: true },
   { f: "Il Consiglio Archetipi", free: false, starter: false, premium: false, vip: true },
-  { f: "Sessione con Michael Jara", free: false, starter: false, premium: false, vip: "1/mese" },
+  { f: "Sessione con Michael Luminels", free: false, starter: false, premium: false, vip: "1/mese" },
   { f: "Community", free: "Lettura", starter: "Completa", premium: "Premium+gruppi", vip: "Sovereign+badge" },
 ];
 
@@ -144,7 +144,7 @@ const COMPARE = [
 const FAQS = [
   {
     q: "Perché Luminel e non ChatGPT o altri AI?",
-    a: "ChatGPT risponde. Luminel trasforma. La differenza è il Metodo Jara: memoria tra sessioni, Reality Quest reali, Il Consiglio dei 4 Archetipi, corsi strutturati. Non stai comprando un chatbot — stai comprando un percorso di crescita con una metodologia provata.",
+    a: "ChatGPT risponde. Luminel trasforma. La differenza è il Metodo Michael Luminels: memoria tra sessioni, Reality Quest reali, Il Consiglio dei 4 Archetipi, corsi strutturati. Non stai comprando un chatbot — stai comprando un percorso di crescita con una metodologia provata.",
   },
   {
     q: "Cos'è il prezzo di lancio Fondatori?",
@@ -156,7 +156,7 @@ const FAQS = [
   },
   {
     q: "Il Voice Coach VIP — come funziona esattamente?",
-    a: "Parli con Luminel a voce. Luminel ti risponde con la voce sintetica HD di Michael Jara (ElevenLabs). Non è un recording — è una sessione AI vocale in tempo reale con la metodologia Jara. 120 minuti inclusi per i VIP.",
+    a: "Parli con Luminel a voce. Luminel ti risponde con la voce sintetica HD di Michael Luminels (ElevenLabs). Non è un recording — è una sessione AI vocale in tempo reale con la metodologia Luminels. 120 minuti inclusi per i VIP.",
   },
   {
     q: "Cosa succede se esaurisco i 120 minuti di Voice Coach HD?",
@@ -168,7 +168,7 @@ const FAQS = [
   },
   {
     q: "I corsi sono diversi per ogni piano?",
-    a: "Sì. Explorer vede solo l'anteprima (prime 2 lezioni). Starter sblocca 3 corsi base con audio. Premium sblocca tutti i corsi con audio. VIP ha tutto Premium più i corsi esclusivi con i video personali di Michael Jara.",
+    a: "Sì. Explorer vede solo l'anteprima (prime 2 lezioni). Starter sblocca 3 corsi base con audio. Premium sblocca tutti i corsi con audio. VIP ha tutto Premium più i corsi esclusivi con i video personali di Michael Luminels.",
   },
 ];
 
@@ -367,7 +367,7 @@ const EliteBand: React.FC = () => (
       <h3 style={{
         fontFamily: "'Cormorant Garamond',serif", fontSize: 28, fontWeight: 300,
         color: DL.white, marginBottom: 6
-      }}>Lavoro diretto con Michael Jara</h3>
+      }}>Lavoro diretto con Michael Luminels</h3>
       <p style={{ fontSize: 13, color: DL.muted }}>Programma annuale personalizzato · Trasformazione garantita</p>
     </div>
     <div style={{ textAlign: "right", zIndex: 1 }}>

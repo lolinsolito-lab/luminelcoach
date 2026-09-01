@@ -110,12 +110,12 @@ const WelcomeStepComponent = memo(() => (
       style={{ background: DL.goldDim, border: `0.5px solid ${DL.goldB}` }}>
       <div className="w-10 h-10" style={{ background: `linear-gradient(135deg, ${DL.goldBr}, ${DL.gold})`, clipPath: 'polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%)' }} />
     </motion.div>
-    <div className="text-[9px] tracking-[0.28em] uppercase mb-3 opacity-70" style={{ color: DL.gold }}>Insolito Experiences · Metodo Jara</div>
+    <div className="text-[9px] tracking-[0.28em] uppercase mb-3 opacity-70" style={{ color: DL.gold }}>Insolito Experiences · Metodo Michael Luminels</div>
     <h2 className="font-serif text-[34px] md:text-[42px] font-normal leading-tight mb-4" style={{ color: DL.white }}>
       Benvenuto in <em className="italic" style={{ color: DL.gold }}>Luminel</em>
     </h2>
     <p className="text-[14px] leading-relaxed mb-10 max-w-md mx-auto" style={{ color: DL.muted }}>
-      Il tuo percorso di crescita trasformativa basato sull'Ikigai, guidato dall'intelligenza artificiale e dal metodo di Michael Jara.
+      Il tuo percorso di crescita trasformativa basato sull'Ikigai, guidato dall'intelligenza artificiale e dal metodo di Michael Luminels.
     </p>
     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-2xl mx-auto mb-10">
       {[
@@ -488,7 +488,7 @@ const VideoPlayer = memo<{ onEnd: () => void; onSkip: () => void; deviceType: st
       </motion.div>
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}>
         <div className="text-[9px] tracking-[0.3em] uppercase mb-3 opacity-60" style={{ color: DL.gold }}>
-          Insolito Experiences · Michael Jara
+          Insolito Experiences · Michael Luminels
         </div>
         <h1 className="font-serif text-[44px] md:text-[56px] font-normal leading-tight mb-4" style={{ color: DL.white }}>
           Luminel<br /><em className="italic" style={{ color: DL.gold }}>Coach Transformational</em>

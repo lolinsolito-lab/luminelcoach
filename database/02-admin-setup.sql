@@ -8,7 +8,7 @@ ALTER TABLE public.profiles
   ADD COLUMN IF NOT EXISTS role TEXT DEFAULT 'user'
   CHECK (role IN ('user', 'admin'));
 
--- 2. Imposta Michael Jara come admin
+-- 2. Imposta Michael Luminels come admin
 -- Sostituisci con la tua email reale
 UPDATE public.profiles
 SET role = 'admin'

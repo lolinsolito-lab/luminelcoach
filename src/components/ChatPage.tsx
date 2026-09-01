@@ -113,10 +113,10 @@ const ConvItem: React.FC<{ label: string; preview: string; time: string; active:
 
 // ─── QUICK PROMPTS ────────────────────────────────────────────────────────────
 const QUICK_PROMPTS = [
-  "Come posso trovare il mio Ikigai?",
-  "Aiutami con la mia Reality Quest",
-  "Voglio parlare dei miei obiettivi",
-  "Ho bisogno di chiarezza su una decisione",
+  "Ho un blocco e sto evitando una decisione.",
+  "Costruiamo la strategia per la mia Reality Quest.",
+  "Analizziamo il mio livello di energia attuale.",
+  "Ho bisogno della prospettiva del Consiglio.",
 ];
 
 // ─── MAIN COMPONENT ───────────────────────────────────────────────────────────
