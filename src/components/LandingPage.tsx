@@ -38,7 +38,7 @@ const LandingPage: React.FC = () => {
   return (
     <div style={{ position: 'fixed', inset: 0, zIndex: 99999, background: '#06060F' }}>
       <iframe 
-        src="/luminel-landing.html?v=7" 
+        src="/luminel-landing.html?v=9" 
         title="Luminel Transformational"
         style={{ width: '100%', height: '100%', border: 'none', display: 'block' }}
       />
