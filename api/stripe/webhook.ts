@@ -30,16 +30,21 @@ export default async function handler(req: any, res: any) {
 
   let event: Stripe.Event;
 
+  // ── SICUREZZA BLINDATA: La firma è OBBLIGATORIA in produzione ──────────────
+  if (!webhookSecret) {
+    console.error('🔴 CRITICO: STRIPE_WEBHOOK_SECRET non configurato. Rifiuto la richiesta.');
+    return res.status(500).json({ error: 'Server misconfiguration: missing webhook secret.' });
+  }
+
+  if (!sig) {
+    console.error('🔴 SICUREZZA: Header stripe-signature mancante. Possibile attacco.');
+    return res.status(400).json({ error: 'Missing stripe-signature header.' });
+  }
+
   try {
-    if (!webhookSecret) {
-      // Fallback: accetta l'evento senza verifica firma (NON SICURO, ma utile per test rapidi)
-      console.warn("⚠️ STRIPE_WEBHOOK_SECRET mancante. Verifica disabilitata.");
-      event = JSON.parse(buf.toString());
-    } else {
-      event = stripe.webhooks.constructEvent(buf, sig, webhookSecret);
-    }
+    event = stripe.webhooks.constructEvent(buf, sig, webhookSecret);
   } catch (err: any) {
-    console.error('Webhook Error:', err.message);
+    console.error('Webhook Signature Error:', err.message);
     return res.status(400).send(`Webhook Error: ${err.message}`);
   }
 

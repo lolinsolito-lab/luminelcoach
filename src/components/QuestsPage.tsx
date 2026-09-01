@@ -308,11 +308,11 @@ const QuestsPage: React.FC = () => {
             )}
 
             {/* Featured */}
-            <motion.div initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.32, delay: 0.1 }}
+            <motion.div initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }}
+                whileHover={{ scale: 1.004 }} transition={{ default: { duration: 0.32, delay: 0.1 }, hover: { duration: 0.16 } }}
                 onClick={() => setSelected(featured)}
                 className="relative overflow-hidden rounded-2xl p-8 md:p-10 mb-10 cursor-pointer group"
-                style={{ background: "linear-gradient(135deg,rgba(201,168,76,0.08) 0%,rgba(90,50,180,0.1) 100%)", border: "0.5px solid rgba(201,168,76,0.28)" }}
-                whileHover={{ scale: 1.004 }} transition={{ duration: 0.16 }}>
+                style={{ background: "linear-gradient(135deg,rgba(201,168,76,0.08) 0%,rgba(90,50,180,0.1) 100%)", border: "0.5px solid rgba(201,168,76,0.28)" }}>
                 <div className="absolute top-0 left-0 right-0 h-px" style={{ background: "linear-gradient(90deg,transparent,rgba(201,168,76,0.55),transparent)" }} />
                 <div className="absolute -top-12 -right-12 w-52 h-52 rounded-full pointer-events-none" style={{ background: "rgba(201,168,76,0.06)", filter: "blur(40px)" }} />
                 <div className="relative z-10 max-w-xl">

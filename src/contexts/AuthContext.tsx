@@ -86,6 +86,9 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 // ─── HELPER: mappa profilo DB → UserProfile ───────────────────────────────────
+// ⚖️ GDPR Art. 7: il consenso deve essere ESPLICITO e non pre-selezionato.
+// Leggiamo i consensi dal DB (impostati dall'utente durante l'onboarding).
+// Il default è FALSE in caso di dato mancante.
 function mapProfile(supabaseUser: User, dbProfile: any): UserProfile {
   return {
     id: supabaseUser.id,
@@ -113,11 +116,17 @@ function mapProfile(supabaseUser: User, dbProfile: any): UserProfile {
     // Compatibilità
     goals: dbProfile?.ikigai_loves ?? [],
     experience: dbProfile?.ikigai_stage === 'scoperta' ? 'beginner' : 'intermediate',
-    privacyConsents: { dataProcessing: true, analytics: true, notifications: true },
-    sessionDuration: '10',
-    preferredTime: 'morning',
-    voiceGender: 'female',
-    backgroundSound: 'nature',
+    // ⚖️ GDPR FIX: Legge i consensi reali dal DB. Default = false (opt-out).
+    // L'utente deve esprimere consenso ESPLICITO durante WelcomePage onboarding.
+    privacyConsents: {
+      dataProcessing: dbProfile?.consent_data_processing ?? false,
+      analytics: dbProfile?.consent_analytics ?? false,
+      notifications: dbProfile?.consent_notifications ?? false,
+    },
+    sessionDuration: dbProfile?.session_duration ?? '10',
+    preferredTime: dbProfile?.preferred_time ?? 'morning',
+    voiceGender: dbProfile?.voice_gender ?? 'female',
+    backgroundSound: dbProfile?.background_sound ?? 'nature',
     user_metadata: supabaseUser.user_metadata,
   };
 }
@@ -141,21 +150,33 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       console.error('loadProfile error:', error);
     }
 
-    // Se il profilo non esiste ancora (primo login), il trigger lo crea
-    // ma potrebbe non essere ancora disponibile — ritentiamo
+    // ⚡ FIX RACE CONDITION: Se il profilo non esiste ancora (primo login),
+    // il trigger DB lo sta creando in background. Ritentiamo fino a 3 volte
+    // con 1 secondo di intervallo invece di un singolo timeout arbitrario.
     let finalData = data;
     if (!data) {
-      await new Promise(r => setTimeout(r, 800));
-      const { data: retryData } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', sbUser.id)
-        .single();
-      finalData = retryData;
-      setProfile(mapProfile(sbUser, retryData));
+      const MAX_RETRIES = 3;
+      const RETRY_DELAY_MS = 1000;
+      for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
+        await new Promise(r => setTimeout(r, RETRY_DELAY_MS));
+        const { data: retryData } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', sbUser.id)
+          .single();
+        if (retryData) {
+          finalData = retryData;
+          break;
+        }
+        if (attempt === MAX_RETRIES) {
+          console.warn(`[loadProfile] Profilo non trovato dopo ${MAX_RETRIES} tentativi per user ${sbUser.id}. Il trigger DB potrebbe non essere configurato.`);
+        }
+      }
+      setProfile(mapProfile(sbUser, finalData));
     } else {
       setProfile(mapProfile(sbUser, data));
     }
+
 
     // AGGIUNGI: sync onboarding pending
     const pendingRaw = localStorage.getItem('luminel_pending_onboarding');

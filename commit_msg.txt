@@ -1,0 +1,12 @@
+refactor: architettura src, security, GDPR, EU AI Act, Privacy Policy
+
+- Codice sorgente spostato in src/ (struttura Vite standard)
+- Database SQL numerati in database/ con ordine di esecuzione
+- Script ausiliari in scripts/, docs in docs/
+- SECURITY: Webhook Stripe blindato - firma obbligatoria in produzione
+- FIX: Race condition AuthContext sostituita con retry loop 3 tentativi
+- GDPR: Consensi letti dal DB (default false, opt-in esplicito)
+- BUG: Attributo transition duplicato rimosso da QuestsPage.tsx
+- LEGAL: EU AI Act Art.52 disclosure in ChatPage (badge AI + footer)
+- LEGAL: Pagina Privacy Policy e ToS completa su route /legal
+- CLEANUP: File .bak e cartella Control rimossi da src/

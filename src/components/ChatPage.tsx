@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 import {
   PaperAirplaneIcon, SparklesIcon, PlusIcon,
   EllipsisHorizontalIcon, Bars3Icon, XMarkIcon,
@@ -121,6 +122,7 @@ const QUICK_PROMPTS = [
 // ─── MAIN COMPONENT ───────────────────────────────────────────────────────────
 const ChatPage: React.FC = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
 
   const [showIntro, setShowIntro] = useState(() => localStorage.getItem("luminel_chat_intro_seen") !== "true");
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -330,8 +332,16 @@ const ChatPage: React.FC = () => {
                 style={{ background: "#3DB87A", borderColor: DL.deep }} />
             </div>
             <div>
-              <div className="text-[14px] font-medium" style={{ color: DL.white }}>Luminel</div>
-              <div className="text-[10px] tracking-[0.1em] uppercase" style={{ color: DL.muted }}>Coach Trasformativo · Online</div>
+              <div className="flex items-center gap-2">
+                <span className="text-[14px] font-medium" style={{ color: DL.white }}>Luminel</span>
+                {/* EU AI Act Art. 52 — Disclosure obbligatorio: sistema AI */}
+                <span className="px-1.5 py-0.5 rounded text-[8px] tracking-[0.12em] uppercase font-medium flex-shrink-0"
+                  style={{ background: "rgba(201,168,76,0.1)", border: "0.5px solid rgba(201,168,76,0.3)", color: "#C9A84C" }}
+                  title="Ai sensi dell'EU AI Act 2024/1689 Art. 52: stai interagendo con un sistema di intelligenza artificiale">
+                  AI
+                </span>
+              </div>
+              <div className="text-[10px] tracking-[0.1em] uppercase" style={{ color: DL.muted }}>Coach Trasformativo · Sistema AI · Online</div>
             </div>
           </div>
 
@@ -413,8 +423,20 @@ const ChatPage: React.FC = () => {
             </motion.p>
           )}
 
-          <p className="text-center text-[10px] mt-2" style={{ color: DL.muted }}>
-            Luminel AI Coach · Sviluppo personale ai sensi della Legge 4/2013 · Non è un servizio medico · <span style={{ color: DL.muted }}>Invio: Enter · A capo: Shift+Enter</span>
+          {/* ⚖️ EU AI Act 2024/1689 Art. 52 + Legge 4/2013 — Disclosure obbligatorio */}
+          <p className="text-center text-[10px] mt-2 leading-relaxed" style={{ color: DL.muted }}>
+            <span style={{ color: "rgba(201,168,76,0.5)" }}>⚠ Sistema AI</span>
+            {" · "}
+            Luminel è un'intelligenza artificiale. Non è un terapeuta, medico o professionista sanitario.
+            {" · "}
+            Legge 4/2013
+            {" · "}
+            <button onClick={() => navigate('/legal')}
+              style={{ color: DL.gold, background: 'none', border: 'none', cursor: 'pointer', fontSize: 10, padding: 0, textDecoration: 'underline' }}>
+              Privacy & Termini
+            </button>
+            {" · "}
+            <span style={{ color: DL.muted, opacity: 0.6 }}>Enter: invia · Shift+Enter: a capo</span>
           </p>
         </div>
       </div>

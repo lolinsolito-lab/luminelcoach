@@ -23,6 +23,7 @@ import ExperiencesPage from './components/ExperiencesPage';
 import QuestsPage from './components/QuestsPage';
 import CouncilPage from './pages/CouncilPage';
 import AdminDashboard from './pages/AdminDashboard';
+import LegalPage from './pages/LegalPage';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { ProgressProvider } from './contexts/ProgressContext';
 import { ThemeProvider } from './contexts/ThemeContext';
@@ -225,6 +226,7 @@ const AppRoutes: React.FC = () => {
         }
       />
       <Route path="/admin" element={<AdminDashboard />} />
+      <Route path="/legal" element={<LegalPage />} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
