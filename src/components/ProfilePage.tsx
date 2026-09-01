@@ -10,6 +10,7 @@ import {
 import { FireIcon as FireSolid, StarIcon as StarSolid } from "@heroicons/react/24/solid";
 import { useAuth } from "../contexts/AuthContext";
 import { useProgress } from "../contexts/ProgressContext";
+import IkigaiShareModal from "./IkigaiShareModal";
 
 // ─── TOKENS ──────────────────────────────────────────────────────────────────
 const DL = {
@@ -91,6 +92,7 @@ const ProfilePage: React.FC = () => {
   const { user, signOut } = useAuth();
   const { streak, xp, level, weeklyProgress, weeklyGoal } = useProgress();
   const navigate = useNavigate();
+  const [isShareModalOpen, setIsShareModalOpen] = React.useState(false);
 
   const handleLogout = () => { signOut(); navigate("/"); };
 
@@ -166,14 +168,23 @@ const ProfilePage: React.FC = () => {
           </div>
         </div>
 
-        {/* Edit button */}
-        <button onClick={() => navigate('/settings')}
-          className="flex-shrink-0 flex items-center gap-2 px-5 py-2.5 rounded-xl text-[12px] font-medium transition-all"
-          style={{ background: DL.glass, border: `0.5px solid ${DL.glassB}`, color: DL.muted }}
-          onMouseEnter={e => { e.currentTarget.style.borderColor = DL.goldB; e.currentTarget.style.color = DL.white }}
-          onMouseLeave={e => { e.currentTarget.style.borderColor = DL.glassB; e.currentTarget.style.color = DL.muted }}>
-          Modifica profilo
-        </button>
+        {/* Actions */}
+        <div className="flex-shrink-0 flex flex-col gap-2">
+          <button onClick={() => navigate('/settings')}
+            className="flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl text-[12px] font-medium transition-all"
+            style={{ background: DL.glass, border: `0.5px solid ${DL.glassB}`, color: DL.muted }}
+            onMouseEnter={e => { e.currentTarget.style.borderColor = DL.goldB; e.currentTarget.style.color = DL.white }}
+            onMouseLeave={e => { e.currentTarget.style.borderColor = DL.glassB; e.currentTarget.style.color = DL.muted }}>
+            Modifica profilo
+          </button>
+          <button onClick={() => setIsShareModalOpen(true)}
+            className="flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl text-[12px] font-medium transition-all"
+            style={{ background: DL.goldDim, border: `0.5px solid ${DL.goldB}`, color: DL.gold }}
+            onMouseEnter={e => { e.currentTarget.style.background = DL.gold; e.currentTarget.style.color = "#000" }}
+            onMouseLeave={e => { e.currentTarget.style.background = DL.goldDim; e.currentTarget.style.color = DL.gold }}>
+            Condividi Ikigai
+          </button>
+        </div>
       </motion.div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -282,10 +293,10 @@ const ProfilePage: React.FC = () => {
           </motion.div>
         </div>
       </div>
+      <IkigaiShareModal isOpen={isShareModalOpen} onClose={() => setIsShareModalOpen(false)} user={user} levelName={levelName} />
 
       {/* ── MODALS REMOVED — use /settings page ── */}
     </div>
   );
 };
-
 export default ProfilePage;
